@@ -1,0 +1,524 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'quiz_state.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+// dart format off
+T _$identity<T>(T value) => value;
+/// @nodoc
+mixin _$QuizState {
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizState);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'QuizState()';
+}
+
+
+}
+
+/// @nodoc
+class $QuizStateCopyWith<$Res>  {
+$QuizStateCopyWith(QuizState _, $Res Function(QuizState) __);
+}
+
+
+/// Adds pattern-matching-related methods to [QuizState].
+extension QuizStatePatterns on QuizState {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( QuizLoading value)?  loading,TResult Function( QuizAnswering value)?  answering,TResult Function( QuizShowingResult value)?  showingResult,TResult Function( QuizCompleted value)?  completed,TResult Function( QuizError value)?  error,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case QuizLoading() when loading != null:
+return loading(_that);case QuizAnswering() when answering != null:
+return answering(_that);case QuizShowingResult() when showingResult != null:
+return showingResult(_that);case QuizCompleted() when completed != null:
+return completed(_that);case QuizError() when error != null:
+return error(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( QuizLoading value)  loading,required TResult Function( QuizAnswering value)  answering,required TResult Function( QuizShowingResult value)  showingResult,required TResult Function( QuizCompleted value)  completed,required TResult Function( QuizError value)  error,}){
+final _that = this;
+switch (_that) {
+case QuizLoading():
+return loading(_that);case QuizAnswering():
+return answering(_that);case QuizShowingResult():
+return showingResult(_that);case QuizCompleted():
+return completed(_that);case QuizError():
+return error(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( QuizLoading value)?  loading,TResult? Function( QuizAnswering value)?  answering,TResult? Function( QuizShowingResult value)?  showingResult,TResult? Function( QuizCompleted value)?  completed,TResult? Function( QuizError value)?  error,}){
+final _that = this;
+switch (_that) {
+case QuizLoading() when loading != null:
+return loading(_that);case QuizAnswering() when answering != null:
+return answering(_that);case QuizShowingResult() when showingResult != null:
+return showingResult(_that);case QuizCompleted() when completed != null:
+return completed(_that);case QuizError() when error != null:
+return error(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult Function( int correctCount,  int totalCount)?  completed,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case QuizLoading() when loading != null:
+return loading();case QuizAnswering() when answering != null:
+return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
+return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
+return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
+return error(_that.message);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)  answering,required TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)  showingResult,required TResult Function( int correctCount,  int totalCount)  completed,required TResult Function( String message)  error,}) {final _that = this;
+switch (_that) {
+case QuizLoading():
+return loading();case QuizAnswering():
+return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult():
+return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted():
+return completed(_that.correctCount,_that.totalCount);case QuizError():
+return error(_that.message);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult? Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult? Function( int correctCount,  int totalCount)?  completed,TResult? Function( String message)?  error,}) {final _that = this;
+switch (_that) {
+case QuizLoading() when loading != null:
+return loading();case QuizAnswering() when answering != null:
+return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
+return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
+return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
+return error(_that.message);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class QuizLoading implements QuizState {
+  const QuizLoading();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizLoading);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'QuizState.loading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class QuizAnswering implements QuizState {
+  const QuizAnswering({required final  List<Problem> problems, required this.currentIndex, required final  Set<String> selectedOptionIds}): _problems = problems,_selectedOptionIds = selectedOptionIds;
+  
+
+ final  List<Problem> _problems;
+ List<Problem> get problems {
+  if (_problems is EqualUnmodifiableListView) return _problems;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_problems);
+}
+
+ final  int currentIndex;
+ final  Set<String> _selectedOptionIds;
+ Set<String> get selectedOptionIds {
+  if (_selectedOptionIds is EqualUnmodifiableSetView) return _selectedOptionIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_selectedOptionIds);
+}
+
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuizAnsweringCopyWith<QuizAnswering> get copyWith => _$QuizAnsweringCopyWithImpl<QuizAnswering>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizAnswering&&const DeepCollectionEquality().equals(other._problems, _problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_problems),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds));
+
+@override
+String toString() {
+  return 'QuizState.answering(problems: $problems, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuizAnsweringCopyWith<$Res> implements $QuizStateCopyWith<$Res> {
+  factory $QuizAnsweringCopyWith(QuizAnswering value, $Res Function(QuizAnswering) _then) = _$QuizAnsweringCopyWithImpl;
+@useResult
+$Res call({
+ List<Problem> problems, int currentIndex, Set<String> selectedOptionIds
+});
+
+
+
+
+}
+/// @nodoc
+class _$QuizAnsweringCopyWithImpl<$Res>
+    implements $QuizAnsweringCopyWith<$Res> {
+  _$QuizAnsweringCopyWithImpl(this._self, this._then);
+
+  final QuizAnswering _self;
+  final $Res Function(QuizAnswering) _then;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? problems = null,Object? currentIndex = null,Object? selectedOptionIds = null,}) {
+  return _then(QuizAnswering(
+problems: null == problems ? _self._problems : problems // ignore: cast_nullable_to_non_nullable
+as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+as int,selectedOptionIds: null == selectedOptionIds ? _self._selectedOptionIds : selectedOptionIds // ignore: cast_nullable_to_non_nullable
+as Set<String>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class QuizShowingResult implements QuizState {
+  const QuizShowingResult({required final  List<Problem> problems, required this.currentIndex, required final  Set<String> selectedOptionIds, required this.isCorrect}): _problems = problems,_selectedOptionIds = selectedOptionIds;
+  
+
+ final  List<Problem> _problems;
+ List<Problem> get problems {
+  if (_problems is EqualUnmodifiableListView) return _problems;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_problems);
+}
+
+ final  int currentIndex;
+ final  Set<String> _selectedOptionIds;
+ Set<String> get selectedOptionIds {
+  if (_selectedOptionIds is EqualUnmodifiableSetView) return _selectedOptionIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_selectedOptionIds);
+}
+
+ final  bool isCorrect;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuizShowingResultCopyWith<QuizShowingResult> get copyWith => _$QuizShowingResultCopyWithImpl<QuizShowingResult>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizShowingResult&&const DeepCollectionEquality().equals(other._problems, _problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_problems),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds),isCorrect);
+
+@override
+String toString() {
+  return 'QuizState.showingResult(problems: $problems, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds, isCorrect: $isCorrect)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuizShowingResultCopyWith<$Res> implements $QuizStateCopyWith<$Res> {
+  factory $QuizShowingResultCopyWith(QuizShowingResult value, $Res Function(QuizShowingResult) _then) = _$QuizShowingResultCopyWithImpl;
+@useResult
+$Res call({
+ List<Problem> problems, int currentIndex, Set<String> selectedOptionIds, bool isCorrect
+});
+
+
+
+
+}
+/// @nodoc
+class _$QuizShowingResultCopyWithImpl<$Res>
+    implements $QuizShowingResultCopyWith<$Res> {
+  _$QuizShowingResultCopyWithImpl(this._self, this._then);
+
+  final QuizShowingResult _self;
+  final $Res Function(QuizShowingResult) _then;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? problems = null,Object? currentIndex = null,Object? selectedOptionIds = null,Object? isCorrect = null,}) {
+  return _then(QuizShowingResult(
+problems: null == problems ? _self._problems : problems // ignore: cast_nullable_to_non_nullable
+as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+as int,selectedOptionIds: null == selectedOptionIds ? _self._selectedOptionIds : selectedOptionIds // ignore: cast_nullable_to_non_nullable
+as Set<String>,isCorrect: null == isCorrect ? _self.isCorrect : isCorrect // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class QuizCompleted implements QuizState {
+  const QuizCompleted({required this.correctCount, required this.totalCount});
+  
+
+ final  int correctCount;
+ final  int totalCount;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuizCompletedCopyWith<QuizCompleted> get copyWith => _$QuizCompletedCopyWithImpl<QuizCompleted>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizCompleted&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,correctCount,totalCount);
+
+@override
+String toString() {
+  return 'QuizState.completed(correctCount: $correctCount, totalCount: $totalCount)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuizCompletedCopyWith<$Res> implements $QuizStateCopyWith<$Res> {
+  factory $QuizCompletedCopyWith(QuizCompleted value, $Res Function(QuizCompleted) _then) = _$QuizCompletedCopyWithImpl;
+@useResult
+$Res call({
+ int correctCount, int totalCount
+});
+
+
+
+
+}
+/// @nodoc
+class _$QuizCompletedCopyWithImpl<$Res>
+    implements $QuizCompletedCopyWith<$Res> {
+  _$QuizCompletedCopyWithImpl(this._self, this._then);
+
+  final QuizCompleted _self;
+  final $Res Function(QuizCompleted) _then;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? correctCount = null,Object? totalCount = null,}) {
+  return _then(QuizCompleted(
+correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
+as int,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class QuizError implements QuizState {
+  const QuizError(this.message);
+  
+
+ final  String message;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuizErrorCopyWith<QuizError> get copyWith => _$QuizErrorCopyWithImpl<QuizError>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizError&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'QuizState.error(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuizErrorCopyWith<$Res> implements $QuizStateCopyWith<$Res> {
+  factory $QuizErrorCopyWith(QuizError value, $Res Function(QuizError) _then) = _$QuizErrorCopyWithImpl;
+@useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$QuizErrorCopyWithImpl<$Res>
+    implements $QuizErrorCopyWith<$Res> {
+  _$QuizErrorCopyWithImpl(this._self, this._then);
+
+  final QuizError _self;
+  final $Res Function(QuizError) _then;
+
+/// Create a copy of QuizState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(QuizError(
+null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on
