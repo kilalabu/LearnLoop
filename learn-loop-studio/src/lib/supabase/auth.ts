@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { createServiceClient, getPlaceholderUserId } from './server';
+import { createServiceClient, getPlaceholderUserId } from './client';
 
 type AuthResult = { supabase: SupabaseClient; userId: string };
 

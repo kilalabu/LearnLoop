@@ -1,7 +1,7 @@
 import { generateText, Output } from 'ai';
-import { GenerateQuizResponseSchema, GeneratedQuizResponse } from '../data/dto/quiz-schema';
-import { WebScraper } from '../data/sources/web-scraper';
-import { getModel } from '../ai/models';
+import { GenerateQuizResponseSchema, GeneratedQuizResponse } from '@/domain/quiz';
+import { WebScraper } from './web-scraper';
+import { getModel } from '@/lib/ai/models';
 
 const SYSTEM_PROMPT = `あなたは「知識」を定着させるための専門家です。
 ### 問題作成の指針
@@ -12,7 +12,7 @@ const SYSTEM_PROMPT = `あなたは「知識」を定着させるための専門
 - 言語: 日本語
 `;
 
-export class QuizRepository {
+export class QuizGenerator {
   private scraper: WebScraper;
 
   constructor() {

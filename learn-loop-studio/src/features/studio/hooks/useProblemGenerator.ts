@@ -3,7 +3,7 @@ import { Problem } from '../types/Problem';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 
-/** /api/ai/quiz/generate のレスポンス内の個別クイズ */
+/** /api/quiz/generate のレスポンス内の個別クイズ */
 interface GeneratedQuiz {
   question: string;
   options: string[];
@@ -33,7 +33,7 @@ export const useProblemGenerator = () => {
     setIsGenerating(true);
 
     try {
-      const response = await fetch('/api/ai/quiz/generate', {
+      const response = await fetch('/api/quiz/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * CORS Middleware
+ * CORS Proxy
  *
  * Flutter アプリからの API リクエストを許可するために CORS ヘッダーを付与する。
  * ネイティブモバイルアプリは CORS 制約を受けないが、
  * Flutter Web デバッグや curl テスト時に必要。
  */
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   // プリフライトリクエスト (OPTIONS)
   if (req.method === 'OPTIONS') {
     return new NextResponse(null, {

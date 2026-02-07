@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+// ---------------------------------------------------------------------------
+// AI 出力スキーマ（Zod）
+// ---------------------------------------------------------------------------
+
 export const QuizOptionSchema = z.string().describe(
   "選択肢のテキスト。誤答も「よくある誤解」や「一見正解に見えるもの」にし、それ自体が学びになる内容にすること。"
 );
@@ -28,3 +32,33 @@ export const GenerateQuizResponseSchema = z.object({
 
 export type Quiz = z.infer<typeof QuizSchema>;
 export type GeneratedQuizResponse = z.infer<typeof GenerateQuizResponseSchema>;
+
+// ---------------------------------------------------------------------------
+// DB 入出力型
+// ---------------------------------------------------------------------------
+
+/** save API の入力型（フロントエンドの Problem → DB 行へのマッピング用） */
+export interface SaveQuizInput {
+  id: string;
+  question: string;
+  options: { id: string; text: string; isCorrect: boolean }[];
+  explanation: string;
+  category: string;
+  sourceType: 'text' | 'url' | 'manual';
+  sourceUrl?: string;
+}
+
+/** today API の出力型（Flutter Quiz モデル形式） */
+export interface FormattedQuiz {
+  id: string;
+  question: string;
+  options: {
+    id: string;
+    label: string;
+    text: string;
+    isCorrect: boolean;
+  }[];
+  explanation: string;
+  sourceUrl: string | null;
+  genre: string;
+}

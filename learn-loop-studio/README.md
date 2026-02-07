@@ -17,29 +17,35 @@ LearnLoop Studio は、学習テキストから AI を用いて「選択式ク�
 
 今後の開発における統一感を保つため、以下のルールを遵守してください。
 
-### 1. ディレクトリ構成 (Feature-based)
+### 1. ディレクトリ構成 (Clean Architecture)
 
-機能ごとにディレクトリを分割する **Feature-based** アーキテクチャを採用しています。
+責務ごとにディレクトリを分割する Clean Architecture ベースの構成を採用しています。
 
-- **`src/features/<feature-name>/`**: 
-  - 特定の機能ドメインに関するすべてのコード（コンポーネント、フック、型）をここに格納します。
-  - 今回のメイン機能は `src/features/studio` に集約しています。
-- **`src/components/ui/`**: 
-  - プロジェクト全体で共有される汎用UIコンポーネント（ボタン、カード、入力フォームなど）。
-  - 基本的に `shadcn/ui` で生成されたものがここに入ります。
-- **`src/lib/`**: 
-  - ユーティリティ、モックデータ、APIクライアントなどの共有ロジック。
+| ディレクトリ | 役割 |
+|---|---|
+| `app/` | Routing: 画面定義 & HTTP レイヤー（ロジックは置かない） |
+| `domain/` | Entities: Zod スキーマ、共有の型定義 |
+| `repositories/` | Data: Supabase 操作。純粋な DB I/O のみ |
+| `services/` | UseCases: AI 処理、スクレイピング等、重いロジック |
+| `features/` | UI + Logic: 画面に紐づく hooks, components |
+| `lib/` | Infrastructure: Supabase Client, AI Client の初期化設定 |
+| `components/ui/` | shadcn UI パーツ（全画面共有） |
 
 ```text
 src/
-├── app/                  # Next.js App Router (ページ定義)
+├── app/                  # Next.js App Router (ページ & API Routes)
+│   └── api/quiz/         # 全APIエンドポイント (/api/quiz/*)
+├── domain/               # 共有型・Zodスキーマ
+├── repositories/         # DB操作 (Supabaseクエリ)
+├── services/             # AI問題生成・Webスクレイピング
 ├── features/
 │   └── studio/           # 問題生成機能 (Studio)
 │       ├── components/   # GenerateScreen, PreviewScreen, ProblemCard
-│       ├── hooks/        # ビジネスロジック (useProblemGenerator)
-│       └── types/        # 型定義 (Problem)
+│       ├── hooks/        # 状態管理 (useProblemGenerator)
+│       └── types/        # UI固有の型定義 (Problem)
+├── lib/                  # インフラ (Supabase/AIクライアント初期化, utils)
 ├── components/ui/        # 共通UI (shadcn/ui)
-└── lib/                  # ユーティリティ
+└── proxy.ts              # CORS設定 (API Routesのみ適用)
 ```
 
 ### 2. コーディング規約 (Flutter/Compose エンジニア向け)

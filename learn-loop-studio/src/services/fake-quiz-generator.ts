@@ -1,4 +1,4 @@
-import { GeneratedQuizResponse } from '../data/dto/quiz-schema';
+import { GeneratedQuizResponse } from '@/domain/quiz';
 
 const FAKE_RESPONSE: GeneratedQuizResponse = {
   topic: 'Docker & REST API の基礎（Fake）',
@@ -62,16 +62,16 @@ const res = await fetch('/api/users', {
   ],
 };
 
-export class FakeQuizRepository {
+export class FakeQuizGenerator {
   async generateQuizFromText(_text: string, _modelId?: string): Promise<GeneratedQuizResponse> {
-    console.log('FakeQuizRepository: generateQuizFromText called');
+    console.log('FakeQuizGenerator: generateQuizFromText called');
     console.log('Input _text:', _text);
     console.log('Input _modelId:', _modelId);
     return FAKE_RESPONSE;
   }
 
   async generateQuizFromUrl(_url: string, _modelId?: string): Promise<GeneratedQuizResponse> {
-    console.log('FakeQuizRepository: generateQuizFromUrl called');
+    console.log('FakeQuizGenerator: generateQuizFromUrl called');
     console.log('Input _url:', _url);
     console.log('Input _modelId:', _modelId);
     return FAKE_RESPONSE;

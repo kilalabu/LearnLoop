@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateOrFallback } from '@/lib/supabase/auth';
-
-interface SaveQuizItem {
-  id: string;
-  question: string;
-  options: { id: string; text: string; isCorrect: boolean }[];
-  explanation: string;
-  category: string;
-  sourceType: 'text' | 'url' | 'manual';
-  sourceUrl?: string;
-}
+import { QuizRepository } from '@/repositories/quiz-repository';
+import { SaveQuizInput } from '@/domain/quiz';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { quizzes } = body as { quizzes: SaveQuizItem[] };
+    const { quizzes } = body as { quizzes: SaveQuizInput[] };
 
     if (!quizzes || !Array.isArray(quizzes) || quizzes.length === 0) {
       return NextResponse.json(
@@ -25,36 +17,13 @@ export async function POST(req: NextRequest) {
 
     const auth = await authenticateOrFallback(req);
     if (auth instanceof NextResponse) return auth;
-    const { supabase, userId } = auth;
 
-    // フロントエンドの Problem → DB の quizzes テーブル行にマッピング
-    const rows = quizzes.map((quiz) => ({
-      id: quiz.id,
-      user_id: userId,
-      question: quiz.question,
-      options: quiz.options,
-      explanation: quiz.explanation,
-      category: quiz.category,
-      source_type: quiz.sourceType === 'text' ? 'manual' : quiz.sourceType,
-      source_url: quiz.sourceUrl || null,
-    }));
-
-    const { data, error } = await supabase
-      .from('quizzes')
-      .insert(rows)
-      .select('id');
-
-    if (error) {
-      console.error('Supabase insert error:', error);
-      return NextResponse.json(
-        { error: `保存に失敗しました: ${error.message}` },
-        { status: 500 }
-      );
-    }
+    const repo = new QuizRepository(auth.supabase, auth.userId);
+    const { savedIds } = await repo.save(quizzes);
 
     return NextResponse.json({
-      message: `${data.length} 問のクイズを保存しました。`,
-      savedIds: data.map((row: { id: string }) => row.id),
+      message: `${savedIds.length} 問のクイズを保存しました。`,
+      savedIds,
     });
   } catch (error) {
     console.error('Save API Error:', error);
