@@ -89,6 +89,12 @@ GOOGLE_GENERATIVE_AI_API_KEY=xxxxxxxxxx
 OPENAI_API_KEY=xxxxxxxxxx
 ANTHROPIC_API_KEY=xxxxxxxxxx
 
+# Supabase
+SUPABASE_URL=xxxxxxxxxx
+SUPABASE_SECRET_KEY=xxxxxxxxxx
+# Supabase Auth に存在するプレースホルダーユーザーの UUID
+PLACEHOLDER_USER_ID=
+
 # trueにするとAI APIを呼ばずにダミーデータを返す
 USE_FAKE_AI=true
 ```

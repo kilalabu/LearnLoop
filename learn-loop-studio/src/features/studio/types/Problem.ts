@@ -1,5 +1,8 @@
 export type ProblemCategory = 'Docker' | 'Network' | 'English' | string;
 
+/** DB の source_type カラムに対応。'text' はフロント入力時の値で、DB保存時に 'manual' へマッピングされる */
+export type SourceType = 'text' | 'url' | 'manual';
+
 export interface Option {
   id: string; // [Web Context]: ユニークなID。UUID v4などを想定
   text: string;
@@ -12,6 +15,8 @@ export interface Problem {
   options: Option[];
   explanation: string;
   category: ProblemCategory;
+  sourceType: SourceType;
+  sourceUrl?: string; // sourceType === 'url' の場合のみ設定
 }
 
 /**

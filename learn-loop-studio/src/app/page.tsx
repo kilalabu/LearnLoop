@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useProblemGenerator } from "@/features/studio/hooks/useProblemGenerator";
 import { GenerateScreen } from "@/features/studio/components/GenerateScreen";
 import { PreviewScreen } from "@/features/studio/components/PreviewScreen";
@@ -21,19 +22,53 @@ export default function StudioPage() {
     resetProblems,
   } = useProblemGenerator();
 
-  // 保存処理のシミュレーション
-  const handleSave = () => {
-    // 実際はここで Supabase 等の DB に保存しますが、今回はプロトタイプなので
-    // トーストを表示して初期状態に戻します。
-    toast.success("問題を保存しました！", {
-      description: `${problems.length} 問のクイズをマイライブラリに追加しました。`,
-      position: "top-center",
-    });
+  const [isSaving, setIsSaving] = useState(false);
 
-    // 少し待ってから画面をリセット
-    setTimeout(() => {
-      resetProblems();
-    }, 1500);
+  const handleSave = async () => {
+    if (problems.length === 0) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/quiz/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quizzes: problems.map((p) => ({
+            id: p.id,
+            question: p.question,
+            options: p.options,
+            explanation: p.explanation,
+            category: p.category,
+            sourceType: p.sourceType,
+            sourceUrl: p.sourceUrl,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || '保存に失敗しました');
+      }
+
+      const result = await response.json();
+
+      toast.success("問題を保存しました！", {
+        description: `${result.savedIds.length} 問のクイズをマイライブラリに追加しました。`,
+        position: "top-center",
+      });
+
+      setTimeout(() => {
+        resetProblems();
+      }, 1500);
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error("保存中にエラーが発生しました。", {
+        description: error instanceof Error ? error.message : "もう一度お試しください。",
+        position: "top-center",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -52,6 +87,7 @@ export default function StudioPage() {
             onDelete={deleteProblem}
             onSave={handleSave}
             onBack={resetProblems}
+            isSaving={isSaving}
           />
         )}
       </div>

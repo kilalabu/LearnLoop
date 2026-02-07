@@ -9,7 +9,8 @@ import {
   Sparkles,
   Trash2,
   CheckCircle,
-  LayoutGrid
+  LayoutGrid,
+  Loader2,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -19,6 +20,7 @@ interface PreviewScreenProps {
   onDelete: (id: string) => void;
   onSave: () => void;
   onBack: () => void;
+  isSaving?: boolean;
 }
 
 /**
@@ -30,7 +32,8 @@ export function PreviewScreen({
   onUpdate,
   onDelete,
   onSave,
-  onBack
+  onBack,
+  isSaving = false,
 }: PreviewScreenProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-32 animate-in fade-in duration-500">
@@ -61,10 +64,14 @@ export function PreviewScreen({
         <div className="hidden sm:flex items-center gap-2">
           <Button
             onClick={onSave}
+            disabled={isSaving}
             className="rounded-2xl bg-gradient-to-r from-success to-xp font-black shadow-lg shadow-success/20 hover:scale-[1.02] active:scale-[0.98] transition-all px-8 h-12"
           >
-            <Save className="h-4 w-4 mr-2" />
-            保存して終了
+            {isSaving ? (
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" />保存中...</>
+            ) : (
+              <><Save className="h-4 w-4 mr-2" />保存して終了</>
+            )}
           </Button>
         </div>
       </div>
@@ -134,11 +141,14 @@ export function PreviewScreen({
         <div className="max-w-md mx-auto pointer-events-auto">
           <Button
             onClick={onSave}
-            disabled={problems.length === 0}
+            disabled={problems.length === 0 || isSaving}
             className="w-full h-16 rounded-3xl bg-gradient-to-r from-success to-xp font-black text-lg shadow-2xl shadow-success/40"
           >
-            <CheckCircle className="h-6 w-6 mr-2" />
-            {problems.length} 問を保存
+            {isSaving ? (
+              <><Loader2 className="h-6 w-6 mr-2 animate-spin" />保存中...</>
+            ) : (
+              <><CheckCircle className="h-6 w-6 mr-2" />{problems.length} 問を保存</>
+            )}
           </Button>
         </div>
       </div>
@@ -148,10 +158,11 @@ export function PreviewScreen({
         <div className="hidden sm:flex justify-center pt-8">
           <Button
             onClick={onSave}
+            disabled={isSaving}
             variant="outline"
             className="rounded-2xl border-2 border-border hover:bg-secondary px-12 h-12 font-bold"
           >
-            完了してトップへ戻る
+            {isSaving ? "保存中..." : "完了してトップへ戻る"}
           </Button>
         </div>
       )}

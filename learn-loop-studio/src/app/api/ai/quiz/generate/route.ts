@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getQuizRepository } from '@/lib/repositories/get-quiz-repository';
+import { authenticateOrFallback } from '@/lib/supabase/auth';
 
 // Repositoryのインスタンス化
 // サーバーサイドでのみ動作するため、ここでnewして問題ない
@@ -8,6 +9,10 @@ const repository = getQuizRepository();
 
 export async function POST(req: NextRequest) {
   try {
+    // 認証チェック (Bearer トークンがあれば検証、なければStudio用フォールバック)
+    const auth = await authenticateOrFallback(req);
+    if (auth instanceof NextResponse) return auth;
+
     const body = await req.json();
     const { sourceType, data, modelId } = body;
 

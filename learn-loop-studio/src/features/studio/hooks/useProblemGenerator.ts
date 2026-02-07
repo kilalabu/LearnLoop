@@ -3,10 +3,18 @@ import { Problem } from '../types/Problem';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 
+/** /api/ai/quiz/generate のレスポンス内の個別クイズ */
+interface GeneratedQuiz {
+  question: string;
+  options: string[];
+  answers: string[];
+  explanation: string;
+}
+
 /**
  * [Web Context]: カスタムフック (Custom Hook)
  * ロジックをコンポーネントから分離し、再利用可能にするための仕組みです。
- * [Flutter/Compose Comparison]: 
+ * [Flutter/Compose Comparison]:
  * Flutter の ViewModel や ChangeNotifier、Compose の ViewModel に近い役割を持ちます。
  */
 export const useProblemGenerator = () => {
@@ -42,12 +50,14 @@ export const useProblemGenerator = () => {
       // { topic: string, quizzes: { question, options, answers, explanation }[] }
 
       // Problem型へ変換
-      const newProblems: Problem[] = result.quizzes.map((quiz: any) => {
+      const newProblems: Problem[] = result.quizzes.map((quiz: GeneratedQuiz) => {
         return {
           id: uuidv4(),
           question: quiz.question,
           category: category || result.topic || 'General',
           explanation: quiz.explanation,
+          sourceType: sourceType,
+          sourceUrl: sourceType === 'url' ? data : undefined,
           options: quiz.options.map((optText: string) => ({
             id: uuidv4(),
             text: optText,
