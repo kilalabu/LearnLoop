@@ -77,9 +77,22 @@ Web開発の経験が浅いメンバーもメンテナンスしやすいよう�
 
 ## はじめかた
 
+### 環境変数の設定
+
+API キーが必要です。
+
+1. `learn-loop-studio/.env.local` ファイルを作成します。
+2. 以下の内容を記述し、自分の API キーを設定してください。
+
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=xxxxxxxxxx
+OPENAI_API_KEY=xxxxxxxxxx
+ANTHROPIC_API_KEY=xxxxxxxxxx
+```
+
 ### 開発サーバーの起動
 
-まず、依存関係をインストールしてから開発サーバーを起動します。
+依存関係をインストールしてから開発サーバーを起動します。
 
 ```bash
 # プロジェクトディレクトリへ移動

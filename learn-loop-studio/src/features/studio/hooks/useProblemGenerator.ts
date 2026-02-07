@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Problem } from '../types/Problem';
-import { getMockProblems } from '@/lib/mocks/dummyData';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 /**
  * [Web Context]: カスタムフック (Custom Hook)
@@ -14,25 +14,58 @@ export const useProblemGenerator = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // 問題を生成する（擬似的な非同期処理）
+  // 問題を生成する
   // useCallback は、関数の再定義を防ぎ、子コンポーネントの不要な再レンダリングを抑えます。
-  const generateProblems = useCallback(async (sourceText: string, category: string) => {
-    // バリデーション（200文字以下は生成しない）
-    if (sourceText.length < 20) { // テスト用に一旦短くしています
+  const generateProblems = useCallback(async (sourceType: 'text' | 'url', data: string, category: string, modelId?: string) => {
+    // バリデーション
+    if (!data || data.length === 0) {
       return;
     }
 
     setIsGenerating(true);
 
     try {
-      // [Web Context]: 実際の API 呼び出しの代わりに setTimeout で遅延をシミュレートします
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch('/api/ai/quiz/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sourceType, data, modelId }),
+      });
 
-      // ダミーデータを取得
-      const newProblems = getMockProblems(category);
-      setProblems(newProblems);
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      // APIレスポンス (GeneratedQuizResponse)
+      // { topic: string, quizzes: { question, options, answers, explanation }[] }
+
+      // Problem型へ変換
+      const newProblems: Problem[] = result.quizzes.map((quiz: any) => {
+        return {
+          id: uuidv4(),
+          question: quiz.question,
+          category: category || result.topic || 'General',
+          explanation: quiz.explanation,
+          options: quiz.options.map((optText: string) => ({
+            id: uuidv4(),
+            text: optText,
+            isCorrect: quiz.answers.includes(optText),
+          })),
+        };
+      });
+
+      if (newProblems.length === 0) {
+        toast.warning("クイズが生成されませんでした。別のテキストで試してください。");
+      } else {
+        setProblems(newProblems);
+        toast.success(`${newProblems.length}問のクイズが生成されました！`);
+      }
+
     } catch (error) {
       console.error('Failed to generate problems:', error);
+      toast.error("問題の生成中にエラーが発生しました。");
     } finally {
       setIsGenerating(false);
     }

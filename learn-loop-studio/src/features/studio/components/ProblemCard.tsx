@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Problem, Option } from "../types/Problem";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox"; // RadioGroup -> Checkbox
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus, GripVertical, CheckCircle2 } from "lucide-react";
+import { Trash2, Plus, CheckCircle2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 interface ProblemCardProps {
@@ -20,6 +19,7 @@ interface ProblemCardProps {
 /**
  * [Web Context]: 個別の問題を表示・編集するためのカードコンポーネント。
  * インライン編集を可能にし、変更があるたびに親に通知します (onChange)。
+ * 複数選択（Multi-select）に対応するため、正解選択にはラジオボタンではなくチェックボックスを使用します。
  */
 export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
   // 問題文の更新
@@ -40,12 +40,11 @@ export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
     onChange({ ...problem, options: updatedOptions });
   };
 
-  // 正解の切り替え
-  const handleCorrectChange = (optionId: string) => {
-    const updatedOptions = problem.options.map((opt) => ({
-      ...opt,
-      isCorrect: opt.id === optionId,
-    }));
+  // 正解の切り替え (複数選択対応)
+  const handleCorrectChange = (optionId: string, isChecked: boolean) => {
+    const updatedOptions = problem.options.map((opt) =>
+      opt.id === optionId ? { ...opt, isCorrect: isChecked } : opt
+    );
     onChange({ ...problem, options: updatedOptions });
   };
 
@@ -62,8 +61,6 @@ export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
   // 選択肢の削除
   const deleteOption = (optionId: string) => {
     const updatedOptions = problem.options.filter((opt) => opt.id !== optionId);
-    // もし削除したのが正解だった場合、最初の項目を正解にするなどのケアが必要ですが、
-    // ここではシンプルにそのままにします。
     onChange({ ...problem, options: updatedOptions });
   };
 
@@ -73,6 +70,10 @@ export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
         <div className="flex items-center gap-2">
           <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
             {problem.category}
+          </div>
+          {/* 正解数バッジ */}
+          <div className="bg-muted px-2 py-1 rounded-full text-[10px] text-muted-foreground font-medium">
+            正解数: {problem.options.filter(o => o.isCorrect).length}
           </div>
         </div>
         <Button
@@ -99,15 +100,18 @@ export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
 
         {/* 選択肢の編集 */}
         <div className="space-y-3">
-          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">選択肢 (正解を選択してください)</Label>
-          <RadioGroup
-            value={problem.options.find(o => o.isCorrect)?.id}
-            onValueChange={handleCorrectChange}
-            className="space-y-2"
-          >
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">選択肢 (正解をチェックしてください)</Label>
+          <div className="space-y-2">
             {problem.options.map((option) => (
               <div key={option.id} className="flex items-center gap-2 group/option">
-                <RadioGroupItem value={option.id} id={option.id} className="border-2 border-primary" />
+                {/* 複数選択可能なチェックボックス */}
+                <Checkbox
+                  id={option.id}
+                  checked={option.isCorrect}
+                  onCheckedChange={(checked) => handleCorrectChange(option.id, checked === true)}
+                  className="w-5 h-5 border-2 border-muted-foreground data-[state=checked]:border-success data-[state=checked]:bg-success data-[state=checked]:text-success-foreground"
+                />
+
                 <div className="flex-1 flex items-center gap-2 bg-secondary/20 p-2 rounded-xl border border-transparent hover:border-primary/20 transition-colors">
                   <Input
                     value={option.text}
@@ -126,7 +130,7 @@ export function ProblemCard({ problem, onChange, onDelete }: ProblemCardProps) {
                 </div>
               </div>
             ))}
-          </RadioGroup>
+          </div>
           <Button
             variant="ghost"
             size="sm"

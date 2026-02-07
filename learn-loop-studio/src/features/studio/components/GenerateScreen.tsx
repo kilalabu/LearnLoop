@@ -6,40 +6,63 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sparkles,
   Loader2,
   Wand2,
-  ArrowLeft,
   Lightbulb,
-  Rocket
+  Rocket,
+  Link as LinkIcon,
+  FileText
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { MODEL_OPTIONS, DEFAULT_MODEL, type ModelId } from "@/lib/ai/models";
 
 interface GenerateScreenProps {
-  onGenerate: (text: string, category: string) => Promise<void>;
+  onGenerate: (sourceType: 'text' | 'url', data: string, category: string, modelId?: string) => Promise<void>;
   isGenerating: boolean;
 }
 
-const MAX_CHARS = 5000;
+const MAX_CHARS = 20000; // API limit consideration
 
 /**
  * [Web Context]: 問題生成の入力画面。
- * [Compose Comparison]: Column { ... } に各入力パーツを配置するレイアウトです。
+ * URLまたはテキスト入力からAIが問題を生成します。
  */
 export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps) {
+  const [sourceType, setSourceType] = useState<'text' | 'url'>('text');
   const [sourceText, setSourceText] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
   const [category, setCategory] = useState("");
+  const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
+
+  // バリデーション
+  const isUrlValid = (url: string) => {
+    try {
+      new URL(url);
+      return url.startsWith('http');
+    } catch {
+      return false;
+    }
+  };
 
   const charCount = sourceText.length;
-  // 最小文字数のバリデーション (要件2.1: 200文字以下はボタン非活性)
-  // 開発テスト用に一旦 20文字 に下げていますが、プロダクションでは 200 に戻す想定です。
-  const isValidLength = charCount >= 20 && charCount <= MAX_CHARS;
-  const canGenerate = category && isValidLength && !isGenerating;
+  const isTextValid = charCount >= 20 && charCount <= MAX_CHARS;
+
+  const canGenerate = category.length > 0 && !isGenerating && (
+    (sourceType === 'text' && isTextValid) ||
+    (sourceType === 'url' && isUrlValid(sourceUrl))
+  );
 
   const handleGenerate = () => {
     if (canGenerate) {
-      onGenerate(sourceText, category);
+      if (sourceType === 'text') {
+        onGenerate('text', sourceText, category, selectedModel);
+      } else {
+        onGenerate('url', sourceUrl, category, selectedModel);
+      }
     }
   };
 
@@ -71,43 +94,82 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
           />
         </section>
 
-        {/* テキスト入力セクション */}
+        {/* ソース入力セクション (Tabs) */}
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-bold flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">2</span>
-              ソーステキストをペースト
-            </Label>
-            <span className={cn(
-              "text-xs font-bold font-mono transition-colors",
-              charCount > MAX_CHARS ? "text-destructive" : "text-muted-foreground"
-            )}>
-              {charCount} / {MAX_CHARS}
-            </span>
-          </div>
+          <Label className="text-sm font-bold flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">2</span>
+            ソースを選択して入力
+          </Label>
 
-          <div className="relative group">
-            <Textarea
-              value={sourceText}
-              onChange={(e) => setSourceText(e.target.value)}
-              placeholder="学習したい内容のドキュメントや記事をここに貼り付けてください..."
-              className="min-h-[350px] bg-card rounded-3xl border-2 border-border hover:border-primary/50 transition-all p-8 text-lg leading-relaxed resize-none focus-visible:ring-primary group-hover:shadow-xl group-hover:shadow-primary/5"
-            />
-            {/* プログレスバー風の装飾 */}
-            <div className="absolute bottom-4 left-8 right-8 h-1.5 bg-secondary rounded-full overflow-hidden opacity-50">
-              <div
-                className={cn(
-                  "h-full transition-all duration-300",
-                  charCount > MAX_CHARS ? "bg-destructive" : "bg-primary"
-                )}
-                style={{ width: `${Math.min((charCount / MAX_CHARS) * 100, 100)}%` }}
+          <Tabs defaultValue="text" value={sourceType} onValueChange={(v) => setSourceType(v as 'text' | 'url')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted/50 p-1 rounded-xl">
+              <TabsTrigger value="text" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300">
+                <FileText className="w-4 h-4 mr-2" />
+                テキスト入力
+              </TabsTrigger>
+              <TabsTrigger value="url" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300">
+                <LinkIcon className="w-4 h-4 mr-2" />
+                URLから抽出
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="text" className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-xs text-muted-foreground">学習したい内容を貼り付けてください</span>
+                <span className={cn(
+                  "text-xs font-bold font-mono transition-colors",
+                  charCount > MAX_CHARS ? "text-destructive" : "text-muted-foreground"
+                )}>
+                  {charCount} / {MAX_CHARS}
+                </span>
+              </div>
+              <div className="relative group">
+                <Textarea
+                  value={sourceText}
+                  onChange={(e) => setSourceText(e.target.value)}
+                  placeholder="ドキュメントの内容をここに貼り付けてください..."
+                  className="min-h-[300px] bg-card rounded-3xl border-2 border-border hover:border-primary/50 transition-all p-6 text-lg leading-relaxed resize-none focus-visible:ring-primary group-hover:shadow-xl group-hover:shadow-primary/5"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground font-medium px-2">
+                {charCount < 20 ? "※ 最低20文字以上のテキストが必要です" : "十分な情報量です。"}
+              </p>
+            </TabsContent>
+
+            <TabsContent value="url" className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-300">
+              <div className="px-1">
+                <span className="text-xs text-muted-foreground">技術ブログやドキュメントのURLを入力してください</span>
+              </div>
+              <Input
+                type="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                placeholder="https://example.com/article..."
+                className="h-14 bg-card rounded-2xl border-2 border-border hover:border-primary/50 transition-all text-base px-6 font-medium focus-visible:ring-primary"
               />
-            </div>
-          </div>
+              <p className="text-xs text-muted-foreground font-medium px-2">
+                ※ 記事本文をAIが自動抽出します。ログインが必要なページは読み込めない場合があります。
+              </p>
+            </TabsContent>
+          </Tabs>
+        </section>
 
-          <p className="text-xs text-muted-foreground font-medium px-2">
-            {charCount < 20 ? "※ 最低20文字以上のテキストが必要です" : "十分な情報量です。高品質な問題を生成できます。"}
-          </p>
+        {/* AIモデル選択 */}
+        <section className="space-y-3">
+          <Label className="text-sm font-bold flex items-center gap-2">
+            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">3</span>
+            AIモデルを選択
+          </Label>
+          <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as ModelId)}>
+            <SelectTrigger className="h-14 w-full bg-card rounded-2xl border-2 border-border hover:border-primary/50 transition-all text-base px-6 font-medium focus-visible:ring-primary">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(MODEL_OPTIONS).map(([id, { label }]) => (
+                <SelectItem key={id} value={id}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </section>
 
         {/* 生成ボタン */}
