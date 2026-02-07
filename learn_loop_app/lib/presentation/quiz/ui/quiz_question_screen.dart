@@ -7,7 +7,7 @@ import '../../../core/widgets/app_badge.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_progress_bar.dart';
-import '../../../domain/models/problem.dart';
+import '../../../domain/models/quiz.dart';
 import '../quiz_view_model.dart';
 import '../state/quiz_state.dart';
 import 'option_card.dart';
@@ -41,14 +41,14 @@ class QuizQuestionScreen extends ConsumerWidget {
           QuizCompleted(:final correctCount, :final totalCount) =>
             _buildCompletedScreen(context, correctCount, totalCount),
           QuizAnswering(
-            :final problems,
+            :final quizzes,
             :final currentIndex,
             :final selectedOptionIds,
           ) =>
             _buildQuestionScreen(
               context,
               ref,
-              problems,
+              quizzes,
               currentIndex,
               selectedOptionIds,
             ),
@@ -61,14 +61,14 @@ class QuizQuestionScreen extends ConsumerWidget {
   Widget _buildQuestionScreen(
     BuildContext context,
     WidgetRef ref,
-    List<Problem> problems,
+    List<Quiz> quizzes,
     int currentIndex,
     Set<String> selectedOptionIds,
   ) {
     final theme = Theme.of(context);
     final viewModel = ref.read(quizViewModelProvider.notifier);
-    final problem = problems[currentIndex];
-    final progress = (currentIndex + 1) / problems.length;
+    final quiz = quizzes[currentIndex];
+    final progress = (currentIndex + 1) / quizzes.length;
 
     return Column(
       children: [
@@ -107,7 +107,7 @@ class QuizQuestionScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${currentIndex + 1} / ${problems.length}',
+                          '${currentIndex + 1} / ${quizzes.length}',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -124,8 +124,8 @@ class QuizQuestionScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (problem.genre != null)
-                    AppBadge(label: problem.genre!)
+                  if (quiz.genre != null)
+                    AppBadge(label: quiz.genre!)
                   else
                     const SizedBox(),
                   Text(
@@ -169,7 +169,7 @@ class QuizQuestionScreen extends ConsumerWidget {
                       AppSpacing.gapMd,
                       Expanded(
                         child: Text(
-                          problem.question,
+                          quiz.question,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.w500,
                             height: 1.5,
@@ -183,7 +183,7 @@ class QuizQuestionScreen extends ConsumerWidget {
                 AppSpacing.gapLg,
 
                 // Options
-                ...problem.options.map<Widget>(
+                ...quiz.options.map<Widget>(
                   (option) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: OptionCard(
@@ -199,7 +199,7 @@ class QuizQuestionScreen extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ...problem.options.map<Widget>((option) {
+                    ...quiz.options.map<Widget>((option) {
                       final isSelected = selectedOptionIds.contains(option.id);
                       return Container(
                         width: 12,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_checkbox.dart';
-import '../../../domain/models/problem.dart';
+import '../../../domain/models/quiz.dart';
 
 /// クイズ選択肢カード
 class OptionCard extends StatelessWidget {
@@ -15,7 +15,7 @@ class OptionCard extends StatelessWidget {
     this.wasSelected = false,
   });
 
-  final ProblemOption option;
+  final QuizOption option;
   final bool isSelected;
   final VoidCallback onTap;
   final bool showResult;

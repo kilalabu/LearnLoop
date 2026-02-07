@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../../domain/models/problem.dart';
+import '../../../domain/models/quiz.dart';
 
 part 'quiz_state.freezed.dart';
 
@@ -9,16 +9,16 @@ sealed class QuizState with _$QuizState {
   /// 読み込み中
   const factory QuizState.loading() = QuizLoading;
 
-  /// 問題に回答中
+  /// クイズに回答中
   const factory QuizState.answering({
-    required List<Problem> problems,
+    required List<Quiz> quizzes,
     required int currentIndex,
     required Set<String> selectedOptionIds,
   }) = QuizAnswering;
 
   /// 結果表示中
   const factory QuizState.showingResult({
-    required List<Problem> problems,
+    required List<Quiz> quizzes,
     required int currentIndex,
     required Set<String> selectedOptionIds,
     required bool isCorrect,
@@ -36,20 +36,20 @@ sealed class QuizState with _$QuizState {
 
 /// QuizStateのextension
 extension QuizStateX on QuizState {
-  Problem? get currentProblem {
+  Quiz? get currentQuiz {
     return switch (this) {
-      QuizAnswering(:final problems, :final currentIndex) =>
-        problems[currentIndex],
-      QuizShowingResult(:final problems, :final currentIndex) =>
-        problems[currentIndex],
+      QuizAnswering(:final quizzes, :final currentIndex) =>
+        quizzes[currentIndex],
+      QuizShowingResult(:final quizzes, :final currentIndex) =>
+        quizzes[currentIndex],
       _ => null,
     };
   }
 
   int? get totalCount {
     return switch (this) {
-      QuizAnswering(:final problems) => problems.length,
-      QuizShowingResult(:final problems) => problems.length,
+      QuizAnswering(:final quizzes) => quizzes.length,
+      QuizShowingResult(:final quizzes) => quizzes.length,
       QuizCompleted(:final totalCount) => totalCount,
       _ => null,
     };

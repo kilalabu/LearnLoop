@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'problem.dart';
+import 'quiz.dart';
 
 part 'quiz_session.freezed.dart';
 
@@ -7,22 +7,22 @@ part 'quiz_session.freezed.dart';
 @freezed
 abstract class QuizSession with _$QuizSession {
   const factory QuizSession({
-    required List<Problem> problems,
+    required List<Quiz> quizzes,
     required int currentIndex,
     @Default({}) Map<String, List<String>> userAnswers,
   }) = _QuizSession;
 
   const QuizSession._();
 
-  /// 現在の問題
-  Problem get currentProblem => problems[currentIndex];
+  /// 現在のクイズ
+  Quiz get currentQuiz => quizzes[currentIndex];
 
-  /// 問題総数
-  int get totalCount => problems.length;
+  /// クイズ総数
+  int get totalCount => quizzes.length;
 
-  /// 次の問題があるか
-  bool get hasNext => currentIndex < problems.length - 1;
+  /// 次のクイズがあるか
+  bool get hasNext => currentIndex < quizzes.length - 1;
 
-  /// 現在の問題の回答済み選択肢
-  List<String> get currentAnswers => userAnswers[currentProblem.id] ?? [];
+  /// 現在のクイズの回答済み選択肢
+  List<String> get currentAnswers => userAnswers[currentQuiz.id] ?? [];
 }

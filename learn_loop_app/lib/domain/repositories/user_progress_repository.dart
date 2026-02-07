@@ -3,11 +3,8 @@ abstract interface class UserProgressRepository {
   /// 統計情報を取得
   Future<UserStats> getStats();
 
-  /// 問題の進捗を記録
-  Future<void> recordAnswer({
-    required String problemId,
-    required bool isCorrect,
-  });
+  /// クイズの進捗を記録
+  Future<void> recordAnswer({required String quizId, required bool isCorrect});
 }
 
 /// ユーザー統計情報

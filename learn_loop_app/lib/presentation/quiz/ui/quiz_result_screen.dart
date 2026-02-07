@@ -28,9 +28,9 @@ class QuizResultScreen extends ConsumerWidget {
       return const SizedBox();
     }
 
-    final problem = state.problems[state.currentIndex];
-    final progress = (state.currentIndex + 1) / state.problems.length;
-    final isLastQuestion = state.currentIndex >= state.problems.length - 1;
+    final quiz = state.quizzes[state.currentIndex];
+    final progress = (state.currentIndex + 1) / state.quizzes.length;
+    final isLastQuestion = state.currentIndex >= state.quizzes.length - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -62,7 +62,7 @@ class QuizResultScreen extends ConsumerWidget {
                           borderRadius: AppRadius.borderXl,
                         ),
                         child: Text(
-                          '${state.currentIndex + 1} / ${state.problems.length}',
+                          '${state.currentIndex + 1} / ${state.quizzes.length}',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -89,7 +89,7 @@ class QuizResultScreen extends ConsumerWidget {
                     AppSpacing.gapLg,
 
                     // Options with results
-                    ...problem.options.map(
+                    ...quiz.options.map(
                       (option) => Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: OptionCard(
@@ -108,8 +108,8 @@ class QuizResultScreen extends ConsumerWidget {
 
                     // Explanation
                     ExplanationCard(
-                      explanation: problem.explanation,
-                      sourceUrl: problem.sourceUrl,
+                      explanation: quiz.explanation,
+                      sourceUrl: quiz.sourceUrl,
                     ),
 
                     AppSpacing.gapLg,
@@ -132,6 +132,7 @@ class QuizResultScreen extends ConsumerWidget {
                 },
                 isFullWidth: true,
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.bolt, size: 20),

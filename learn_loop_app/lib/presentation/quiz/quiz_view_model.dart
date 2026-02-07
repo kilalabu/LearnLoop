@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/models/problem.dart';
+import '../../domain/models/quiz.dart';
 import '../home/home_view_model.dart';
 import 'state/quiz_state.dart';
 
@@ -8,26 +8,26 @@ final quizViewModelProvider = NotifierProvider<QuizViewModel, QuizState>(
 );
 
 class QuizViewModel extends Notifier<QuizState> {
-  List<Problem> _problems = [];
+  List<Quiz> _quizzes = [];
   int _correctCount = 0;
 
   @override
   QuizState build() {
-    _loadProblems();
+    _loadQuizzes();
     return const QuizState.loading();
   }
 
-  Future<void> _loadProblems() async {
+  Future<void> _loadQuizzes() async {
     try {
-      final problemRepo = ref.read(problemRepositoryProvider);
-      _problems = await problemRepo.getTodayProblems();
+      final quizRepo = ref.read(quizRepositoryProvider);
+      _quizzes = await quizRepo.getTodayQuizzes();
       _correctCount = 0;
 
-      if (_problems.isEmpty) {
+      if (_quizzes.isEmpty) {
         state = const QuizState.completed(correctCount: 0, totalCount: 0);
       } else {
         state = QuizState.answering(
-          problems: _problems,
+          quizzes: _quizzes,
           currentIndex: 0,
           selectedOptionIds: {},
         );
@@ -58,8 +58,8 @@ class QuizViewModel extends Notifier<QuizState> {
     if (currentState is! QuizAnswering) return;
     if (currentState.selectedOptionIds.isEmpty) return;
 
-    final problem = currentState.problems[currentState.currentIndex];
-    final correctIds = problem.options
+    final quiz = currentState.quizzes[currentState.currentIndex];
+    final correctIds = quiz.options
         .where((o) => o.isCorrect)
         .map((o) => o.id)
         .toSet();
@@ -73,27 +73,27 @@ class QuizViewModel extends Notifier<QuizState> {
     }
 
     state = QuizState.showingResult(
-      problems: currentState.problems,
+      quizzes: currentState.quizzes,
       currentIndex: currentState.currentIndex,
       selectedOptionIds: currentState.selectedOptionIds,
       isCorrect: isCorrect,
     );
   }
 
-  /// 次の問題へ
+  /// 次のクイズへ
   void nextQuestion() {
     final currentState = state;
     if (currentState is! QuizShowingResult) return;
 
     final nextIndex = currentState.currentIndex + 1;
-    if (nextIndex >= currentState.problems.length) {
+    if (nextIndex >= currentState.quizzes.length) {
       state = QuizState.completed(
         correctCount: _correctCount,
-        totalCount: currentState.problems.length,
+        totalCount: currentState.quizzes.length,
       );
     } else {
       state = QuizState.answering(
-        problems: currentState.problems,
+        quizzes: currentState.quizzes,
         currentIndex: nextIndex,
         selectedOptionIds: {},
       );
@@ -102,6 +102,6 @@ class QuizViewModel extends Notifier<QuizState> {
 
   /// やり直し
   void restart() {
-    _loadProblems();
+    _loadQuizzes();
   }
 }

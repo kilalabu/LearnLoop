@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult Function( int correctCount,  int totalCount)?  completed,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult Function( int correctCount,  int totalCount)?  completed,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case QuizLoading() when loading != null:
 return loading();case QuizAnswering() when answering != null:
-return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
-return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
+return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
+return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
 return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
 return error(_that.message);case _:
   return orElse();
@@ -153,12 +153,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)  answering,required TResult Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)  showingResult,required TResult Function( int correctCount,  int totalCount)  completed,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)  answering,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)  showingResult,required TResult Function( int correctCount,  int totalCount)  completed,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case QuizLoading():
 return loading();case QuizAnswering():
-return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult():
-return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted():
+return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult():
+return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted():
 return completed(_that.correctCount,_that.totalCount);case QuizError():
 return error(_that.message);}
 }
@@ -174,12 +174,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult? Function( List<Problem> problems,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult? Function( int correctCount,  int totalCount)?  completed,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect)?  showingResult,TResult? Function( int correctCount,  int totalCount)?  completed,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case QuizLoading() when loading != null:
 return loading();case QuizAnswering() when answering != null:
-return answering(_that.problems,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
-return showingResult(_that.problems,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
+return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
+return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect);case QuizCompleted() when completed != null:
 return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
 return error(_that.message);case _:
   return null;
@@ -225,14 +225,14 @@ String toString() {
 
 
 class QuizAnswering implements QuizState {
-  const QuizAnswering({required final  List<Problem> problems, required this.currentIndex, required final  Set<String> selectedOptionIds}): _problems = problems,_selectedOptionIds = selectedOptionIds;
+  const QuizAnswering({required final  List<Quiz> quizzes, required this.currentIndex, required final  Set<String> selectedOptionIds}): _quizzes = quizzes,_selectedOptionIds = selectedOptionIds;
   
 
- final  List<Problem> _problems;
- List<Problem> get problems {
-  if (_problems is EqualUnmodifiableListView) return _problems;
+ final  List<Quiz> _quizzes;
+ List<Quiz> get quizzes {
+  if (_quizzes is EqualUnmodifiableListView) return _quizzes;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_problems);
+  return EqualUnmodifiableListView(_quizzes);
 }
 
  final  int currentIndex;
@@ -254,16 +254,16 @@ $QuizAnsweringCopyWith<QuizAnswering> get copyWith => _$QuizAnsweringCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizAnswering&&const DeepCollectionEquality().equals(other._problems, _problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizAnswering&&const DeepCollectionEquality().equals(other._quizzes, _quizzes)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_problems),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_quizzes),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds));
 
 @override
 String toString() {
-  return 'QuizState.answering(problems: $problems, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds)';
+  return 'QuizState.answering(quizzes: $quizzes, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds)';
 }
 
 
@@ -274,7 +274,7 @@ abstract mixin class $QuizAnsweringCopyWith<$Res> implements $QuizStateCopyWith<
   factory $QuizAnsweringCopyWith(QuizAnswering value, $Res Function(QuizAnswering) _then) = _$QuizAnsweringCopyWithImpl;
 @useResult
 $Res call({
- List<Problem> problems, int currentIndex, Set<String> selectedOptionIds
+ List<Quiz> quizzes, int currentIndex, Set<String> selectedOptionIds
 });
 
 
@@ -291,10 +291,10 @@ class _$QuizAnsweringCopyWithImpl<$Res>
 
 /// Create a copy of QuizState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? problems = null,Object? currentIndex = null,Object? selectedOptionIds = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? quizzes = null,Object? currentIndex = null,Object? selectedOptionIds = null,}) {
   return _then(QuizAnswering(
-problems: null == problems ? _self._problems : problems // ignore: cast_nullable_to_non_nullable
-as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+quizzes: null == quizzes ? _self._quizzes : quizzes // ignore: cast_nullable_to_non_nullable
+as List<Quiz>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
 as int,selectedOptionIds: null == selectedOptionIds ? _self._selectedOptionIds : selectedOptionIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,
   ));
@@ -307,14 +307,14 @@ as Set<String>,
 
 
 class QuizShowingResult implements QuizState {
-  const QuizShowingResult({required final  List<Problem> problems, required this.currentIndex, required final  Set<String> selectedOptionIds, required this.isCorrect}): _problems = problems,_selectedOptionIds = selectedOptionIds;
+  const QuizShowingResult({required final  List<Quiz> quizzes, required this.currentIndex, required final  Set<String> selectedOptionIds, required this.isCorrect}): _quizzes = quizzes,_selectedOptionIds = selectedOptionIds;
   
 
- final  List<Problem> _problems;
- List<Problem> get problems {
-  if (_problems is EqualUnmodifiableListView) return _problems;
+ final  List<Quiz> _quizzes;
+ List<Quiz> get quizzes {
+  if (_quizzes is EqualUnmodifiableListView) return _quizzes;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_problems);
+  return EqualUnmodifiableListView(_quizzes);
 }
 
  final  int currentIndex;
@@ -337,16 +337,16 @@ $QuizShowingResultCopyWith<QuizShowingResult> get copyWith => _$QuizShowingResul
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizShowingResult&&const DeepCollectionEquality().equals(other._problems, _problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizShowingResult&&const DeepCollectionEquality().equals(other._quizzes, _quizzes)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._selectedOptionIds, _selectedOptionIds)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_problems),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds),isCorrect);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_quizzes),currentIndex,const DeepCollectionEquality().hash(_selectedOptionIds),isCorrect);
 
 @override
 String toString() {
-  return 'QuizState.showingResult(problems: $problems, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds, isCorrect: $isCorrect)';
+  return 'QuizState.showingResult(quizzes: $quizzes, currentIndex: $currentIndex, selectedOptionIds: $selectedOptionIds, isCorrect: $isCorrect)';
 }
 
 
@@ -357,7 +357,7 @@ abstract mixin class $QuizShowingResultCopyWith<$Res> implements $QuizStateCopyW
   factory $QuizShowingResultCopyWith(QuizShowingResult value, $Res Function(QuizShowingResult) _then) = _$QuizShowingResultCopyWithImpl;
 @useResult
 $Res call({
- List<Problem> problems, int currentIndex, Set<String> selectedOptionIds, bool isCorrect
+ List<Quiz> quizzes, int currentIndex, Set<String> selectedOptionIds, bool isCorrect
 });
 
 
@@ -374,10 +374,10 @@ class _$QuizShowingResultCopyWithImpl<$Res>
 
 /// Create a copy of QuizState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? problems = null,Object? currentIndex = null,Object? selectedOptionIds = null,Object? isCorrect = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? quizzes = null,Object? currentIndex = null,Object? selectedOptionIds = null,Object? isCorrect = null,}) {
   return _then(QuizShowingResult(
-problems: null == problems ? _self._problems : problems // ignore: cast_nullable_to_non_nullable
-as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+quizzes: null == quizzes ? _self._quizzes : quizzes // ignore: cast_nullable_to_non_nullable
+as List<Quiz>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
 as int,selectedOptionIds: null == selectedOptionIds ? _self._selectedOptionIds : selectedOptionIds // ignore: cast_nullable_to_non_nullable
 as Set<String>,isCorrect: null == isCorrect ? _self.isCorrect : isCorrect // ignore: cast_nullable_to_non_nullable
 as bool,

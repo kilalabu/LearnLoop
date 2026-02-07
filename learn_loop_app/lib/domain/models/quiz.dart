@@ -1,28 +1,28 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'problem.freezed.dart';
+part 'quiz.freezed.dart';
 
-/// 問題モデル
+/// クイズモデル
 @freezed
-abstract class Problem with _$Problem {
-  const factory Problem({
+abstract class Quiz with _$Quiz {
+  const factory Quiz({
     required String id,
     required String question,
-    required List<ProblemOption> options,
+    required List<QuizOption> options,
     required String explanation,
     String? sourceText,
     String? sourceUrl,
     String? genre,
-  }) = _Problem;
+  }) = _Quiz;
 }
 
-/// 問題の選択肢
+/// クイズの選択肢
 @freezed
-abstract class ProblemOption with _$ProblemOption {
-  const factory ProblemOption({
+abstract class QuizOption with _$QuizOption {
+  const factory QuizOption({
     required String id,
     required String label,
     required String text,
     required bool isCorrect,
-  }) = _ProblemOption;
+  }) = _QuizOption;
 }

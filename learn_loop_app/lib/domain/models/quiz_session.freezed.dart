@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$QuizSession {
 
- List<Problem> get problems; int get currentIndex; Map<String, List<String>> get userAnswers;
+ List<Quiz> get quizzes; int get currentIndex; Map<String, List<String>> get userAnswers;
 /// Create a copy of QuizSession
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $QuizSessionCopyWith<QuizSession> get copyWith => _$QuizSessionCopyWithImpl<Quiz
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizSession&&const DeepCollectionEquality().equals(other.problems, problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other.userAnswers, userAnswers));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizSession&&const DeepCollectionEquality().equals(other.quizzes, quizzes)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other.userAnswers, userAnswers));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(problems),currentIndex,const DeepCollectionEquality().hash(userAnswers));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(quizzes),currentIndex,const DeepCollectionEquality().hash(userAnswers));
 
 @override
 String toString() {
-  return 'QuizSession(problems: $problems, currentIndex: $currentIndex, userAnswers: $userAnswers)';
+  return 'QuizSession(quizzes: $quizzes, currentIndex: $currentIndex, userAnswers: $userAnswers)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $QuizSessionCopyWith<$Res>  {
   factory $QuizSessionCopyWith(QuizSession value, $Res Function(QuizSession) _then) = _$QuizSessionCopyWithImpl;
 @useResult
 $Res call({
- List<Problem> problems, int currentIndex, Map<String, List<String>> userAnswers
+ List<Quiz> quizzes, int currentIndex, Map<String, List<String>> userAnswers
 });
 
 
@@ -62,10 +62,10 @@ class _$QuizSessionCopyWithImpl<$Res>
 
 /// Create a copy of QuizSession
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? problems = null,Object? currentIndex = null,Object? userAnswers = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? quizzes = null,Object? currentIndex = null,Object? userAnswers = null,}) {
   return _then(_self.copyWith(
-problems: null == problems ? _self.problems : problems // ignore: cast_nullable_to_non_nullable
-as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+quizzes: null == quizzes ? _self.quizzes : quizzes // ignore: cast_nullable_to_non_nullable
+as List<Quiz>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
 as int,userAnswers: null == userAnswers ? _self.userAnswers : userAnswers // ignore: cast_nullable_to_non_nullable
 as Map<String, List<String>>,
   ));
@@ -152,10 +152,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Problem> problems,  int currentIndex,  Map<String, List<String>> userAnswers)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Quiz> quizzes,  int currentIndex,  Map<String, List<String>> userAnswers)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QuizSession() when $default != null:
-return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
+return $default(_that.quizzes,_that.currentIndex,_that.userAnswers);case _:
   return orElse();
 
 }
@@ -173,10 +173,10 @@ return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Problem> problems,  int currentIndex,  Map<String, List<String>> userAnswers)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Quiz> quizzes,  int currentIndex,  Map<String, List<String>> userAnswers)  $default,) {final _that = this;
 switch (_that) {
 case _QuizSession():
-return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
+return $default(_that.quizzes,_that.currentIndex,_that.userAnswers);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -193,10 +193,10 @@ return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Problem> problems,  int currentIndex,  Map<String, List<String>> userAnswers)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Quiz> quizzes,  int currentIndex,  Map<String, List<String>> userAnswers)?  $default,) {final _that = this;
 switch (_that) {
 case _QuizSession() when $default != null:
-return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
+return $default(_that.quizzes,_that.currentIndex,_that.userAnswers);case _:
   return null;
 
 }
@@ -208,14 +208,14 @@ return $default(_that.problems,_that.currentIndex,_that.userAnswers);case _:
 
 
 class _QuizSession extends QuizSession {
-  const _QuizSession({required final  List<Problem> problems, required this.currentIndex, final  Map<String, List<String>> userAnswers = const {}}): _problems = problems,_userAnswers = userAnswers,super._();
+  const _QuizSession({required final  List<Quiz> quizzes, required this.currentIndex, final  Map<String, List<String>> userAnswers = const {}}): _quizzes = quizzes,_userAnswers = userAnswers,super._();
   
 
- final  List<Problem> _problems;
-@override List<Problem> get problems {
-  if (_problems is EqualUnmodifiableListView) return _problems;
+ final  List<Quiz> _quizzes;
+@override List<Quiz> get quizzes {
+  if (_quizzes is EqualUnmodifiableListView) return _quizzes;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_problems);
+  return EqualUnmodifiableListView(_quizzes);
 }
 
 @override final  int currentIndex;
@@ -237,16 +237,16 @@ _$QuizSessionCopyWith<_QuizSession> get copyWith => __$QuizSessionCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuizSession&&const DeepCollectionEquality().equals(other._problems, _problems)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._userAnswers, _userAnswers));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuizSession&&const DeepCollectionEquality().equals(other._quizzes, _quizzes)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&const DeepCollectionEquality().equals(other._userAnswers, _userAnswers));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_problems),currentIndex,const DeepCollectionEquality().hash(_userAnswers));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_quizzes),currentIndex,const DeepCollectionEquality().hash(_userAnswers));
 
 @override
 String toString() {
-  return 'QuizSession(problems: $problems, currentIndex: $currentIndex, userAnswers: $userAnswers)';
+  return 'QuizSession(quizzes: $quizzes, currentIndex: $currentIndex, userAnswers: $userAnswers)';
 }
 
 
@@ -257,7 +257,7 @@ abstract mixin class _$QuizSessionCopyWith<$Res> implements $QuizSessionCopyWith
   factory _$QuizSessionCopyWith(_QuizSession value, $Res Function(_QuizSession) _then) = __$QuizSessionCopyWithImpl;
 @override @useResult
 $Res call({
- List<Problem> problems, int currentIndex, Map<String, List<String>> userAnswers
+ List<Quiz> quizzes, int currentIndex, Map<String, List<String>> userAnswers
 });
 
 
@@ -274,10 +274,10 @@ class __$QuizSessionCopyWithImpl<$Res>
 
 /// Create a copy of QuizSession
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? problems = null,Object? currentIndex = null,Object? userAnswers = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? quizzes = null,Object? currentIndex = null,Object? userAnswers = null,}) {
   return _then(_QuizSession(
-problems: null == problems ? _self._problems : problems // ignore: cast_nullable_to_non_nullable
-as List<Problem>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
+quizzes: null == quizzes ? _self._quizzes : quizzes // ignore: cast_nullable_to_non_nullable
+as List<Quiz>,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
 as int,userAnswers: null == userAnswers ? _self._userAnswers : userAnswers // ignore: cast_nullable_to_non_nullable
 as Map<String, List<String>>,
   ));

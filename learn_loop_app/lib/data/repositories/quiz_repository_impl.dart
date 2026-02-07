@@ -1,32 +1,32 @@
-import '../../domain/models/problem.dart';
-import '../../domain/repositories/problem_repository.dart';
+import '../../domain/models/quiz.dart';
+import '../../domain/repositories/quiz_repository.dart';
 
-/// Fake問題リポジトリ実装
-class FakeProblemRepository implements ProblemRepository {
-  final _fakeProblems = <Problem>[
-    Problem(
+/// Fakeクイズリポジトリ実装
+class FakeQuizRepository implements QuizRepository {
+  final _fakeQuizzes = <Quiz>[
+    Quiz(
       id: '1',
       question: 'Dockerに関する以下の説明のうち、正しいものをすべて選んでください。',
       options: [
-        ProblemOption(
+        QuizOption(
           id: 'a',
           label: 'A',
           text: 'Dockerイメージはコンテナの実行可能なテンプレートである',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'b',
           label: 'B',
           text: 'Dockerコンテナは永続的なストレージを持つ',
           isCorrect: false,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'c',
           label: 'C',
           text: 'DockerfileはDockerイメージをビルドするための設定ファイルである',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'd',
           label: 'D',
           text: 'Dockerはハイパーバイザー型の仮想化技術を使用する',
@@ -44,29 +44,29 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
       sourceUrl: 'https://docs.docker.com/get-started/',
       genre: 'Docker',
     ),
-    Problem(
+    Quiz(
       id: '2',
       question: 'Dockerfileの命令に関して、正しいものを選んでください。',
       options: [
-        ProblemOption(
+        QuizOption(
           id: 'a',
           label: 'A',
           text: 'FROMは必ずDockerfileの最初に記述する必要がある',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'b',
           label: 'B',
           text: 'RUNは1つのDockerfileに1つしか使用できない',
           isCorrect: false,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'c',
           label: 'C',
           text: 'COPYはローカルファイルをイメージにコピーする',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'd',
           label: 'D',
           text: 'ENTRYPOINTはCMDで上書きできる',
@@ -78,29 +78,29 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
       sourceUrl: 'https://docs.docker.com/reference/dockerfile/',
       genre: 'Docker',
     ),
-    Problem(
+    Quiz(
       id: '3',
       question: 'Dockerネットワークについて、正しい説明を選んでください。',
       options: [
-        ProblemOption(
+        QuizOption(
           id: 'a',
           label: 'A',
           text: 'bridgeネットワークはデフォルトのネットワークドライバーである',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'b',
           label: 'B',
           text: 'hostネットワークではコンテナがホストのネットワークを直接使用する',
           isCorrect: true,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'c',
           label: 'C',
           text: '同じネットワーク上のコンテナは互いに通信できない',
           isCorrect: false,
         ),
-        ProblemOption(
+        QuizOption(
           id: 'd',
           label: 'D',
           text: 'noneネットワークではコンテナに完全なネットワーク機能がある',
@@ -115,23 +115,23 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
   ];
 
   @override
-  Future<List<Problem>> getTodayProblems() async {
+  Future<List<Quiz>> getTodayQuizzes() async {
     await Future.delayed(const Duration(milliseconds: 300));
-    return _fakeProblems;
+    return _fakeQuizzes;
   }
 
   @override
-  Future<Problem?> getProblemById(String id) async {
+  Future<Quiz?> getQuizById(String id) async {
     await Future.delayed(const Duration(milliseconds: 100));
     try {
-      return _fakeProblems.firstWhere((p) => p.id == id);
+      return _fakeQuizzes.firstWhere((p) => p.id == id);
     } catch (_) {
       return null;
     }
   }
 
   @override
-  Future<int> getTotalProblemCount() async {
-    return _fakeProblems.length;
+  Future<int> getTotalQuizCount() async {
+    return _fakeQuizzes.length;
   }
 }

@@ -18,7 +18,7 @@ class FakeUserProgressRepository implements UserProgressRepository {
 
   @override
   Future<void> recordAnswer({
-    required String problemId,
+    required String quizId,
     required bool isCorrect,
   }) async {
     await Future.delayed(const Duration(milliseconds: 100));

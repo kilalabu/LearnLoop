@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'problem.dart';
+part of 'quiz.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,20 +12,20 @@ part of 'problem.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$Problem {
+mixin _$Quiz {
 
- String get id; String get question; List<ProblemOption> get options; String get explanation; String? get sourceText; String? get sourceUrl; String? get genre;
-/// Create a copy of Problem
+ String get id; String get question; List<QuizOption> get options; String get explanation; String? get sourceText; String? get sourceUrl; String? get genre;
+/// Create a copy of Quiz
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ProblemCopyWith<Problem> get copyWith => _$ProblemCopyWithImpl<Problem>(this as Problem, _$identity);
+$QuizCopyWith<Quiz> get copyWith => _$QuizCopyWithImpl<Quiz>(this as Quiz, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Problem&&(identical(other.id, id) || other.id == id)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other.options, options)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.sourceText, sourceText) || other.sourceText == sourceText)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.genre, genre) || other.genre == genre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Quiz&&(identical(other.id, id) || other.id == id)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other.options, options)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.sourceText, sourceText) || other.sourceText == sourceText)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.genre, genre) || other.genre == genre));
 }
 
 
@@ -34,18 +34,18 @@ int get hashCode => Object.hash(runtimeType,id,question,const DeepCollectionEqua
 
 @override
 String toString() {
-  return 'Problem(id: $id, question: $question, options: $options, explanation: $explanation, sourceText: $sourceText, sourceUrl: $sourceUrl, genre: $genre)';
+  return 'Quiz(id: $id, question: $question, options: $options, explanation: $explanation, sourceText: $sourceText, sourceUrl: $sourceUrl, genre: $genre)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ProblemCopyWith<$Res>  {
-  factory $ProblemCopyWith(Problem value, $Res Function(Problem) _then) = _$ProblemCopyWithImpl;
+abstract mixin class $QuizCopyWith<$Res>  {
+  factory $QuizCopyWith(Quiz value, $Res Function(Quiz) _then) = _$QuizCopyWithImpl;
 @useResult
 $Res call({
- String id, String question, List<ProblemOption> options, String explanation, String? sourceText, String? sourceUrl, String? genre
+ String id, String question, List<QuizOption> options, String explanation, String? sourceText, String? sourceUrl, String? genre
 });
 
 
@@ -53,21 +53,21 @@ $Res call({
 
 }
 /// @nodoc
-class _$ProblemCopyWithImpl<$Res>
-    implements $ProblemCopyWith<$Res> {
-  _$ProblemCopyWithImpl(this._self, this._then);
+class _$QuizCopyWithImpl<$Res>
+    implements $QuizCopyWith<$Res> {
+  _$QuizCopyWithImpl(this._self, this._then);
 
-  final Problem _self;
-  final $Res Function(Problem) _then;
+  final Quiz _self;
+  final $Res Function(Quiz) _then;
 
-/// Create a copy of Problem
+/// Create a copy of Quiz
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? question = null,Object? options = null,Object? explanation = null,Object? sourceText = freezed,Object? sourceUrl = freezed,Object? genre = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,options: null == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
-as List<ProblemOption>,explanation: null == explanation ? _self.explanation : explanation // ignore: cast_nullable_to_non_nullable
+as List<QuizOption>,explanation: null == explanation ? _self.explanation : explanation // ignore: cast_nullable_to_non_nullable
 as String,sourceText: freezed == sourceText ? _self.sourceText : sourceText // ignore: cast_nullable_to_non_nullable
 as String?,sourceUrl: freezed == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
 as String?,genre: freezed == genre ? _self.genre : genre // ignore: cast_nullable_to_non_nullable
@@ -78,8 +78,8 @@ as String?,
 }
 
 
-/// Adds pattern-matching-related methods to [Problem].
-extension ProblemPatterns on Problem {
+/// Adds pattern-matching-related methods to [Quiz].
+extension QuizPatterns on Quiz {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -92,10 +92,10 @@ extension ProblemPatterns on Problem {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Problem value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Quiz value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _Problem() when $default != null:
+case _Quiz() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -114,10 +114,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Problem value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Quiz value)  $default,){
 final _that = this;
 switch (_that) {
-case _Problem():
+case _Quiz():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -135,10 +135,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Problem value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Quiz value)?  $default,){
 final _that = this;
 switch (_that) {
-case _Problem() when $default != null:
+case _Quiz() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -156,9 +156,9 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String question,  List<ProblemOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String question,  List<QuizOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _Problem() when $default != null:
+case _Quiz() when $default != null:
 return $default(_that.id,_that.question,_that.options,_that.explanation,_that.sourceText,_that.sourceUrl,_that.genre);case _:
   return orElse();
 
@@ -177,9 +177,9 @@ return $default(_that.id,_that.question,_that.options,_that.explanation,_that.so
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String question,  List<ProblemOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String question,  List<QuizOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)  $default,) {final _that = this;
 switch (_that) {
-case _Problem():
+case _Quiz():
 return $default(_that.id,_that.question,_that.options,_that.explanation,_that.sourceText,_that.sourceUrl,_that.genre);case _:
   throw StateError('Unexpected subclass');
 
@@ -197,9 +197,9 @@ return $default(_that.id,_that.question,_that.options,_that.explanation,_that.so
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String question,  List<ProblemOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String question,  List<QuizOption> options,  String explanation,  String? sourceText,  String? sourceUrl,  String? genre)?  $default,) {final _that = this;
 switch (_that) {
-case _Problem() when $default != null:
+case _Quiz() when $default != null:
 return $default(_that.id,_that.question,_that.options,_that.explanation,_that.sourceText,_that.sourceUrl,_that.genre);case _:
   return null;
 
@@ -211,14 +211,14 @@ return $default(_that.id,_that.question,_that.options,_that.explanation,_that.so
 /// @nodoc
 
 
-class _Problem implements Problem {
-  const _Problem({required this.id, required this.question, required final  List<ProblemOption> options, required this.explanation, this.sourceText, this.sourceUrl, this.genre}): _options = options;
+class _Quiz implements Quiz {
+  const _Quiz({required this.id, required this.question, required final  List<QuizOption> options, required this.explanation, this.sourceText, this.sourceUrl, this.genre}): _options = options;
   
 
 @override final  String id;
 @override final  String question;
- final  List<ProblemOption> _options;
-@override List<ProblemOption> get options {
+ final  List<QuizOption> _options;
+@override List<QuizOption> get options {
   if (_options is EqualUnmodifiableListView) return _options;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_options);
@@ -229,17 +229,17 @@ class _Problem implements Problem {
 @override final  String? sourceUrl;
 @override final  String? genre;
 
-/// Create a copy of Problem
+/// Create a copy of Quiz
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$ProblemCopyWith<_Problem> get copyWith => __$ProblemCopyWithImpl<_Problem>(this, _$identity);
+_$QuizCopyWith<_Quiz> get copyWith => __$QuizCopyWithImpl<_Quiz>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Problem&&(identical(other.id, id) || other.id == id)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other._options, _options)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.sourceText, sourceText) || other.sourceText == sourceText)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.genre, genre) || other.genre == genre));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Quiz&&(identical(other.id, id) || other.id == id)&&(identical(other.question, question) || other.question == question)&&const DeepCollectionEquality().equals(other._options, _options)&&(identical(other.explanation, explanation) || other.explanation == explanation)&&(identical(other.sourceText, sourceText) || other.sourceText == sourceText)&&(identical(other.sourceUrl, sourceUrl) || other.sourceUrl == sourceUrl)&&(identical(other.genre, genre) || other.genre == genre));
 }
 
 
@@ -248,18 +248,18 @@ int get hashCode => Object.hash(runtimeType,id,question,const DeepCollectionEqua
 
 @override
 String toString() {
-  return 'Problem(id: $id, question: $question, options: $options, explanation: $explanation, sourceText: $sourceText, sourceUrl: $sourceUrl, genre: $genre)';
+  return 'Quiz(id: $id, question: $question, options: $options, explanation: $explanation, sourceText: $sourceText, sourceUrl: $sourceUrl, genre: $genre)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ProblemCopyWith<$Res> implements $ProblemCopyWith<$Res> {
-  factory _$ProblemCopyWith(_Problem value, $Res Function(_Problem) _then) = __$ProblemCopyWithImpl;
+abstract mixin class _$QuizCopyWith<$Res> implements $QuizCopyWith<$Res> {
+  factory _$QuizCopyWith(_Quiz value, $Res Function(_Quiz) _then) = __$QuizCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String question, List<ProblemOption> options, String explanation, String? sourceText, String? sourceUrl, String? genre
+ String id, String question, List<QuizOption> options, String explanation, String? sourceText, String? sourceUrl, String? genre
 });
 
 
@@ -267,21 +267,21 @@ $Res call({
 
 }
 /// @nodoc
-class __$ProblemCopyWithImpl<$Res>
-    implements _$ProblemCopyWith<$Res> {
-  __$ProblemCopyWithImpl(this._self, this._then);
+class __$QuizCopyWithImpl<$Res>
+    implements _$QuizCopyWith<$Res> {
+  __$QuizCopyWithImpl(this._self, this._then);
 
-  final _Problem _self;
-  final $Res Function(_Problem) _then;
+  final _Quiz _self;
+  final $Res Function(_Quiz) _then;
 
-/// Create a copy of Problem
+/// Create a copy of Quiz
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? question = null,Object? options = null,Object? explanation = null,Object? sourceText = freezed,Object? sourceUrl = freezed,Object? genre = freezed,}) {
-  return _then(_Problem(
+  return _then(_Quiz(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,options: null == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
-as List<ProblemOption>,explanation: null == explanation ? _self.explanation : explanation // ignore: cast_nullable_to_non_nullable
+as List<QuizOption>,explanation: null == explanation ? _self.explanation : explanation // ignore: cast_nullable_to_non_nullable
 as String,sourceText: freezed == sourceText ? _self.sourceText : sourceText // ignore: cast_nullable_to_non_nullable
 as String?,sourceUrl: freezed == sourceUrl ? _self.sourceUrl : sourceUrl // ignore: cast_nullable_to_non_nullable
 as String?,genre: freezed == genre ? _self.genre : genre // ignore: cast_nullable_to_non_nullable
@@ -293,20 +293,20 @@ as String?,
 }
 
 /// @nodoc
-mixin _$ProblemOption {
+mixin _$QuizOption {
 
  String get id; String get label; String get text; bool get isCorrect;
-/// Create a copy of ProblemOption
+/// Create a copy of QuizOption
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$ProblemOptionCopyWith<ProblemOption> get copyWith => _$ProblemOptionCopyWithImpl<ProblemOption>(this as ProblemOption, _$identity);
+$QuizOptionCopyWith<QuizOption> get copyWith => _$QuizOptionCopyWithImpl<QuizOption>(this as QuizOption, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProblemOption&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizOption&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
 }
 
 
@@ -315,15 +315,15 @@ int get hashCode => Object.hash(runtimeType,id,label,text,isCorrect);
 
 @override
 String toString() {
-  return 'ProblemOption(id: $id, label: $label, text: $text, isCorrect: $isCorrect)';
+  return 'QuizOption(id: $id, label: $label, text: $text, isCorrect: $isCorrect)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $ProblemOptionCopyWith<$Res>  {
-  factory $ProblemOptionCopyWith(ProblemOption value, $Res Function(ProblemOption) _then) = _$ProblemOptionCopyWithImpl;
+abstract mixin class $QuizOptionCopyWith<$Res>  {
+  factory $QuizOptionCopyWith(QuizOption value, $Res Function(QuizOption) _then) = _$QuizOptionCopyWithImpl;
 @useResult
 $Res call({
  String id, String label, String text, bool isCorrect
@@ -334,14 +334,14 @@ $Res call({
 
 }
 /// @nodoc
-class _$ProblemOptionCopyWithImpl<$Res>
-    implements $ProblemOptionCopyWith<$Res> {
-  _$ProblemOptionCopyWithImpl(this._self, this._then);
+class _$QuizOptionCopyWithImpl<$Res>
+    implements $QuizOptionCopyWith<$Res> {
+  _$QuizOptionCopyWithImpl(this._self, this._then);
 
-  final ProblemOption _self;
-  final $Res Function(ProblemOption) _then;
+  final QuizOption _self;
+  final $Res Function(QuizOption) _then;
 
-/// Create a copy of ProblemOption
+/// Create a copy of QuizOption
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? text = null,Object? isCorrect = null,}) {
   return _then(_self.copyWith(
@@ -356,8 +356,8 @@ as bool,
 }
 
 
-/// Adds pattern-matching-related methods to [ProblemOption].
-extension ProblemOptionPatterns on ProblemOption {
+/// Adds pattern-matching-related methods to [QuizOption].
+extension QuizOptionPatterns on QuizOption {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -370,10 +370,10 @@ extension ProblemOptionPatterns on ProblemOption {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ProblemOption value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QuizOption value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _ProblemOption() when $default != null:
+case _QuizOption() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -392,10 +392,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ProblemOption value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QuizOption value)  $default,){
 final _that = this;
 switch (_that) {
-case _ProblemOption():
+case _QuizOption():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -413,10 +413,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ProblemOption value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QuizOption value)?  $default,){
 final _that = this;
 switch (_that) {
-case _ProblemOption() when $default != null:
+case _QuizOption() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -436,7 +436,7 @@ return $default(_that);case _:
 
 @optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String text,  bool isCorrect)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _ProblemOption() when $default != null:
+case _QuizOption() when $default != null:
 return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
   return orElse();
 
@@ -457,7 +457,7 @@ return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
 
 @optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String text,  bool isCorrect)  $default,) {final _that = this;
 switch (_that) {
-case _ProblemOption():
+case _QuizOption():
 return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
   throw StateError('Unexpected subclass');
 
@@ -477,7 +477,7 @@ return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
 
 @optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String text,  bool isCorrect)?  $default,) {final _that = this;
 switch (_that) {
-case _ProblemOption() when $default != null:
+case _QuizOption() when $default != null:
 return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
   return null;
 
@@ -489,8 +489,8 @@ return $default(_that.id,_that.label,_that.text,_that.isCorrect);case _:
 /// @nodoc
 
 
-class _ProblemOption implements ProblemOption {
-  const _ProblemOption({required this.id, required this.label, required this.text, required this.isCorrect});
+class _QuizOption implements QuizOption {
+  const _QuizOption({required this.id, required this.label, required this.text, required this.isCorrect});
   
 
 @override final  String id;
@@ -498,17 +498,17 @@ class _ProblemOption implements ProblemOption {
 @override final  String text;
 @override final  bool isCorrect;
 
-/// Create a copy of ProblemOption
+/// Create a copy of QuizOption
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$ProblemOptionCopyWith<_ProblemOption> get copyWith => __$ProblemOptionCopyWithImpl<_ProblemOption>(this, _$identity);
+_$QuizOptionCopyWith<_QuizOption> get copyWith => __$QuizOptionCopyWithImpl<_QuizOption>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProblemOption&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuizOption&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.text, text) || other.text == text)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect));
 }
 
 
@@ -517,15 +517,15 @@ int get hashCode => Object.hash(runtimeType,id,label,text,isCorrect);
 
 @override
 String toString() {
-  return 'ProblemOption(id: $id, label: $label, text: $text, isCorrect: $isCorrect)';
+  return 'QuizOption(id: $id, label: $label, text: $text, isCorrect: $isCorrect)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$ProblemOptionCopyWith<$Res> implements $ProblemOptionCopyWith<$Res> {
-  factory _$ProblemOptionCopyWith(_ProblemOption value, $Res Function(_ProblemOption) _then) = __$ProblemOptionCopyWithImpl;
+abstract mixin class _$QuizOptionCopyWith<$Res> implements $QuizOptionCopyWith<$Res> {
+  factory _$QuizOptionCopyWith(_QuizOption value, $Res Function(_QuizOption) _then) = __$QuizOptionCopyWithImpl;
 @override @useResult
 $Res call({
  String id, String label, String text, bool isCorrect
@@ -536,17 +536,17 @@ $Res call({
 
 }
 /// @nodoc
-class __$ProblemOptionCopyWithImpl<$Res>
-    implements _$ProblemOptionCopyWith<$Res> {
-  __$ProblemOptionCopyWithImpl(this._self, this._then);
+class __$QuizOptionCopyWithImpl<$Res>
+    implements _$QuizOptionCopyWith<$Res> {
+  __$QuizOptionCopyWithImpl(this._self, this._then);
 
-  final _ProblemOption _self;
-  final $Res Function(_ProblemOption) _then;
+  final _QuizOption _self;
+  final $Res Function(_QuizOption) _then;
 
-/// Create a copy of ProblemOption
+/// Create a copy of QuizOption
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? text = null,Object? isCorrect = null,}) {
-  return _then(_ProblemOption(
+  return _then(_QuizOption(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable

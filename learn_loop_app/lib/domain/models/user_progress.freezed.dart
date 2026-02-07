@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserProgress {
 
- String get id; String get problemId; bool get isCorrect; int get attemptCount; DateTime? get lastAnsweredAt; int get forgettingStep; DateTime? get nextReviewAt; bool get isHidden;
+ String get id; String get quizId; bool get isCorrect; int get attempt_count; DateTime? get lastAnsweredAt; int get forgettingStep; DateTime? get nextReviewAt; bool get isHidden;
 /// Create a copy of UserProgress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $UserProgressCopyWith<UserProgress> get copyWith => _$UserProgressCopyWithImpl<U
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.problemId, problemId) || other.problemId == problemId)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect)&&(identical(other.attemptCount, attemptCount) || other.attemptCount == attemptCount)&&(identical(other.lastAnsweredAt, lastAnsweredAt) || other.lastAnsweredAt == lastAnsweredAt)&&(identical(other.forgettingStep, forgettingStep) || other.forgettingStep == forgettingStep)&&(identical(other.nextReviewAt, nextReviewAt) || other.nextReviewAt == nextReviewAt)&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.quizId, quizId) || other.quizId == quizId)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect)&&(identical(other.attempt_count, attempt_count) || other.attempt_count == attempt_count)&&(identical(other.lastAnsweredAt, lastAnsweredAt) || other.lastAnsweredAt == lastAnsweredAt)&&(identical(other.forgettingStep, forgettingStep) || other.forgettingStep == forgettingStep)&&(identical(other.nextReviewAt, nextReviewAt) || other.nextReviewAt == nextReviewAt)&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,problemId,isCorrect,attemptCount,lastAnsweredAt,forgettingStep,nextReviewAt,isHidden);
+int get hashCode => Object.hash(runtimeType,id,quizId,isCorrect,attempt_count,lastAnsweredAt,forgettingStep,nextReviewAt,isHidden);
 
 @override
 String toString() {
-  return 'UserProgress(id: $id, problemId: $problemId, isCorrect: $isCorrect, attemptCount: $attemptCount, lastAnsweredAt: $lastAnsweredAt, forgettingStep: $forgettingStep, nextReviewAt: $nextReviewAt, isHidden: $isHidden)';
+  return 'UserProgress(id: $id, quizId: $quizId, isCorrect: $isCorrect, attempt_count: $attempt_count, lastAnsweredAt: $lastAnsweredAt, forgettingStep: $forgettingStep, nextReviewAt: $nextReviewAt, isHidden: $isHidden)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $UserProgressCopyWith<$Res>  {
   factory $UserProgressCopyWith(UserProgress value, $Res Function(UserProgress) _then) = _$UserProgressCopyWithImpl;
 @useResult
 $Res call({
- String id, String problemId, bool isCorrect, int attemptCount, DateTime? lastAnsweredAt, int forgettingStep, DateTime? nextReviewAt, bool isHidden
+ String id, String quizId, bool isCorrect, int attempt_count, DateTime? lastAnsweredAt, int forgettingStep, DateTime? nextReviewAt, bool isHidden
 });
 
 
@@ -62,12 +62,12 @@ class _$UserProgressCopyWithImpl<$Res>
 
 /// Create a copy of UserProgress
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? problemId = null,Object? isCorrect = null,Object? attemptCount = null,Object? lastAnsweredAt = freezed,Object? forgettingStep = null,Object? nextReviewAt = freezed,Object? isHidden = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? quizId = null,Object? isCorrect = null,Object? attempt_count = null,Object? lastAnsweredAt = freezed,Object? forgettingStep = null,Object? nextReviewAt = freezed,Object? isHidden = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,problemId: null == problemId ? _self.problemId : problemId // ignore: cast_nullable_to_non_nullable
+as String,quizId: null == quizId ? _self.quizId : quizId // ignore: cast_nullable_to_non_nullable
 as String,isCorrect: null == isCorrect ? _self.isCorrect : isCorrect // ignore: cast_nullable_to_non_nullable
-as bool,attemptCount: null == attemptCount ? _self.attemptCount : attemptCount // ignore: cast_nullable_to_non_nullable
+as bool,attempt_count: null == attempt_count ? _self.attempt_count : attempt_count // ignore: cast_nullable_to_non_nullable
 as int,lastAnsweredAt: freezed == lastAnsweredAt ? _self.lastAnsweredAt : lastAnsweredAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,forgettingStep: null == forgettingStep ? _self.forgettingStep : forgettingStep // ignore: cast_nullable_to_non_nullable
 as int,nextReviewAt: freezed == nextReviewAt ? _self.nextReviewAt : nextReviewAt // ignore: cast_nullable_to_non_nullable
@@ -157,10 +157,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String problemId,  bool isCorrect,  int attemptCount,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String quizId,  bool isCorrect,  int attempt_count,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserProgress() when $default != null:
-return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
+return $default(_that.id,_that.quizId,_that.isCorrect,_that.attempt_count,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
   return orElse();
 
 }
@@ -178,10 +178,10 @@ return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String problemId,  bool isCorrect,  int attemptCount,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String quizId,  bool isCorrect,  int attempt_count,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)  $default,) {final _that = this;
 switch (_that) {
 case _UserProgress():
-return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
+return $default(_that.id,_that.quizId,_that.isCorrect,_that.attempt_count,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +198,10 @@ return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String problemId,  bool isCorrect,  int attemptCount,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String quizId,  bool isCorrect,  int attempt_count,  DateTime? lastAnsweredAt,  int forgettingStep,  DateTime? nextReviewAt,  bool isHidden)?  $default,) {final _that = this;
 switch (_that) {
 case _UserProgress() when $default != null:
-return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
+return $default(_that.id,_that.quizId,_that.isCorrect,_that.attempt_count,_that.lastAnsweredAt,_that.forgettingStep,_that.nextReviewAt,_that.isHidden);case _:
   return null;
 
 }
@@ -213,13 +213,13 @@ return $default(_that.id,_that.problemId,_that.isCorrect,_that.attemptCount,_tha
 
 
 class _UserProgress implements UserProgress {
-  const _UserProgress({required this.id, required this.problemId, required this.isCorrect, required this.attemptCount, this.lastAnsweredAt, required this.forgettingStep, this.nextReviewAt, this.isHidden = false});
+  const _UserProgress({required this.id, required this.quizId, required this.isCorrect, required this.attempt_count, this.lastAnsweredAt, required this.forgettingStep, this.nextReviewAt, this.isHidden = false});
   
 
 @override final  String id;
-@override final  String problemId;
+@override final  String quizId;
 @override final  bool isCorrect;
-@override final  int attemptCount;
+@override final  int attempt_count;
 @override final  DateTime? lastAnsweredAt;
 @override final  int forgettingStep;
 @override final  DateTime? nextReviewAt;
@@ -235,16 +235,16 @@ _$UserProgressCopyWith<_UserProgress> get copyWith => __$UserProgressCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.problemId, problemId) || other.problemId == problemId)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect)&&(identical(other.attemptCount, attemptCount) || other.attemptCount == attemptCount)&&(identical(other.lastAnsweredAt, lastAnsweredAt) || other.lastAnsweredAt == lastAnsweredAt)&&(identical(other.forgettingStep, forgettingStep) || other.forgettingStep == forgettingStep)&&(identical(other.nextReviewAt, nextReviewAt) || other.nextReviewAt == nextReviewAt)&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.quizId, quizId) || other.quizId == quizId)&&(identical(other.isCorrect, isCorrect) || other.isCorrect == isCorrect)&&(identical(other.attempt_count, attempt_count) || other.attempt_count == attempt_count)&&(identical(other.lastAnsweredAt, lastAnsweredAt) || other.lastAnsweredAt == lastAnsweredAt)&&(identical(other.forgettingStep, forgettingStep) || other.forgettingStep == forgettingStep)&&(identical(other.nextReviewAt, nextReviewAt) || other.nextReviewAt == nextReviewAt)&&(identical(other.isHidden, isHidden) || other.isHidden == isHidden));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,problemId,isCorrect,attemptCount,lastAnsweredAt,forgettingStep,nextReviewAt,isHidden);
+int get hashCode => Object.hash(runtimeType,id,quizId,isCorrect,attempt_count,lastAnsweredAt,forgettingStep,nextReviewAt,isHidden);
 
 @override
 String toString() {
-  return 'UserProgress(id: $id, problemId: $problemId, isCorrect: $isCorrect, attemptCount: $attemptCount, lastAnsweredAt: $lastAnsweredAt, forgettingStep: $forgettingStep, nextReviewAt: $nextReviewAt, isHidden: $isHidden)';
+  return 'UserProgress(id: $id, quizId: $quizId, isCorrect: $isCorrect, attempt_count: $attempt_count, lastAnsweredAt: $lastAnsweredAt, forgettingStep: $forgettingStep, nextReviewAt: $nextReviewAt, isHidden: $isHidden)';
 }
 
 
@@ -255,7 +255,7 @@ abstract mixin class _$UserProgressCopyWith<$Res> implements $UserProgressCopyWi
   factory _$UserProgressCopyWith(_UserProgress value, $Res Function(_UserProgress) _then) = __$UserProgressCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String problemId, bool isCorrect, int attemptCount, DateTime? lastAnsweredAt, int forgettingStep, DateTime? nextReviewAt, bool isHidden
+ String id, String quizId, bool isCorrect, int attempt_count, DateTime? lastAnsweredAt, int forgettingStep, DateTime? nextReviewAt, bool isHidden
 });
 
 
@@ -272,12 +272,12 @@ class __$UserProgressCopyWithImpl<$Res>
 
 /// Create a copy of UserProgress
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? problemId = null,Object? isCorrect = null,Object? attemptCount = null,Object? lastAnsweredAt = freezed,Object? forgettingStep = null,Object? nextReviewAt = freezed,Object? isHidden = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? quizId = null,Object? isCorrect = null,Object? attempt_count = null,Object? lastAnsweredAt = freezed,Object? forgettingStep = null,Object? nextReviewAt = freezed,Object? isHidden = null,}) {
   return _then(_UserProgress(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,problemId: null == problemId ? _self.problemId : problemId // ignore: cast_nullable_to_non_nullable
+as String,quizId: null == quizId ? _self.quizId : quizId // ignore: cast_nullable_to_non_nullable
 as String,isCorrect: null == isCorrect ? _self.isCorrect : isCorrect // ignore: cast_nullable_to_non_nullable
-as bool,attemptCount: null == attemptCount ? _self.attemptCount : attemptCount // ignore: cast_nullable_to_non_nullable
+as bool,attempt_count: null == attempt_count ? _self.attempt_count : attempt_count // ignore: cast_nullable_to_non_nullable
 as int,lastAnsweredAt: freezed == lastAnsweredAt ? _self.lastAnsweredAt : lastAnsweredAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,forgettingStep: null == forgettingStep ? _self.forgettingStep : forgettingStep // ignore: cast_nullable_to_non_nullable
 as int,nextReviewAt: freezed == nextReviewAt ? _self.nextReviewAt : nextReviewAt // ignore: cast_nullable_to_non_nullable

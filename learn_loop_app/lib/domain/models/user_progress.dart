@@ -7,9 +7,9 @@ part 'user_progress.freezed.dart';
 abstract class UserProgress with _$UserProgress {
   const factory UserProgress({
     required String id,
-    required String problemId,
+    required String quizId,
     required bool isCorrect,
-    required int attemptCount,
+    required int attempt_count,
     DateTime? lastAnsweredAt,
     required int forgettingStep,
     DateTime? nextReviewAt,

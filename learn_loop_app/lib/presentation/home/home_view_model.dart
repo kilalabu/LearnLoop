@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/repositories/problem_repository.dart';
+import '../../domain/repositories/quiz_repository.dart';
 import '../../domain/repositories/user_progress_repository.dart';
-import '../../data/repositories/problem_repository_impl.dart';
+import '../../data/repositories/quiz_repository_impl.dart';
 import '../../data/repositories/user_progress_repository_impl.dart';
 import 'state/home_state.dart';
 
 // Repository Providers
-final problemRepositoryProvider = Provider<ProblemRepository>(
-  (ref) => FakeProblemRepository(),
+final quizRepositoryProvider = Provider<QuizRepository>(
+  (ref) => FakeQuizRepository(),
 );
 
 final userProgressRepositoryProvider = Provider<UserProgressRepository>(
@@ -26,15 +26,15 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
   }
 
   Future<HomeData> _loadHomeData() async {
-    final problemRepo = ref.read(problemRepositoryProvider);
+    final quizRepo = ref.read(quizRepositoryProvider);
     final progressRepo = ref.read(userProgressRepositoryProvider);
 
-    final problems = await problemRepo.getTodayProblems();
-    final totalCount = await problemRepo.getTotalProblemCount();
+    final quizzes = await quizRepo.getTodayQuizzes();
+    final totalCount = await quizRepo.getTotalQuizCount();
     final stats = await progressRepo.getStats();
 
     return HomeData(
-      pendingCount: problems.length,
+      pendingCount: quizzes.length,
       totalCount: totalCount,
       streak: stats.streak,
       accuracy: stats.accuracy,

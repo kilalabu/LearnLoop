@@ -35,7 +35,7 @@ class TodayCard extends StatelessWidget {
           ),
           AppSpacing.gapSm,
           Text(
-            '今日の問題',
+            '今日のクイズ',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
