@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { QuizRepository } from '@/lib/repositories/quiz-repository';
+import { getQuizRepository } from '@/lib/repositories/get-quiz-repository';
 
-// Repositoryのインスタンス化 (シングルトンでも良いが、この規模ならリクエスト毎でも可)
+// Repositoryのインスタンス化
 // サーバーサイドでのみ動作するため、ここでnewして問題ない
-const repository = new QuizRepository();
+// USE_FAKE_AI=true の場合はFakeRepositoryが使用される
+const repository = getQuizRepository();
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
       try {
         result = await repository.generateQuizFromUrl(data, modelId);
       } catch (error) {
+        console.error(error);
         return NextResponse.json(
           { error: 'Failed to scrape URL or generate quiz from it.' },
           { status: 500 }

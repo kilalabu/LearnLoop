@@ -88,6 +88,9 @@ API キーが必要です。
 GOOGLE_GENERATIVE_AI_API_KEY=xxxxxxxxxx
 OPENAI_API_KEY=xxxxxxxxxx
 ANTHROPIC_API_KEY=xxxxxxxxxx
+
+# trueにするとAI APIを呼ばずにダミーデータを返す
+USE_FAKE_AI=true
 ```
 
 ### 開発サーバーの起動

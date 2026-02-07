@@ -27,7 +27,6 @@ export class QuizRepository {
   async generateQuizFromText(text: string, modelId?: string): Promise<GeneratedQuizResponse> {
 
     // 入力テキストが長すぎる場合、トークン制限考慮で切り詰め
-    // gpt-4o-miniは128kコンテキスト持つが、安全のため20000文字程度を目安にする
     const content = text.length > 20000 ? text.substring(0, 20000) : text;
 
     try {
