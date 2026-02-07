@@ -17,7 +17,6 @@ export const QuizSchema = z.object({
   explanation: z.string().describe(
     "解説。必ずMarkdown形式で記述し、コードが関連する場合はコードブロックを積極的に使用すること。比較表・太字なども活用して構造化すること。"
   ),
-  tags: z.array(z.string()).optional().describe("技術カテゴリや関連トピックのタグ"),
 });
 
 export const GenerateQuizResponseSchema = z.object({
