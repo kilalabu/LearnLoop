@@ -7,8 +7,12 @@ export async function GET(req: NextRequest) {
     const auth = await authenticateRequest(req);
     if (auth instanceof NextResponse) return auth;
 
+    // クエリパラメータから取得件数を取得（デフォルト10件）
+    const { searchParams } = new URL(req.url);
+    const limit = Number(searchParams.get('limit')) || 10;
+
     const repo = new QuizRepository(auth.supabase, auth.userId);
-    const quizzes = await repo.getTodayQuizzes();
+    const quizzes = await repo.fetchStudySession(limit);
 
     return NextResponse.json({ quizzes });
   } catch (error) {

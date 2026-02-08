@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { QuizRepository } from '@/repositories/quiz-repository';
 import type { SaveQuizInput } from '@/domain/quiz';
 import { createMockSupabaseClient } from '../helpers/supabase-mock';
@@ -77,38 +77,47 @@ describe('QuizRepository', () => {
     });
   });
 
-  describe('getTodayQuizzes()', () => {
+  describe('fetchStudySession()', () => {
     it('DB 行が FormattedQuiz に正しく変換される（label付与, category→genre, source_url→sourceUrl）', async () => {
-      // --- Arrange: DB 行を模擬 ---
-      mock.setResult({
-        data: [
-          {
-            id: 'q1',
-            question: '問題1',
-            options: [
-              { id: 'o1', text: '選択肢A', isCorrect: true },
-              { id: 'o2', text: '選択肢B', isCorrect: false },
-              { id: 'o3', text: '選択肢C', isCorrect: false },
-              { id: 'o4', text: '選択肢D', isCorrect: false },
-            ],
-            explanation: '解説1',
-            source_url: 'https://example.com',
-            category: 'TypeScript',
-            user_progress: null,
-          },
-        ],
-        error: null,
+      // fetchStudySession は2回クエリを実行する:
+      // 1回目: 復習クイズ（user_progress テーブル）→ 空配列を返す
+      // 2回目: 新規クイズ（quizzes テーブル）→ テストデータを返す
+      let callCount = 0;
+      mock.chain.then = vi.fn().mockImplementation((resolve: (v: unknown) => void) => {
+        callCount++;
+        if (callCount === 1) {
+          // 復習クイズ: 空
+          return resolve({ data: [], error: null });
+        }
+        // 新規クイズ: テストデータ
+        return resolve({
+          data: [
+            {
+              id: 'q1',
+              question: '問題1',
+              options: [
+                { id: 'o1', text: '選択肢A', isCorrect: true },
+                { id: 'o2', text: '選択肢B', isCorrect: false },
+                { id: 'o3', text: '選択肢C', isCorrect: false },
+                { id: 'o4', text: '選択肢D', isCorrect: false },
+              ],
+              explanation: '解説1',
+              source_url: 'https://example.com',
+              category: 'TypeScript',
+              user_progress: null,
+            },
+          ],
+          error: null,
+        });
       });
 
-      // --- Act ---
-      const result = await repo.getTodayQuizzes();
+      const result = await repo.fetchStudySession();
 
-      // --- Assert ---
       expect(result).toHaveLength(1);
       const quiz = result[0];
 
       // label が A, B, C, D の順に付与されている
-      expect(quiz.options.map((o) => o.label)).toEqual(['A', 'B', 'C', 'D']);
+      expect(quiz.options.map((o: { id: string; label: string; text: string; isCorrect: boolean }) => o.label)).toEqual(['A', 'B', 'C', 'D']);
 
       // option の元プロパティ (id, text, isCorrect) が保持されている
       expect(quiz.options[0]).toEqual({
@@ -124,16 +133,19 @@ describe('QuizRepository', () => {
       // source_url → sourceUrl (camelCase)
       expect(quiz.sourceUrl).toBe('https://example.com');
 
-      // その他フィールド
+      // 新規クイズなので type は 'new'
+      expect(quiz.type).toBe('new');
+
       expect(quiz.id).toBe('q1');
       expect(quiz.question).toBe('問題1');
       expect(quiz.explanation).toBe('解説1');
     });
 
     it('data が null のとき空配列を返す', async () => {
+      // 両方のクエリが null を返す
       mock.setResult({ data: null, error: null });
 
-      const result = await repo.getTodayQuizzes();
+      const result = await repo.fetchStudySession();
 
       expect(result).toEqual([]);
     });

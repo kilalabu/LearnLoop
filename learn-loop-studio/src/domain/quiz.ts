@@ -61,4 +61,5 @@ export interface FormattedQuiz {
   explanation: string;
   sourceUrl: string | null;
   genre: string;
+  type?: 'review' | 'new';  // 復習クイズか新規クイズかの区分（後方互換のため optional）
 }

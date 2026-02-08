@@ -25,6 +25,12 @@ export function createMockSupabaseClient() {
     'is',
     'order',
     'single',
+    'lte',
+    'gte',
+    'lt',
+    'gt',
+    'limit',
+    'filter',
   ];
 
   for (const method of methods) {

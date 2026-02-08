@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { UserStats } from '@/domain/progress';
+import { calculateNextReview } from '@/services/spaced-repetition';
 
 export class ProgressRepository {
   constructor(
@@ -14,21 +15,36 @@ export class ProgressRepository {
   async recordAnswer(quizId: string, isCorrect: boolean): Promise<void> {
     const now = new Date().toISOString();
 
-    // 既存レコードを確認
+    // 既存レコードを確認（SM-2計算に必要なフィールドを取得）
     const { data: existing } = await this.supabase
       .from('user_progress')
-      .select('attempt_count')
+      .select('attempt_count, interval, current_streak, ease_factor')
       .eq('user_id', this.userId)
       .eq('quiz_id', quizId)
       .single();
 
     if (existing) {
       // 2回目以降: UPDATE
+      // SM-2アルゴリズムで次回復習日を計算
+      const result = calculateNextReview({
+        isCorrect,
+        currentProgress: {
+          interval: existing.interval,
+          current_streak: existing.current_streak,
+          ease_factor: existing.ease_factor,
+          attempt_count: existing.attempt_count,
+        },
+      });
+
       const { error } = await this.supabase
         .from('user_progress')
         .update({
           is_correct: isCorrect,
-          attempt_count: existing.attempt_count + 1,
+          attempt_count: result.newAttemptCount,
+          interval: result.newInterval,
+          current_streak: result.newCurrentStreak,
+          ease_factor: result.newEaseFactor,
+          next_review_at: result.nextReviewAt.toISOString(),
           last_answered_at: now,
         })
         .eq('user_id', this.userId)
@@ -39,13 +55,27 @@ export class ProgressRepository {
       }
     } else {
       // 初回: INSERT
+      // SM-2アルゴリズムで次回復習日を計算（初期値から）
+      const result = calculateNextReview({
+        isCorrect,
+        currentProgress: {
+          interval: 0,
+          current_streak: 0,
+          ease_factor: 2.5,
+          attempt_count: 0,
+        },
+      });
+
       const { error } = await this.supabase.from('user_progress').insert({
         user_id: this.userId,
         quiz_id: quizId,
         is_correct: isCorrect,
-        attempt_count: 1,
+        attempt_count: result.newAttemptCount,
+        interval: result.newInterval,
+        current_streak: result.newCurrentStreak,
+        ease_factor: result.newEaseFactor,
+        next_review_at: result.nextReviewAt.toISOString(),
         last_answered_at: now,
-        forgetting_step: 0,
         is_hidden: false,
       });
 
