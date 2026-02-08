@@ -15,7 +15,9 @@
       "Bash(python3:*)",
       "Bash(flutter analyze:*)",
       "Bash(flutter run --help:*)",
-      "Bash(./gradlew signingReport:*)"
+      "Bash(./gradlew signingReport:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(dart run build_runner build:*)"
     ]
   }
 }

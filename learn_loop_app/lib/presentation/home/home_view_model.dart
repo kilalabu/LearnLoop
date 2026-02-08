@@ -7,7 +7,7 @@ import 'state/home_state.dart';
 
 // Repository Providers
 final quizRepositoryProvider = Provider<QuizRepository>(
-  (ref) => FakeQuizRepository(),
+  (ref) => QuizRepositoryImpl(),
 );
 
 final userProgressRepositoryProvider = Provider<UserProgressRepository>(

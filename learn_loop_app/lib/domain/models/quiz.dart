@@ -10,7 +10,6 @@ abstract class Quiz with _$Quiz {
     required String question,
     required List<QuizOption> options,
     required String explanation,
-    String? sourceText,
     String? sourceUrl,
     String? genre,
   }) = _Quiz;

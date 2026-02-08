@@ -15,9 +15,8 @@ Supabase と Google 認証の設定が必要です。
 # Supabase
 SUPABASE_URL=xxxxxxxxxx
 SUPABASE_KEY=xxxxxxxxxx
-
-# Google Sign-In（Android で idToken を取得するために必要な Web Client ID）
 GOOGLE_WEB_CLIENT_ID=xxxxxxxxxx.apps.googleusercontent.com
+API_BASE_URL=xxxxxxxxxx
 ```
 
 ### アプリの起動
