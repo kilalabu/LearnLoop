@@ -6,6 +6,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../home_view_model.dart';
 import 'today_card.dart';
 import 'stats_row.dart';
+import '../../../data/auth/auth_providers.dart';
 
 /// ホーム画面
 class HomeScreen extends ConsumerWidget {
@@ -25,9 +26,9 @@ class HomeScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('エラーが発生しました', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
+                AppSpacing.gapSm,
                 Text('$error', style: theme.textTheme.bodySmall),
-                const SizedBox(height: 16),
+                AppSpacing.gapMd,
                 ElevatedButton(
                   onPressed: () =>
                       ref.read(homeViewModelProvider.notifier).refresh(),
@@ -52,7 +53,7 @@ class HomeScreen extends ConsumerWidget {
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -71,7 +72,7 @@ class HomeScreen extends ConsumerWidget {
                         size: 20,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.gapSm,
                     Text(
                       'LearnLoop',
                       style: theme.textTheme.headlineSmall?.copyWith(
@@ -85,11 +86,32 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
                 IconButton(
-                  onPressed: () {
-                    // TODO: Settings
+                  onPressed: () async {
+                    // ログアウト確認ダイアログを表示
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('ログアウト'),
+                        content: const Text('ログアウトしますか？'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('キャンセル'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('ログアウト'),
+                          ),
+                        ],
+                      ),
+                    );
+                    // 確認された場合のみログアウト実行
+                    if (confirmed == true) {
+                      await ref.read(authServiceProvider).signOut();
+                    }
                   },
                   icon: Icon(
-                    Icons.settings_outlined,
+                    Icons.logout,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
