@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -34,12 +35,23 @@ class ExplanationCard extends StatelessWidget {
             ],
           ),
           AppSpacing.gapMd,
-          Text(
-            explanation,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-              height: 1.6,
+          // マークダウン形式で解説を表示
+          MarkdownBody(
+            data: explanation,
+            selectable: true,
+            styleSheet: MarkdownStyleSheet(
+              p: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                height: 1.6,
+              ),
             ),
+            onTapLink: (text, href, title) async {
+              if (href == null) return;
+              final uri = Uri.parse(href);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
+            },
           ),
           if (sourceUrl != null) ...[
             AppSpacing.gapMd,
