@@ -13,6 +13,7 @@
 |:---|:---|:---|:---|
 | コード調査・探索 | `codebase-explorer` | sonnet | 変更前の影響調査に積極的に使う |
 | 実装計画 | `implementation-planner` | inherit | 複数ステップの実装タスク時 |
+| コード実装 | `code-implementer` | sonnet | プランの各ステップを直列実行 |
 | UI/UXデザイン | `ui-designer` | inherit | UI新規作成・改修の前にデザインを検討 |
 | テスト作成 | `test-writer` | sonnet | 機能実装・バグ修正後に積極的に使う |
 
@@ -20,7 +21,8 @@
 1. `codebase-explorer` (sonnet) で調査 — 調査の大量トークン消費を安価なモデルで処理
 2. 調査結果を `implementation-planner` (Opus) に渡してプラン作成 — 高品質な設計判断のみ Opus で実行
 3. プランをユーザーに提示して承認を得る
-4. 承認後、実装を開始
+4. 承認後、プランの各ステップを `code-implementer` (sonnet) に直列で委譲 — Opus はステップの指示出しのみ
+5. ロジックのテストは `test-writer` (sonnet) に委譲 — 実装と並列実行可（UI非依存のため）
 
 ## ユーザーのスキルセット
 
