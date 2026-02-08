@@ -8,6 +8,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_progress_bar.dart';
 import '../../../domain/models/quiz.dart';
+import '../../home/home_view_model.dart';
 import '../quiz_view_model.dart';
 import '../state/quiz_state.dart';
 import 'option_card.dart';
@@ -39,7 +40,7 @@ class QuizQuestionScreen extends ConsumerWidget {
             ),
           ),
           QuizCompleted(:final correctCount, :final totalCount) =>
-            _buildCompletedScreen(context, correctCount, totalCount),
+            _buildCompletedScreen(context, ref, correctCount, totalCount),
           QuizAnswering(
             :final quizzes,
             :final currentIndex,
@@ -266,6 +267,7 @@ class QuizQuestionScreen extends ConsumerWidget {
 
   Widget _buildCompletedScreen(
     BuildContext context,
+    WidgetRef ref,
     int correctCount,
     int totalCount,
   ) {
@@ -306,7 +308,10 @@ class QuizQuestionScreen extends ConsumerWidget {
             ),
             AppSpacing.gapXxl,
             AppButton(
-              onPressed: () => context.go('/'),
+              onPressed: () {
+                ref.invalidate(homeViewModelProvider);
+                context.go('/');
+              },
               isFullWidth: true,
               child: const Text('ホームに戻る'),
             ),

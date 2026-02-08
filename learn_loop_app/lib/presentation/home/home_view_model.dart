@@ -11,7 +11,7 @@ final quizRepositoryProvider = Provider<QuizRepository>(
 );
 
 final userProgressRepositoryProvider = Provider<UserProgressRepository>(
-  (ref) => FakeUserProgressRepository(),
+  (ref) => UserProgressRepositoryImpl(),
 );
 
 // ViewModel Provider

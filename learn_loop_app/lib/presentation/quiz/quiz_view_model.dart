@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/models/quiz.dart';
 import '../home/home_view_model.dart';
 import 'state/quiz_state.dart';
@@ -71,6 +72,12 @@ class QuizViewModel extends Notifier<QuizState> {
     if (isCorrect) {
       _correctCount++;
     }
+
+    // バックエンドに回答を記録(fire-and-forget)
+    final progressRepo = ref.read(userProgressRepositoryProvider);
+    progressRepo
+        .recordAnswer(quizId: quiz.id, isCorrect: isCorrect)
+        .catchError((e) => debugPrint('回答記録失敗: $e'));
 
     state = QuizState.showingResult(
       quizzes: currentState.quizzes,
