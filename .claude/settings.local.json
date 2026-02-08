@@ -11,7 +11,11 @@
       "Bash(npm run build:*)",
       "Bash(npm test:*)",
       "Bash(eval:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(python3:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter run --help:*)",
+      "Bash(./gradlew signingReport:*)"
     ]
   }
 }

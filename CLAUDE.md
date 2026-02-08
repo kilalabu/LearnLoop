@@ -16,6 +16,7 @@
 | コード実装 | `code-implementer` | sonnet | プランの各ステップを直列実行 |
 | UI/UXデザイン | `ui-designer` | inherit | UI新規作成・改修の前にデザインを検討 |
 | テスト作成 | `test-writer` | sonnet | 機能実装・バグ修正後に積極的に使う |
+| バグ調査 | `bug-investigator` | sonnet | ログ・スタックトレースから原因特定 |
 
 ### 計画→実装フロー（コスト最適化）
 1. `codebase-explorer` (sonnet) で調査 — 調査の大量トークン消費を安価なモデルで処理
