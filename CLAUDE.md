@@ -13,6 +13,7 @@
 |:---|:---|:---|:---|
 | コード調査・探索 | `codebase-explorer` | sonnet | 変更前の影響調査に積極的に使う |
 | 実装計画 | `implementation-planner` | inherit | 複数ステップの実装タスク時 |
+| 計画更新 | `plan-updater` | inherit | 計画を修正・更新するときに使う |
 | コード実装 | `code-implementer` | sonnet | プランの各ステップを直列実行 |
 | UI/UXデザイン | `ui-designer` | inherit | UI新規作成・改修の前にデザインを検討 |
 | テスト作成 | `test-writer` | sonnet | 機能実装・バグ修正後に積極的に使う |
