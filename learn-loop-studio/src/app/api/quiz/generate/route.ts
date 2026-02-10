@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getQuizGenerator } from '@/services/get-quiz-generator';
+import { getQuizImporter } from '@/services/get-quiz-importer';
 import { authenticateOrFallback } from '@/lib/supabase/auth';
 
 const generator = getQuizGenerator();
+const importer = getQuizImporter();
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +12,7 @@ export async function POST(req: NextRequest) {
     if (auth instanceof NextResponse) return auth;
 
     const body = await req.json();
-    const { sourceType, data, modelId } = body;
+    const { sourceType, data, modelId, maxQuestions } = body;
 
     if (!sourceType || !data) {
       return NextResponse.json(
@@ -23,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     if (sourceType === 'url') {
       try {
-        result = await generator.generateQuizFromUrl(data, modelId);
+        result = await generator.generateQuizFromUrl(data, modelId, maxQuestions);
       } catch (error) {
         console.error(error);
         return NextResponse.json(
@@ -38,10 +40,18 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      result = await generator.generateQuizFromText(data, modelId);
+      result = await generator.generateQuizFromText(data, modelId, maxQuestions);
+    } else if (sourceType === 'import') {
+      if (data.length < 10) {
+        return NextResponse.json(
+          { error: 'Import content is too short.' },
+          { status: 400 }
+        );
+      }
+      result = await importer.importFromText(data, modelId, maxQuestions);
     } else {
       return NextResponse.json(
-        { error: 'Invalid sourceType. Must be "url" or "text".' },
+        { error: 'Invalid sourceType. Must be "url", "text", or "import".' },
         { status: 400 }
       );
     }

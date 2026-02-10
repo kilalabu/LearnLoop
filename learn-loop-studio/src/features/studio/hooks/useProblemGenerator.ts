@@ -24,7 +24,13 @@ export const useProblemGenerator = () => {
 
   // 問題を生成する
   // useCallback は、関数の再定義を防ぎ、子コンポーネントの不要な再レンダリングを抑えます。
-  const generateProblems = useCallback(async (sourceType: 'text' | 'url', data: string, category: string, modelId?: string) => {
+  const generateProblems = useCallback(async (
+    sourceType: 'text' | 'url' | 'import',
+    data: string,
+    category: string,
+    modelId?: string,
+    maxQuestions?: 'default' | 'unlimited' | number
+  ) => {
     // バリデーション
     if (!data || data.length === 0) {
       return;
@@ -38,7 +44,7 @@ export const useProblemGenerator = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ sourceType, data, modelId }),
+        body: JSON.stringify({ sourceType, data, modelId, maxQuestions }),
       });
 
       if (!response.ok) {
@@ -70,7 +76,8 @@ export const useProblemGenerator = () => {
         toast.warning("クイズが生成されませんでした。別のテキストで試してください。");
       } else {
         setProblems(newProblems);
-        toast.success(`${newProblems.length}問のクイズが生成されました！`);
+        const actionLabel = sourceType === 'import' ? '取り込まれ' : '生成され';
+        toast.success(`${newProblems.length}問のクイズが${actionLabel}ました！`);
       }
 
     } catch (error) {

@@ -63,17 +63,27 @@ const res = await fetch('/api/users', {
 };
 
 export class FakeQuizGenerator {
-  async generateQuizFromText(_text: string, _modelId?: string): Promise<GeneratedQuizResponse> {
+  async generateQuizFromText(
+    _text: string,
+    _modelId?: string,
+    _maxQuestions?: 'default' | 'unlimited' | number
+  ): Promise<GeneratedQuizResponse> {
     console.log('FakeQuizGenerator: generateQuizFromText called');
     console.log('Input _text:', _text);
     console.log('Input _modelId:', _modelId);
+    console.log('Input _maxQuestions:', _maxQuestions);
     return FAKE_RESPONSE;
   }
 
-  async generateQuizFromUrl(_url: string, _modelId?: string): Promise<GeneratedQuizResponse> {
+  async generateQuizFromUrl(
+    _url: string,
+    _modelId?: string,
+    _maxQuestions?: 'default' | 'unlimited' | number
+  ): Promise<GeneratedQuizResponse> {
     console.log('FakeQuizGenerator: generateQuizFromUrl called');
     console.log('Input _url:', _url);
     console.log('Input _modelId:', _modelId);
+    console.log('Input _maxQuestions:', _maxQuestions);
     return FAKE_RESPONSE;
   }
 }

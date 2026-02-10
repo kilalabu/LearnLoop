@@ -14,14 +14,21 @@ import {
   Lightbulb,
   Rocket,
   Link as LinkIcon,
-  FileText
+  FileText,
+  FileUp
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { MODEL_OPTIONS, DEFAULT_MODEL, type ModelId } from "@/lib/ai/models";
 
 interface GenerateScreenProps {
-  onGenerate: (sourceType: 'text' | 'url', data: string, category: string, modelId?: string) => Promise<void>;
+  onGenerate: (
+    sourceType: 'text' | 'url' | 'import',
+    data: string,
+    category: string,
+    modelId?: string,
+    maxQuestions?: 'default' | 'unlimited' | number
+  ) => Promise<void>;
   isGenerating: boolean;
 }
 
@@ -32,11 +39,14 @@ const MAX_CHARS = 20000; // API limit consideration
  * URLまたはテキスト入力からAIが問題を生成します。
  */
 export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps) {
-  const [sourceType, setSourceType] = useState<'text' | 'url'>('text');
+  const [sourceType, setSourceType] = useState<'text' | 'url' | 'import'>('text');
   const [sourceText, setSourceText] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
+  const [importText, setImportText] = useState("");
   const [category, setCategory] = useState("");
   const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
+  const [maxQuestions, setMaxQuestions] = useState<'default' | 'unlimited' | 'custom'>('default');
+  const [customQuestionCount, setCustomQuestionCount] = useState<string>("5");
 
   // バリデーション
   const isUrlValid = (url: string) => {
@@ -51,18 +61,33 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
   const charCount = sourceText.length;
   const isTextValid = charCount >= 20 && charCount <= MAX_CHARS;
 
+  const importCharCount = importText.length;
+  const isImportValid = importCharCount >= 20;
+
   const canGenerate = category.length > 0 && !isGenerating && (
     (sourceType === 'text' && isTextValid) ||
-    (sourceType === 'url' && isUrlValid(sourceUrl))
+    (sourceType === 'url' && isUrlValid(sourceUrl)) ||
+    (sourceType === 'import' && isImportValid)
   );
 
   const handleGenerate = () => {
-    if (canGenerate) {
-      if (sourceType === 'text') {
-        onGenerate('text', sourceText, category, selectedModel);
-      } else {
-        onGenerate('url', sourceUrl, category, selectedModel);
-      }
+    if (!canGenerate) return;
+
+    // 取り込みタブの場合は常に 'unlimited' を使用（問題数制限なし）
+    // 'custom' の場合は数値に変換してAPIに渡す
+    const effectiveMaxQuestions: 'default' | 'unlimited' | number =
+      sourceType === 'import'
+        ? 'unlimited'
+        : maxQuestions === 'custom'
+          ? (parseInt(customQuestionCount, 10) || 5)
+          : maxQuestions;
+
+    if (sourceType === 'text') {
+      onGenerate('text', sourceText, category, selectedModel, effectiveMaxQuestions);
+    } else if (sourceType === 'url') {
+      onGenerate('url', sourceUrl, category, selectedModel, effectiveMaxQuestions);
+    } else if (sourceType === 'import') {
+      onGenerate('import', importText, category, selectedModel, effectiveMaxQuestions);
     }
   };
 
@@ -101,8 +126,8 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
             ソースを選択して入力
           </Label>
 
-          <Tabs defaultValue="text" value={sourceType} onValueChange={(v) => setSourceType(v as 'text' | 'url')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted/50 p-1 rounded-xl">
+          <Tabs defaultValue="text" value={sourceType} onValueChange={(v) => setSourceType(v as 'text' | 'url' | 'import')} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-4 bg-muted/50 p-1 rounded-xl">
               <TabsTrigger value="text" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300">
                 <FileText className="w-4 h-4 mr-2" />
                 テキスト入力
@@ -110,6 +135,10 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
               <TabsTrigger value="url" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300">
                 <LinkIcon className="w-4 h-4 mr-2" />
                 URLから抽出
+              </TabsTrigger>
+              <TabsTrigger value="import" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-300">
+                <FileUp className="w-4 h-4 mr-2" />
+                取り込み
               </TabsTrigger>
             </TabsList>
 
@@ -151,6 +180,68 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
                 ※ 記事本文をAIが自動抽出します。ログインが必要なページは読み込めない場合があります。
               </p>
             </TabsContent>
+
+            <TabsContent value="import" className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-300">
+              <div className="px-1">
+                <span className="text-xs text-muted-foreground">マークダウン形式のクイズファイルを添付するか、内容を貼り付けてください</span>
+              </div>
+
+              {/* ファイル添付ボタン */}
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-2xl"
+                  onClick={() => document.getElementById('import-file-input')?.click()}
+                >
+                  <FileUp className="w-4 h-4 mr-2" />
+                  ファイルを選択
+                </Button>
+                <input
+                  id="import-file-input"
+                  type="file"
+                  accept=".md,.txt"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      const text = ev.target?.result;
+                      if (typeof text === 'string') {
+                        setImportText(text);
+                      }
+                    };
+                    reader.readAsText(file);
+                    // 同じファイルを再選択できるようにリセット
+                    e.target.value = '';
+                  }}
+                />
+                <span className="text-xs text-muted-foreground">.md, .txt ファイルに対応</span>
+              </div>
+
+              {/* テキストエリア（コピペ or ファイル読み込み結果） */}
+              <div className="flex items-center justify-between px-1">
+                <span className="text-xs text-muted-foreground">ファイル読み込み結果を確認・編集できます</span>
+                <span className={cn(
+                  "text-xs font-bold font-mono transition-colors",
+                  "text-muted-foreground"
+                )}>
+                  {importCharCount} 文字
+                </span>
+              </div>
+              <div className="relative group">
+                <Textarea
+                  value={importText}
+                  onChange={(e) => setImportText(e.target.value)}
+                  placeholder="クイズのマークダウンをここに貼り付けてください..."
+                  className="min-h-[300px] max-h-[500px] overflow-y-auto bg-card rounded-3xl border-2 border-border hover:border-primary/50 transition-all p-6 text-lg leading-relaxed resize-none focus-visible:ring-primary group-hover:shadow-xl group-hover:shadow-primary/5"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground font-medium px-2">
+                {importCharCount < 20 ? "※ 最低20文字以上のテキストが必要です" : "取り込み可能です。"}
+              </p>
+            </TabsContent>
           </Tabs>
         </section>
 
@@ -172,6 +263,39 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
           </Select>
         </section>
 
+        {/* 問題数制限（取り込みタブでは非表示） */}
+        {sourceType !== 'import' && (
+          <section className="space-y-3">
+            <Label className="text-sm font-bold flex items-center gap-2">
+              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">4</span>
+              問題数の上限
+            </Label>
+            <div className="flex items-center gap-3">
+              <Select value={maxQuestions} onValueChange={(v) => setMaxQuestions(v as 'default' | 'unlimited' | 'custom')}>
+                <SelectTrigger className="h-14 w-full bg-card rounded-2xl border-2 border-border hover:border-primary/50 transition-all text-base px-6 font-medium focus-visible:ring-primary">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">最大10問（デフォルト）</SelectItem>
+                  <SelectItem value="unlimited">制限なし</SelectItem>
+                  <SelectItem value="custom">数を指定</SelectItem>
+                </SelectContent>
+              </Select>
+              {maxQuestions === 'custom' && (
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={customQuestionCount}
+                  onChange={(e) => setCustomQuestionCount(e.target.value)}
+                  placeholder="問題数"
+                  className="h-14 w-32 bg-card rounded-2xl border-2 border-border hover:border-primary/50 transition-all text-base px-6 font-medium focus-visible:ring-primary"
+                />
+              )}
+            </div>
+          </section>
+        )}
+
         {/* 生成ボタン */}
         <Button
           size="lg"
@@ -192,7 +316,7 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
           ) : (
             <div className="flex items-center gap-3">
               <Sparkles className="w-6 h-6" />
-              <span>問題を生成する</span>
+              <span>{sourceType === 'import' ? '問題を取り込む' : '問題を生成する'}</span>
             </div>
           )}
         </Button>
