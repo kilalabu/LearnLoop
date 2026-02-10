@@ -47,6 +47,7 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
   const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
   const [maxQuestions, setMaxQuestions] = useState<'default' | 'unlimited' | 'custom'>('default');
   const [customQuestionCount, setCustomQuestionCount] = useState<string>("5");
+  const [isDragging, setIsDragging] = useState<boolean>(false); // ドラッグ&ドロップ状態
 
   // バリデーション
   const isUrlValid = (url: string) => {
@@ -89,6 +90,45 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
     } else if (sourceType === 'import') {
       onGenerate('import', importText, category, selectedModel, effectiveMaxQuestions);
     }
+  };
+
+  // ドラッグ&ドロップでファイル読み込み
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    // .md, .txt のみ受け付ける
+    if (!file.name.endsWith('.md') && !file.name.endsWith('.txt')) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result;
+      if (typeof text === 'string') {
+        setImportText(text);
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -182,65 +222,86 @@ export function GenerateScreen({ onGenerate, isGenerating }: GenerateScreenProps
             </TabsContent>
 
             <TabsContent value="import" className="space-y-3 animate-in fade-in slide-in-from-right-2 duration-300">
-              <div className="px-1">
-                <span className="text-xs text-muted-foreground">マークダウン形式のクイズファイルを添付するか、内容を貼り付けてください</span>
-              </div>
+              <div
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={cn(
+                  "space-y-3 rounded-3xl border-2 border-dashed p-4 transition-all duration-200",
+                  isDragging
+                    ? "border-primary bg-primary/5"
+                    : "border-transparent"
+                )}
+              >
+                {/* ドラッグ中のオーバーレイメッセージ */}
+                {isDragging && (
+                  <div className="flex items-center justify-center py-8 text-primary font-bold text-sm">
+                    <FileUp className="w-5 h-5 mr-2" />
+                    ファイルをドロップして読み込み
+                  </div>
+                )}
 
-              {/* ファイル添付ボタン */}
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-2xl"
-                  onClick={() => document.getElementById('import-file-input')?.click()}
-                >
-                  <FileUp className="w-4 h-4 mr-2" />
-                  ファイルを選択
-                </Button>
-                <input
-                  id="import-file-input"
-                  type="file"
-                  accept=".md,.txt"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                      const text = ev.target?.result;
-                      if (typeof text === 'string') {
-                        setImportText(text);
-                      }
-                    };
-                    reader.readAsText(file);
-                    // 同じファイルを再選択できるようにリセット
-                    e.target.value = '';
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">.md, .txt ファイルに対応</span>
-              </div>
+                <div className="px-1">
+                  <span className="text-xs text-muted-foreground">マークダウン形式のクイズファイルを添付するか、内容を貼り付けてください</span>
+                </div>
 
-              {/* テキストエリア（コピペ or ファイル読み込み結果） */}
-              <div className="flex items-center justify-between px-1">
-                <span className="text-xs text-muted-foreground">ファイル読み込み結果を確認・編集できます</span>
-                <span className={cn(
-                  "text-xs font-bold font-mono transition-colors",
-                  "text-muted-foreground"
-                )}>
-                  {importCharCount} 文字
-                </span>
+                {/* ファイル添付ボタン */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="rounded-2xl"
+                    onClick={() => document.getElementById('import-file-input')?.click()}
+                  >
+                    <FileUp className="w-4 h-4 mr-2" />
+                    ファイルを選択
+                  </Button>
+                  <input
+                    id="import-file-input"
+                    type="file"
+                    accept=".md,.txt"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const text = ev.target?.result;
+                        if (typeof text === 'string') {
+                          setImportText(text);
+                        }
+                      };
+                      reader.readAsText(file);
+                      // 同じファイルを再選択できるようにリセット
+                      e.target.value = '';
+                    }}
+                  />
+                  <span className="text-xs text-muted-foreground">.md, .txt ファイルに対応</span>
+                </div>
+
+                {/* テキストエリア（コピペ or ファイル読み込み結果） */}
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs text-muted-foreground">ファイル読み込み結果を確認・編集できます</span>
+                  <span className={cn(
+                    "text-xs font-bold font-mono transition-colors",
+                    "text-muted-foreground"
+                  )}>
+                    {importCharCount} 文字
+                  </span>
+                </div>
+                <div className="relative group">
+                  <Textarea
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                    placeholder="クイズのマークダウンをここに貼り付けてください..."
+                    className="min-h-[300px] max-h-[500px] overflow-y-auto bg-card rounded-3xl border-2 border-border hover:border-primary/50 transition-all p-6 text-lg leading-relaxed resize-none focus-visible:ring-primary group-hover:shadow-xl group-hover:shadow-primary/5"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground font-medium px-2">
+                  {importCharCount < 20 ? "※ 最低20文字以上のテキストが必要です" : "取り込み可能です。"}
+                </p>
               </div>
-              <div className="relative group">
-                <Textarea
-                  value={importText}
-                  onChange={(e) => setImportText(e.target.value)}
-                  placeholder="クイズのマークダウンをここに貼り付けてください..."
-                  className="min-h-[300px] max-h-[500px] overflow-y-auto bg-card rounded-3xl border-2 border-border hover:border-primary/50 transition-all p-6 text-lg leading-relaxed resize-none focus-visible:ring-primary group-hover:shadow-xl group-hover:shadow-primary/5"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground font-medium px-2">
-                {importCharCount < 20 ? "※ 最低20文字以上のテキストが必要です" : "取り込み可能です。"}
-              </p>
             </TabsContent>
           </Tabs>
         </section>
