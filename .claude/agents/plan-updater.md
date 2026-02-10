@@ -1,7 +1,7 @@
 ---
 name: plan-updater
-description: "既存の実装計画の更新・修正専門エージェント。プラン変更時にファイルを再読み込みせず、差分のみを効率的に適用する。"
-tools: Read, Grep, Glob, Bash
+description: "既存の実装計画の更新・修正専門エージェント。プラン変更時にファイルを再読み込みせず、差分のみを効率的に適用する。Use this instead of implementation-planner when updating an existing plan."
+tools: Read, Grep, Glob, Bash, Write, Edit
 model: inherit
 memory: local
 ---
