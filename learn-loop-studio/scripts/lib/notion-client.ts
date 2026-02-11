@@ -3,7 +3,13 @@
 // ---------------------------------------------------------------------------
 
 import { Client } from '@notionhq/client';
-import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import type {
+  PageObjectResponse,
+  BlockObjectResponse,
+  PartialBlockObjectResponse,
+  RichTextItemResponse,
+  ListBlockChildrenResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 import type { NotionBatchPage, NotionSubmissionPage } from './batch-types';
 
 /**
@@ -93,7 +99,9 @@ export class NotionClient {
         const props = page.properties;
         // タイトルプロパティ: Notion DB のタイトル列は 'title' type
         // DB によってプロパティ名が異なるため、title type のプロパティを探す
-        const titleProp = Object.values(props).find((p: any) => p.type === 'title') as any;
+        const titleProp = Object.values(props).find(
+          (p): p is { type: 'title'; title: Array<RichTextItemResponse>; id: string } => p.type === 'title'
+        );
         const title = titleProp?.title?.[0]?.plain_text ?? '(無題)';
         // URL の取得
         const urlProp = props['URL'];
@@ -122,7 +130,7 @@ export class NotionClient {
     let cursor: string | undefined = undefined;
 
     do {
-      const response: any = await this.client.blocks.children.list({
+      const response: ListBlockChildrenResponse = await this.client.blocks.children.list({
         block_id: pageId,
         start_cursor: cursor,
         page_size: 100,
@@ -146,37 +154,49 @@ export class NotionClient {
   /**
    * ブロックからテキストを抽出するヘルパー
    *
-   * rich_text 配列の plain_text を結合して返す。
-   * テキストを持たないブロックタイプ（画像、埋め込み等）は空文字を返す。
+   * switch 文を使用して型安全に rich_text を取得します。
    */
-  private extractBlockText(block: any): string {
-    const type = block.type;
-
-    // テキスト系ブロックの rich_text を持つプロパティ名はブロックタイプと同名
-    const textTypes = [
-      'paragraph',
-      'heading_1',
-      'heading_2',
-      'heading_3',
-      'bulleted_list_item',
-      'numbered_list_item',
-      'code',
-      'quote',
-      'callout',
-      'toggle',
-      'to_do',
-    ];
-
-    if (!textTypes.includes(type)) {
+  private extractBlockText(block: BlockObjectResponse | PartialBlockObjectResponse): string {
+    if (!('type' in block)) {
       return '';
     }
 
-    const richTexts = block[type]?.rich_text;
+    switch (block.type) {
+      case 'paragraph':
+        return this.getPlainText(block.paragraph.rich_text);
+      case 'heading_1':
+        return this.getPlainText(block.heading_1.rich_text);
+      case 'heading_2':
+        return this.getPlainText(block.heading_2.rich_text);
+      case 'heading_3':
+        return this.getPlainText(block.heading_3.rich_text);
+      case 'bulleted_list_item':
+        return this.getPlainText(block.bulleted_list_item.rich_text);
+      case 'numbered_list_item':
+        return this.getPlainText(block.numbered_list_item.rich_text);
+      case 'code':
+        return this.getPlainText(block.code.rich_text);
+      case 'quote':
+        return this.getPlainText(block.quote.rich_text);
+      case 'callout':
+        return this.getPlainText(block.callout.rich_text);
+      case 'toggle':
+        return this.getPlainText(block.toggle.rich_text);
+      case 'to_do':
+        return this.getPlainText(block.to_do.rich_text);
+      default:
+        return '';
+    }
+  }
+
+  /**
+   * RichTextItemResponse 配列から plain_text を結合して返す
+   */
+  private getPlainText(richTexts: RichTextItemResponse[]): string {
     if (!Array.isArray(richTexts) || richTexts.length === 0) {
       return '';
     }
-
-    return richTexts.map((rt: any) => rt.plain_text ?? '').join('');
+    return richTexts.map((rt) => rt.plain_text ?? '').join('');
   }
 
   /**

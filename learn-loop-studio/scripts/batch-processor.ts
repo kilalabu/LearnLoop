@@ -12,7 +12,6 @@ import type {
   BatchOutputLine,
   BatchProcessResult,
   BatchError,
-  NotionSubmissionPage,
   SubmissionRequestEntry,
 } from './lib/batch-types';
 import { MAX_CONTENT_LENGTH } from './lib/batch-types';
