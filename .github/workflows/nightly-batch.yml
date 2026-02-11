@@ -1,0 +1,36 @@
+name: Nightly Batch - Notion Quiz Generation
+
+on:
+  schedule:
+    # JST 02:00 = UTC 17:00
+    - cron: '0 17 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  batch-process:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: learn-loop-studio
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: learn-loop-studio/package-lock.json
+
+      - run: npm ci
+
+      - name: Run batch processor
+        run: npx tsx scripts/batch-processor.ts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PLACEHOLDER_USER_ID: ${{ secrets.PLACEHOLDER_USER_ID }}

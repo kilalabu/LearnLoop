@@ -101,6 +101,13 @@ SUPABASE_SECRET_KEY=xxxxxxxxxx
 # Supabase Auth に存在するプレースホルダーユーザーの UUID
 PLACEHOLDER_USER_ID=
 
+# Notion
+NOTION_TOKEN=secret_xxx...
+NOTION_DATABASE_ID=xxx...
+
+# Slack
+SLACK_WEBHOOK_URL=https://hooks.slack.com/..
+
 # trueにするとAI APIを呼ばずにダミーデータを返す
 USE_FAKE_AI=true
 ```

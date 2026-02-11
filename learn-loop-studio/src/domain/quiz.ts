@@ -20,7 +20,7 @@ export interface SaveQuizInput {
   options: { id: string; text: string; isCorrect: boolean }[];
   explanation: string;
   category: string;
-  sourceType: 'text' | 'url' | 'manual' | 'import';
+  sourceType: 'text' | 'url' | 'manual' | 'import' | 'notion';
   sourceUrl?: string;
 }
 

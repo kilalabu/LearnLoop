@@ -6,7 +6,7 @@ import { getModel } from '@/lib/ai/models';
 /** 問題数制限の型。生成・取り込みの両方で使用する。 */
 export type MaxQuestions = 'default' | 'unlimited' | number;
 
-const SYSTEM_PROMPT = `あなたは「知識」を定着させるための専門家です。
+export const SYSTEM_PROMPT = `あなたは「知識」を定着させるための専門家です。
 ### 問題作成の指針
 - 単なる用語の暗記ではなく、概念の理解や「どちらの設計を選ぶべきか」といった判断力を問う問題を優先する
 - 間違いの選択肢は「よくある誤解」や「一見正解に見えるが特定の条件下でリスクがあるもの」にし、それ自体が学びのきっかけになる内容にする
