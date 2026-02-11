@@ -47,12 +47,65 @@ export class WebScraper {
         .replace(/\n+/g, '\n')
         .trim();
 
-      console.log('Scraped text length:', cleanText.length);
+      console.log(`[WebScraper] Scraped length: ${cleanText.length} chars from ${url}`);
+
+      // コンテンツが少なすぎる場合は診断ログを出力
+      if (cleanText.length < 100) {
+        this.runDiagnostics(url, html, $);
+      }
+
       return cleanText;
 
     } catch (error) {
       console.error('Scraping error:', error);
       throw new Error(`Failed to scrape URL: ${url}`);
     }
+  }
+
+  /**
+   * スクレイピング失敗時の詳細診断を出力する
+   */
+  private runDiagnostics(url: string, html: string, $: cheerio.CheerioAPI) {
+    console.warn(`\n=== [WebScraper Diagnosis] Content too short (< 100 chars) ===`);
+    console.warn(`URL: ${url}`);
+    console.warn(`HTML Size: ${html.length.toLocaleString()} bytes`);
+
+    // 1. タイトル確認
+    const title = $('title').text().trim();
+    console.warn(`Page Title: ${title || '(No Title)'}`);
+
+    // 2. SPA / CSR の可能性を判定
+    const isNext = $('#__NEXT_DATA__').length > 0;
+    const isNuxt = html.includes('window.__NUXT__');
+    const isHypernova = $('[data-hypernova-key]').length > 0; // Qiita etc.
+
+    if (isNext) console.warn(`[SPA Detect] Next.js detected (__NEXT_DATA__) -> Content might be rendered client-side.`);
+    if (isNuxt) console.warn(`[SPA Detect] Nuxt.js detected -> Content might be rendered client-side.`);
+    if (isHypernova) console.warn(`[SPA Detect] Hypernova detected -> Content might be rendered client-side.`);
+
+    if (!isNext && !isNuxt && !isHypernova && html.length < 5000) {
+      console.warn(`[Suspicion] HTML is very small (${html.length} bytes). Might be blocked by WAF or Login wall.`);
+    }
+
+    // 3. 削除された要素の確認（過剰な削除ではないか？）
+    console.warn(`--- Elements removed by cleanup rules ---`);
+    // 新しい cheerio インスタンスで削除ロジックをシミュレーション
+    const $debug = cheerio.load(html);
+    const rules = [
+      'script', 'style', 'noscript', 'iframe',
+      'header', 'footer', 'nav', 'aside',
+      '.ads', '[class*="ad-"]', '[id*="ad-"]'
+    ];
+
+    const removedStats: string[] = [];
+    for (const selector of rules) {
+      const count = $debug(selector).length;
+      if (count > 0) {
+        removedStats.push(`${selector}: ${count}`);
+      }
+    }
+    console.warn(`Removed counts: ${removedStats.join(', ') || 'None'}`);
+
+    console.warn(`============================================================\n`);
   }
 }
