@@ -84,3 +84,16 @@ export interface SubmissionRequestEntry {
   /** source_url（Notion URL プロパティ） */
   sourceUrl?: string;
 }
+
+/** Studio (Supabase) の quiz_batch_requests テーブルの行 */
+export interface StudioBatchRow {
+  id: string;
+  user_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  source_name: string;
+  source_content: string;
+  batch_id: string | null;
+  error_message: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
