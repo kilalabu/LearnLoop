@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import OpenAI from 'openai';
-import type { BatchOutputLine } from './batch-types';
+import type { BatchOutputLine } from '../../lib/batch-types';
 
 /**
  * OpenAI Batch API のステータス
