@@ -2,8 +2,8 @@ name: Nightly Batch - Notion Quiz Generation
 
 on:
   schedule:
-    # JST 02:00 = UTC 17:00
-    - cron: '0 17 * * *'
+    # JST 02:00, 14:00 = UTC 17:00, 05:00
+    - cron: '0 5,17 * * *'
   workflow_dispatch: # 手動実行も可能
 
 jobs:
@@ -25,8 +25,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Run batch processor
-        run: npx tsx scripts/batch-processor.ts
+      - name: Run batch processing
+        run: npm run batch:check
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
