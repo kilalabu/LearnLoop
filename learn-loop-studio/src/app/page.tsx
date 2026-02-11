@@ -20,6 +20,7 @@ export default function StudioPage() {
     updateProblem,
     deleteProblem,
     resetProblems,
+    registerBatch,
   } = useProblemGenerator();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -78,6 +79,7 @@ export default function StudioPage() {
         {problems.length === 0 ? (
           <GenerateScreen
             onGenerate={generateProblems}
+            onRegisterBatch={registerBatch}
             isGenerating={isGenerating}
           />
         ) : (
