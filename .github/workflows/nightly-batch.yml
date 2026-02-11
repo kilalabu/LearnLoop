@@ -9,6 +9,7 @@ on:
 jobs:
   batch-process:
     runs-on: ubuntu-latest
+    environment: production
     defaults:
       run:
         working-directory: learn-loop-studio
