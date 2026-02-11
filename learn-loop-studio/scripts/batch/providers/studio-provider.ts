@@ -3,27 +3,42 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createServiceClient, getPlaceholderUserId } from '../../../src/lib/supabase/client';
 import { QuizRepository } from '../../../src/repositories/quiz-repository';
-import { GenerateQuizResponseSchema } from '../../../src/domain/generate-quiz-schema';
-import { SYSTEM_PROMPT, QuizGenerator } from '../../../src/services/quiz-generator';
+import { ImportQuizResponseSchema } from '../../../src/domain/import-quiz-schema';
+import { QuizGenerator } from '../../../src/services/quiz-generator';
 import { BatchProvider, BatchRequestItem } from './base-provider';
 import { StudioBatchRow } from '../../lib/batch-types';
 import type { SaveQuizInput } from '../../../src/domain/quiz';
+
+const IMPORT_SYSTEM_PROMPT = `あなたはクイズデータの構造化変換の専門家です。
+
+## パース指針
+- 原文の問題文、選択肢、解答、解説を極力そのまま抽出してください。
+- 正解や解説が明示されている場合はそのまま採用してください。
+- 問題の区切りが不明確な場合は、見出し（##, ###）やナンバリング（Q1, Q2 等）を手がかりにしてください。
+
+## フィールド定義
+- question: 問題文。原文の問題文をそのまま抽出すること。改変や要約は行わないこと。
+- options: 選択肢のリスト（2個以上）。原文に含まれる選択肢をすべて抽出すること。個数の上限はない。記号（A), B) 等）は除去してテキスト部分のみとすること。
+- answers: 正解の選択肢文字列のリスト。optionsに含まれる文字列と完全一致させること。
+- explanation: 解説。原文の解説をそのまま保持すること。コードブロック、表、リスト、ネストされた詳細などのマークダウン記法はすべて維持すること。
+- topic: 入力内容から抽出された主題。
+`;
 
 const OUTPUT_FORMAT_INSTRUCTION = `
 ### 出力形式
 以下のJSON形式で出力してください:
 {
-  "topic": "入力内容から抽出された主題",
+  "topic": "主題",
   "quizzes": [
     {
       "question": "問題文",
       "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
       "answers": ["正解の選択肢テキスト"],
-      "explanation": "解説（Markdown形式）"
+      "explanation": "解説"
     }
   ]
 }
-- options は 2〜4 個
+- options は原文にあるものをすべて含めること
 - answers は options に含まれる文字列と完全一致させること
 - quizzes は 1 問以上`;
 
@@ -47,7 +62,7 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
   }
 
   async createRequestItem(row: StudioBatchRow): Promise<BatchRequestItem> {
-    const systemPrompt = SYSTEM_PROMPT
+    const systemPrompt = IMPORT_SYSTEM_PROMPT
       + QuizGenerator.buildMaxQuestionsInstruction('unlimited')
       + OUTPUT_FORMAT_INSTRUCTION;
 
@@ -57,7 +72,7 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `以下のMarkdown教材からクイズを作成してください：\n\n${row.source_content}` },
+          { role: 'user', content: `以下のマークダウンに含まれるクイズを所定のフォーマットに変換してください：\n\n${row.source_content}` },
         ],
         response_format: { type: 'json_object' },
       },
@@ -111,7 +126,7 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
         // OpenAI からの出力をオブジェクトとしてパースし、Zod Schema で検証
         // これにより、以降の処理で型安全にデータを扱える
         const parsed = JSON.parse(content);
-        const validated = GenerateQuizResponseSchema.parse(parsed);
+        const validated = ImportQuizResponseSchema.parse(parsed);
 
         // 内部で扱う SaveQuizInput 形式に変換。
         // リポジトリ層を介することで、DB へのインサートロジックを一元化している
