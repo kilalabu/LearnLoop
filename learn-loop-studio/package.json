@@ -9,8 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "batch:check": "tsx --env-file=.env.local scripts/batch/index.ts",
-    "batch:check:dry": "tsx --env-file=.env.local scripts/batch/index.ts --dry-run"
+    "batch:check": "tsx scripts/batch/index.ts",
+    "batch:check:dry": "tsx scripts/batch/index.ts --dry-run"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.38",

@@ -1,4 +1,6 @@
 // scripts/batch/index.ts
+import { loadEnvConfig } from '@next/env';
+loadEnvConfig(process.cwd());
 
 import { BatchProcessor } from './core/batch-processor';
 import { OpenAIBatchClient } from './core/openai-client';
