@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateOrFallback } from '@/lib/supabase/auth';
-import { QuizRepository } from '@/repositories/quiz-repository';
+import { QuizRepository, QuizRepositoryError } from '@/repositories/quiz-repository';
 
 /**
   * PATCH /api/quiz/[id]
@@ -51,6 +51,10 @@ export async function PATCH(
       quiz,
     });
   } catch (error) {
+    if (error instanceof QuizRepositoryError) {
+      const status = error.message.includes('見つかりません') ? 404 : 400;
+      return NextResponse.json({ error: error.message }, { status });
+    }
     console.error('Quiz Update API Error:', error);
     return NextResponse.json(
       { error: 'サーバーエラーが発生しました。' },
@@ -82,6 +86,9 @@ export async function DELETE(
       message: 'クイズを削除しました。',
     });
   } catch (error) {
+    if (error instanceof QuizRepositoryError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     console.error('Quiz Delete API Error:', error);
     return NextResponse.json(
       { error: 'サーバーエラーが発生しました。' },

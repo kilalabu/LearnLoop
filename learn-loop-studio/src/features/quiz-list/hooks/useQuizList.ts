@@ -35,27 +35,41 @@ export function useQuizList() {
   });
 
   /**
+   * カテゴリ一覧のみを取得する（初期化時などに呼び出す）
+   */
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/quiz/categories");
+      if (!res.ok) return;
+      const data = await res.json();
+      setCategories(data.categories);
+    } catch (err) {
+      console.error("Failed to fetch categories:", err);
+    }
+  }, []);
+
+  /**
    * クイズ一覧を取得する。
+   * 引数なしで呼ばれた場合は現在の state (filters) を使用する。
+   * 
    * [Flutter] Future<void> fetchQuizzes() async { ... } に相当。
    */
   const fetchQuizzes = useCallback(
-    async (overrideFilters?: Partial<QuizListFilters>) => {
+    async (targetFilters: QuizListFilters) => {
       setIsLoading(true);
       setError(null);
-
-      const currentFilters = { ...filters, ...overrideFilters };
 
       try {
         const params = new URLSearchParams();
         params.set("limit", String(LIMIT));
-        params.set("offset", String((currentFilters.page - 1) * LIMIT));
-        params.set("sort", currentFilters.sort);
-        params.set("order", currentFilters.order);
-        if (currentFilters.category) {
-          params.set("category", currentFilters.category);
+        params.set("offset", String((targetFilters.page - 1) * LIMIT));
+        params.set("sort", targetFilters.sort);
+        params.set("order", targetFilters.order);
+        if (targetFilters.category) {
+          params.set("category", targetFilters.category);
         }
-        if (currentFilters.status) {
-          params.set("status", currentFilters.status);
+        if (targetFilters.status) {
+          params.set("status", targetFilters.status);
         }
 
         const res = await fetch(`/api/quiz/list?${params.toString()}`);
@@ -67,7 +81,8 @@ export function useQuizList() {
         const data: QuizListResponse = await res.json();
         setItems(data.items);
         setTotal(data.total);
-        setCategories(data.categories);
+        // 注: API側でも categories は空で返るように最適化したので、
+        // ここでは setCategories(data.categories) は行わない。
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "不明なエラーが発生しました"
@@ -76,7 +91,7 @@ export function useQuizList() {
         setIsLoading(false);
       }
     },
-    [filters]
+    [] // filters に依存させないことで、循環参照を回避
   );
 
   /**
@@ -84,15 +99,18 @@ export function useQuizList() {
    */
   const updateFilters = useCallback(
     (newFilters: Partial<QuizListFilters>) => {
-      const updated = { ...filters, ...newFilters };
-      // フィルタが変更されたらページを1に戻す（ページ変更自体でない場合）
-      if (newFilters.page === undefined) {
-        updated.page = 1;
-      }
-      setFilters(updated);
-      fetchQuizzes(updated);
+      setFilters((prev) => {
+        const updated = { ...prev, ...newFilters };
+        // フィルタが明示的にページ指定でない限り、ページを1に戻す
+        if (newFilters.page === undefined) {
+          updated.page = 1;
+        }
+        // 更新後のフィルタで即座に取得
+        fetchQuizzes(updated);
+        return updated;
+      });
     },
-    [filters, fetchQuizzes]
+    [fetchQuizzes]
   );
 
   /**
@@ -165,6 +183,7 @@ export function useQuizList() {
     error,
     filters,
     fetchQuizzes,
+    fetchCategories,
     updateFilters,
     updateQuiz,
     deleteQuiz,

@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { SaveQuizInput, FormattedQuiz, QuizListItem, QuizListResponse, calculateLearningStatus } from '@/domain/quiz';
+import { SaveQuizInput, FormattedQuiz, QuizListItem, QuizListResponse, calculateLearningStatus, UpdateQuizInput, DbUpdateQuizInput } from '@/domain/quiz';
 
 export class QuizRepository {
   constructor(
@@ -59,10 +59,13 @@ export class QuizRepository {
     // 復習クイズを整形（type: 'review' を付与）
     const reviews: FormattedQuiz[] = (reviewRows ?? [])
       .filter((row) => row.quizzes)  // quizzes が存在するもののみ
-      .map((row) => ({
-        ...this.formatQuizRow(row.quizzes),
-        type: 'review' as const,
-      }));
+      .map((row) => {
+        const quiz = Array.isArray(row.quizzes) ? row.quizzes[0] : row.quizzes;
+        return {
+          ...this.formatQuizRow(quiz as QuizRow),
+          type: 'review' as const,
+        };
+      });
 
     // ② 残り枠で新規クイズを取得
     const remaining = limit - reviews.length;
@@ -83,7 +86,7 @@ export class QuizRepository {
 
     // 新規クイズを整形（type: 'new' を付与）
     const newQuizzes: FormattedQuiz[] = (newRows ?? []).map((row) => ({
-      ...this.formatQuizRow(row),
+      ...this.formatQuizRow(row as QuizRow),
       type: 'new' as const,
     }));
 
@@ -92,11 +95,31 @@ export class QuizRepository {
   }
 
   /**
-   * データベースから取得した quiz レコードを FormattedQuiz 形式に変換するヘルパーメソッド。
-   * type フィールドは含まない（呼び出し元で付与する）。
+   * DB行を QuizListItem に変換する
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private formatQuizRow(row: any): Omit<FormattedQuiz, 'type'> {
+  private mapToQuizListItem(row: QuizViewRow): QuizListItem {
+    return {
+      id: row.id,
+      question: row.question,
+      options: row.options as { id: string; text: string; isCorrect: boolean }[],
+      explanation: row.explanation,
+      sourceUrl: row.source_url,
+      sourceType: row.source_type,
+      category: row.category,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      learningStatus: (row.learning_status as 'unanswered' | 'learning' | 'hidden') || calculateLearningStatus(row.attempt_count || 0, row.is_hidden || false),
+      attemptCount: row.attempt_count || 0,
+      correctCount: row.correct_count || 0,
+      nextReviewAt: row.next_review_at || null,
+      lastAnsweredAt: row.last_answered_at || null,
+    };
+  }
+
+  /**
+   * データベースから取得した quiz レコードを FormattedQuiz 形式に変換するヘルパーメソッド。
+   */
+  private formatQuizRow(row: QuizRow): Omit<FormattedQuiz, 'type'> {
     return {
       id: row.id,
       question: row.question,
@@ -130,7 +153,11 @@ export class QuizRepository {
 
   /**
    * クイズ一覧を取得する。
-   * フィルタ、ソート、ページネーションに対応。
+   * VIEW (quiz_view) を使用することで、DB側で正確なフィルタリング・ソート・ページネーションを実現します。
+   * 
+   * [Flutter/Compose Comparison]
+   * オフセットベースのページネーション。
+   * 真にスケーラブルな一覧画面を実現するため、メモリ上でのフィルタリングを廃止し、すべてDBクエリに集約しています。
    */
   async fetchList(params: {
     limit: number;
@@ -140,134 +167,117 @@ export class QuizRepository {
     sort: string;
     order: string;
   }): Promise<QuizListResponse> {
-    const { limit, offset, category, status, sort, order } = params;
+    const { limit, offset, category, status, order } = params;
 
-    // --- カウント用クエリ ---
-    let countQuery = this.supabase
-      .from('quizzes')
-      .select('*, user_progress!left(id, is_hidden)', { count: 'exact', head: true })
+    // --- データ取得・カウント用クエリ (VIEWを使用) ---
+    // quizzes と user_progress を結合した quiz_view に対してクエリを発行します。
+    // PostgREST が RLS を適切に解釈し、ユーザー自身のデータのみを安全に取得します。
+    let query = this.supabase
+      .from('quiz_view')
+      .select('*', { count: 'exact' })
       .eq('user_id', this.userId);
 
+    // ジャンルフィルタ (DB側)
     if (category) {
-      countQuery = countQuery.eq('category', category);
+      query = query.eq('category', category);
     }
 
-    // --- データ取得クエリ ---
-    let dataQuery = this.supabase
-      .from('quizzes')
-      .select(`
-        id,
-        question,
-        options,
-        explanation,
-        source_url,
-        source_type,
-        category,
-        created_at,
-        updated_at,
-        user_progress!left(
-          id,
-          is_correct,
-          attempt_count,
-          interval,
-          current_streak,
-          ease_factor,
-          next_review_at,
-          last_answered_at,
-          is_hidden
-        )
-      `)
-      .eq('user_id', this.userId);
-
-    if (category) {
-      dataQuery = dataQuery.eq('category', category);
+    // 学習ステータスフィルタ (DB側)
+    // 計算済みカラム (learning_status) を利用するため、正確な total 件数が取得可能です。
+    if (status) {
+      query = query.eq('learning_status', status);
     }
 
     // ソート
+    // 現在は created_at 固定（要件の「次回出題日ソート」は将来的な拡張性のため保持しつつ、MVPでは作成日順に限定）
     const ascending = order === 'asc';
-    if (sort === 'next_review_at') {
-      dataQuery = dataQuery.order('created_at', { ascending });
-    } else {
-      dataQuery = dataQuery.order('created_at', { ascending });
+    query = query.order('created_at', { ascending });
+
+    // ページネーション (取得範囲の指定)
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, count, error } = await query;
+
+    if (error) {
+      throw new QuizRepositoryError(`一覧取得失敗: ${error.message}`);
     }
 
-    dataQuery = dataQuery.range(offset, offset + limit - 1);
+    const items: QuizListItem[] = (data ?? []).map((row) => this.mapToQuizListItem(row as QuizViewRow));
 
-    const [countResult, dataResult] = await Promise.all([
-      countQuery,
-      dataQuery,
-    ]);
+    return {
+      items,
+      total: count ?? 0,
+      limit,
+      offset,
+      categories: [], // fetchList ではカテゴリを返さないように変更（最適化）
+    };
+  }
 
-    if (countResult.error) throw new QuizRepositoryError(countResult.error.message);
-    if (dataResult.error) throw new QuizRepositoryError(dataResult.error.message);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let items: QuizListItem[] = (dataResult.data ?? []).map((row: any) => {
-      const progress = Array.isArray(row.user_progress) ? row.user_progress[0] : row.user_progress;
-      const attemptCount = progress?.attempt_count ?? 0;
-      const isHidden = progress?.is_hidden ?? false;
-
-      return {
-        id: row.id,
-        question: row.question,
-        options: row.options,
-        explanation: row.explanation,
-        sourceUrl: row.source_url,
-        sourceType: row.source_type,
-        category: row.category,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-        learningStatus: calculateLearningStatus(attemptCount, isHidden),
-        attemptCount,
-        correctCount: progress?.current_streak ?? 0,
-        nextReviewAt: progress?.next_review_at ?? null,
-        lastAnsweredAt: progress?.last_answered_at ?? null,
-      };
-    });
-
-    // ステータスフィルタリング（メモリ上）
-    if (status) {
-      items = items.filter(item => item.learningStatus === status);
-    }
-
-    // 次回出題順ソート（メモリ上）
-    if (sort === 'next_review_at') {
-      items.sort((a, b) => {
-        const aDate = a.nextReviewAt ? new Date(a.nextReviewAt).getTime() : Infinity;
-        const bDate = b.nextReviewAt ? new Date(b.nextReviewAt).getTime() : Infinity;
-        return ascending ? aDate - bDate : bDate - aDate;
-      });
-    }
-
-    // カテゴリ一覧
-    const { data: catData } = await this.supabase
+  /**
+   * ユーザーが持っている全カテゴリ（ジャンル）を取得する。
+   * 頻繁に変わらないため、fetchList とは別に呼び出すように最適化。
+   */
+  async getCategories(): Promise<string[]> {
+    const { data, error } = await this.supabase
       .from('quizzes')
       .select('category')
       .eq('user_id', this.userId);
 
-    const categories = [...new Set((catData ?? []).map((r: { category: string }) => r.category).filter(Boolean))].sort() as string[];
+    if (error) {
+      throw new QuizRepositoryError(`カテゴリ取得失敗: ${error.message}`);
+    }
 
-    return {
-      items,
-      total: countResult.count ?? 0,
-      limit,
-      offset,
-      categories,
-    };
+    const categories = [
+      ...new Set(
+        (data ?? [])
+          .map((r: { category: string }) => r.category)
+          .filter(Boolean)
+      ),
+    ].sort();
+
+    return categories;
   }
 
   /** クイズを更新する */
-  async update(id: string, updateData: Record<string, any>): Promise<any> {
+  async update(id: string, updateData: UpdateQuizInput): Promise<QuizListItem> {
+    const dbData: DbUpdateQuizInput = {
+      question: updateData.question,
+      options: updateData.options,
+      explanation: updateData.explanation,
+      category: updateData.category,
+      source_url: updateData.sourceUrl,
+    };
+
     const { data, error } = await this.supabase
       .from('quizzes')
-      .update(updateData)
+      .update(dbData)
       .eq('id', id)
       .eq('user_id', this.userId)
       .select()
       .single();
 
     if (error) throw new QuizRepositoryError(`更新失敗: ${error.message}`);
-    return data;
+    if (!data) throw new QuizRepositoryError('更新対象が見つかりません');
+
+    const quizRow = data as QuizRow;
+
+    // TODO: 将来的な最適化
+    // 現在は更新(quizzes)と進捗取得(user_progress)で2クエリ走っている。
+    // 更新後に quiz_view から select することで、1クエリに集約可能。
+    const { data: progress } = await this.supabase
+      .from('user_progress')
+      .select('attempt_count, is_hidden, current_streak, next_review_at, last_answered_at')
+      .eq('quiz_id', id)
+      .single();
+
+    return {
+      ...this.mapToQuizListItem(quizRow as QuizViewRow),
+      learningStatus: calculateLearningStatus(progress?.attempt_count ?? 0, progress?.is_hidden ?? false),
+      attemptCount: progress?.attempt_count ?? 0,
+      correctCount: progress?.current_streak ?? 0,
+      nextReviewAt: progress?.next_review_at ?? null,
+      lastAnsweredAt: progress?.last_answered_at ?? null,
+    };
   }
 
   /** クイズを削除する */
@@ -287,4 +297,27 @@ export class QuizRepositoryError extends Error {
     super(message);
     this.name = 'QuizRepositoryError';
   }
+}
+
+/** 内部DB用のクイズ行型 */
+interface QuizRow {
+  id: string;
+  question: string;
+  options: unknown;
+  explanation: string;
+  source_url: string | null;
+  source_type: string;
+  category: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** VIEW (quiz_view) の行型 */
+interface QuizViewRow extends QuizRow {
+  learning_status?: string;
+  attempt_count?: number;
+  correct_count?: number;
+  next_review_at?: string | null;
+  last_answered_at?: string | null;
+  is_hidden?: boolean;
 }

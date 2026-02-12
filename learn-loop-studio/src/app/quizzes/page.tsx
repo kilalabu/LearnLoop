@@ -23,6 +23,7 @@ export default function QuizzesPage() {
     isLoading,
     filters,
     fetchQuizzes,
+    fetchCategories,
     updateFilters,
     updateQuiz,
     deleteQuiz,
@@ -33,7 +34,8 @@ export default function QuizzesPage() {
 
   // 初回ロード
   useEffect(() => {
-    fetchQuizzes();
+    fetchQuizzes(filters);
+    fetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

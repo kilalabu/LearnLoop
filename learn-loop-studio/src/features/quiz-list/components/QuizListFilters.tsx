@@ -71,15 +71,14 @@ export function QuizListFilters({
       <Select
         value={filters.sort}
         onValueChange={(v) =>
-          onFilterChange({ sort: v as "created_at" | "next_review_at" })
+          onFilterChange({ sort: v as "created_at" })
         }
       >
-        <SelectTrigger className="w-[160px] h-9 bg-card">
+        <SelectTrigger className="w-[160px] h-9 bg-card text-muted-foreground">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="created_at">作成日順</SelectItem>
-          <SelectItem value="next_review_at">次回出題順</SelectItem>
         </SelectContent>
       </Select>
 

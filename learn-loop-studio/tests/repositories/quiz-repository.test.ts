@@ -153,18 +153,12 @@ describe('QuizRepository', () => {
 
   describe('fetchList()', () => {
     it('クイズ一覧を取得し、正しく QuizListItem に変換される', async () => {
-      // 1回目のクエリ（カウント）
-      // 2回目のクエリ（データ取得）
-      // 3回目のクエリ（カテゴリ一覧）
+      // 1回目のクエリ: quiz_view からデータとカウントを同時取得
+      // 2回目のクエリ: カテゴリ一覧取得
       let callCount = 0;
       mock.chain.then = vi.fn().mockImplementation((resolve: (v: unknown) => void) => {
         callCount++;
         if (callCount === 1) {
-          // カウント結果
-          return resolve({ count: 100, error: null });
-        }
-        if (callCount === 2) {
-          // データ取得
           return resolve({
             data: [
               {
@@ -177,14 +171,14 @@ describe('QuizRepository', () => {
                 category: 'TypeScript',
                 created_at: '2024-01-01T00:00:00Z',
                 updated_at: '2024-01-01T00:00:00Z',
-                user_progress: {
-                  attempt_count: 5,
-                  is_hidden: false,
-                  current_streak: 3,
-                  next_review_at: '2024-02-01T00:00:00Z',
-                },
+                learning_status: 'learning',
+                attempt_count: 5,
+                correct_count: 3,
+                next_review_at: '2024-02-01T00:00:00Z',
+                last_answered_at: '2024-01-01T00:00:00Z',
               },
             ],
+            count: 100,
             error: null,
           });
         }
@@ -200,20 +194,35 @@ describe('QuizRepository', () => {
         offset: 0,
         category: null,
         status: null,
-        sort: 'created_at',
-        order: 'desc',
+        sort: 'created_at' as const,
+        order: 'desc' as const,
       };
 
       const result = await repo.fetchList(params);
+
+      // 指定された VIEW が呼ばれているか
+      expect(mock.from).toHaveBeenCalledWith('quiz_view');
 
       expect(result.total).toBe(100);
       expect(result.items).toHaveLength(1);
       const item = result.items[0];
 
-      expect(item.learningStatus).toBe('learning'); // attemptCount: 5
+      expect(item.learningStatus).toBe('learning');
       expect(item.correctCount).toBe(3);
       expect(item.sourceUrl).toBe('https://example.com');
-      expect(result.categories).toEqual(['React', 'TypeScript']); // ソートされる
+      expect(result.categories).toEqual([]); // 最適化により空で返る
+    });
+
+    it('getCategories() が正しくカテゴリを抽出し、ユニークかつソートして返す', async () => {
+      mock.setResult({
+        data: [{ category: 'TypeScript' }, { category: 'React' }, { category: 'TypeScript' }],
+        error: null,
+      });
+
+      const result = await repo.getCategories();
+
+      expect(result).toEqual(['React', 'TypeScript']);
+      expect(mock.from).toHaveBeenCalledWith('quizzes');
     });
   });
 

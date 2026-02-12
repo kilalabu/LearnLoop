@@ -70,13 +70,34 @@ export interface QuizListResponse {
 export interface QuizListFilters {
   category: string | null;
   status: 'unanswered' | 'learning' | 'hidden' | null;
-  sort: 'created_at' | 'next_review_at';
+  sort: 'created_at';
   order: 'asc' | 'desc';
   page: number;
 }
 
+/** クイズ更新APIの入力型 */
+export interface UpdateQuizInput {
+  question?: string;
+  options?: { id: string; text: string; isCorrect: boolean }[];
+  explanation?: string;
+  category?: string;
+  sourceUrl?: string;
+}
+
+/** 内部DB用の更新型（スネークケース対応用） */
+export interface DbUpdateQuizInput {
+  question?: string;
+  options?: { id: string; text: string; isCorrect: boolean }[];
+  explanation?: string;
+  category?: string;
+  source_url?: string;
+}
+
 /**
  * 学習状況（ステータス）を算出するビジネスロジック。
+ * 
+ * ⚠️ 注意: この計算ロジックは v1.3.sql の learning_status 計算済みカラムと
+ * 同期している必要があります。ロジックを変更する場合は、必ず両方を更新してください。
  * 
  * [Flutter/Compose Comparison]
  * Pure Function として定義し、ViewModel や Repository から呼び出す。
