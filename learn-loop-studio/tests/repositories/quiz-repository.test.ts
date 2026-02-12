@@ -150,4 +150,104 @@ describe('QuizRepository', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('fetchList()', () => {
+    it('クイズ一覧を取得し、正しく QuizListItem に変換される', async () => {
+      // 1回目のクエリ（カウント）
+      // 2回目のクエリ（データ取得）
+      // 3回目のクエリ（カテゴリ一覧）
+      let callCount = 0;
+      mock.chain.then = vi.fn().mockImplementation((resolve: (v: unknown) => void) => {
+        callCount++;
+        if (callCount === 1) {
+          // カウント結果
+          return resolve({ count: 100, error: null });
+        }
+        if (callCount === 2) {
+          // データ取得
+          return resolve({
+            data: [
+              {
+                id: 'q1',
+                question: '問題1',
+                options: [],
+                explanation: '解説1',
+                source_url: 'https://example.com',
+                source_type: 'url',
+                category: 'TypeScript',
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z',
+                user_progress: {
+                  attempt_count: 5,
+                  is_hidden: false,
+                  current_streak: 3,
+                  next_review_at: '2024-02-01T00:00:00Z',
+                },
+              },
+            ],
+            error: null,
+          });
+        }
+        // カテゴリ一覧
+        return resolve({
+          data: [{ category: 'TypeScript' }, { category: 'React' }],
+          error: null,
+        });
+      });
+
+      const params = {
+        limit: 30,
+        offset: 0,
+        category: null,
+        status: null,
+        sort: 'created_at',
+        order: 'desc',
+      };
+
+      const result = await repo.fetchList(params);
+
+      expect(result.total).toBe(100);
+      expect(result.items).toHaveLength(1);
+      const item = result.items[0];
+
+      expect(item.learningStatus).toBe('learning'); // attemptCount: 5
+      expect(item.correctCount).toBe(3);
+      expect(item.sourceUrl).toBe('https://example.com');
+      expect(result.categories).toEqual(['React', 'TypeScript']); // ソートされる
+    });
+  });
+
+  describe('update()', () => {
+    it('正しく update クエリを発行し、更新結果を返す', async () => {
+      const updateData = { question: '更新後の問題' };
+      mock.setResult({
+        data: { id: 'q1', ...updateData },
+        error: null,
+      });
+
+      const result = await repo.update('q1', updateData);
+
+      // where句の検証
+      const lastCall = mock.chain.eq.mock.calls;
+      expect(lastCall).toContainEqual(['id', 'q1']);
+      expect(lastCall).toContainEqual(['user_id', userId]);
+
+      // 更新データの検証
+      expect(mock.chain.update).toHaveBeenCalledWith(updateData);
+      expect(result.question).toBe('更新後の問題');
+    });
+  });
+
+  describe('delete()', () => {
+    it('正しく delete クエリを発行する', async () => {
+      mock.setResult({ error: null });
+
+      await repo.delete('q1');
+
+      expect(mock.chain.delete).toHaveBeenCalled();
+      const lastCall = mock.chain.eq.mock.calls;
+      expect(lastCall).toContainEqual(['id', 'q1']);
+      expect(lastCall).toContainEqual(['user_id', userId]);
+    });
+  });
 });

@@ -6,6 +6,7 @@ import { GenerateScreen } from "@/features/studio/components/GenerateScreen";
 import { PreviewScreen } from "@/features/studio/components/PreviewScreen";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { Header } from "@/components/layout/Header";
 
 /**
  * [Web Context]: LearnLoop Studio のメインエントリポイント。
@@ -74,6 +75,7 @@ export default function StudioPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* [Flutter/Compose]: 画面遷移の代わりに、状態に応じて表示するコンポーネントを切り替えます */}
         {problems.length === 0 ? (

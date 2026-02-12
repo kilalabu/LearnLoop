@@ -30,6 +30,7 @@ export function createMockSupabaseClient() {
     'lt',
     'gt',
     'limit',
+    'range',
     'filter',
   ];
 
