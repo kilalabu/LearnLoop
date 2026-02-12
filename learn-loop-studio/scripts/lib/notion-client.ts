@@ -78,7 +78,7 @@ export class NotionClient {
   }
 
   /**
-   * Status = 'Request' のページを取得（新規申請対象）
+   * Status = 'Request'と'Error'のページを取得
    *
    * @param limit - 取得上限（デフォルト 10 件）
    */
@@ -87,8 +87,10 @@ export class NotionClient {
     const response = await this.client.dataSources.query({
       data_source_id: this.databaseId,
       filter: {
-        property: 'Status',
-        select: { equals: 'Request' },
+        or: [
+          { property: 'Status', select: { equals: 'Request' } },
+          { property: 'Status', select: { equals: 'Error' } },
+        ],
       },
       page_size: limit,
     });

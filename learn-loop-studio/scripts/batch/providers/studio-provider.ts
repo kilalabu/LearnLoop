@@ -55,7 +55,7 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
     const { data, error } = await this.supabase
       .from('quiz_batch_requests')
       .select('*')
-      .eq('status', 'pending');
+      .in('status', ['pending', 'failed']);
 
     if (error) throw error;
     return data as StudioBatchRow[];
@@ -68,8 +68,10 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
 
     return {
       custom_id: `studio_req_${row.id}`,
+      method: 'POST',
+      url: '/v1/chat/completions',
       body: {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `以下のマークダウンに含まれるクイズを所定のフォーマットに変換してください：\n\n${row.source_content}` },

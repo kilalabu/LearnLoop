@@ -64,8 +64,10 @@ export class NotionBatchProvider implements BatchProvider<NotionSubmissionPage> 
 
     return {
       custom_id: `notion_page_${page.pageId}`,
+      method: 'POST',
+      url: '/v1/chat/completions',
       body: {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5.2',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `以下の内容から理解度チェッククイズを作成してください：\n${trimmed}` },

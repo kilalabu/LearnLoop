@@ -2,7 +2,9 @@
 
 /** OpenAI Batch API 用のリクエスト行データ */
 export interface BatchRequestItem {
-  custom_id: string; // 一意の識別子（例: "notion:page_123", "studio:req_456"）
+  custom_id: string; // 一意の識別子（例: "notion_page_123", "studio_req_456"）
+  method: 'POST';    // OpenAI Batch API で有効なメソッド。Chat Completion なら 'POST'
+  url: string;       // エンドポイント URL。例: "/v1/chat/completions"
   body: any;         // OpenAI Chat Completion API のリクエストボディ
 }
 
