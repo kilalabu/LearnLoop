@@ -5,16 +5,27 @@ import type {
   QuizListItem,
   QuizListResponse,
   QuizListFilters,
-} from "../types";
+} from "@/domain/quiz";
 
 const LIMIT = 30;
 
+/**
+ * クイズ一覧の状態管理とAPI操作を行うカスタムフック。
+ * 
+ * [Flutter/Compose Comparison]
+ * - useState ↔ mutableStateOf / remember
+ * - useCallback ↔ rememberUpdatedState (依存配列の再計算制御)
+ * - このフック全体 ↔ ViewModel (MVVM) または State Holder
+ */
 export function useQuizList() {
+  // [Compose Comparison]: remember { mutableStateOf([]) } に相当
   const [items, setItems] = useState<QuizListItem[]>([]);
   const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // フィルタ状態
   const [filters, setFilters] = useState<QuizListFilters>({
     category: null,
     status: null,
@@ -23,6 +34,10 @@ export function useQuizList() {
     page: 1,
   });
 
+  /**
+   * クイズ一覧を取得する。
+   * [Flutter] Future<void> fetchQuizzes() async { ... } に相当。
+   */
   const fetchQuizzes = useCallback(
     async (overrideFilters?: Partial<QuizListFilters>) => {
       setIsLoading(true);
@@ -64,10 +79,13 @@ export function useQuizList() {
     [filters]
   );
 
+  /**
+   * フィルタを更新し、再取得を行う。
+   */
   const updateFilters = useCallback(
     (newFilters: Partial<QuizListFilters>) => {
       const updated = { ...filters, ...newFilters };
-      // フィルタが変更されたらページを1に戻す（ページ変更以外）
+      // フィルタが変更されたらページを1に戻す（ページ変更自体でない場合）
       if (newFilters.page === undefined) {
         updated.page = 1;
       }
@@ -77,6 +95,9 @@ export function useQuizList() {
     [filters, fetchQuizzes]
   );
 
+  /**
+   * クイズ内容を更新（API経由）し、ローカル状態に反映する。
+   */
   const updateQuiz = useCallback(
     async (
       id: string,
@@ -99,7 +120,8 @@ export function useQuizList() {
         throw new Error(errorData.error || "更新に失敗しました");
       }
 
-      // ローカル状態を更新
+      // 成功したらローカルのリスト状態を更新（リロードせず即時反映）
+      // [Flutter] state = [for (var item in state) if (item.id == id) item.copyWith(...) else item]; に相当
       setItems((prev) =>
         prev.map((item) => (item.id === id ? { ...item, ...data } : item))
       );
@@ -109,6 +131,9 @@ export function useQuizList() {
     []
   );
 
+  /**
+   * クイズを削除（API経由）し、ローカル状態から取り除く。
+   */
   const deleteQuiz = useCallback(
     async (id: string) => {
       const res = await fetch(`/api/quiz/${id}`, {
@@ -120,7 +145,7 @@ export function useQuizList() {
         throw new Error(errorData.error || "削除に失敗しました");
       }
 
-      // ローカル状態から削除
+      // ローカル状態から即座に削除
       setItems((prev) => prev.filter((item) => item.id !== id));
       setTotal((prev) => prev - 1);
 

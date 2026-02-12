@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ArrowUpDown } from "lucide-react";
-import type { QuizListFilters as FilterState } from "../types";
+import type { QuizListFilters as FilterState } from "@/domain/quiz";
 
 interface QuizListFiltersProps {
   filters: FilterState;

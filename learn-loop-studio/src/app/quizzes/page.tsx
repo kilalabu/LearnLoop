@@ -12,7 +12,7 @@ import { QuizDetailDialog } from "@/features/quiz-list/components/QuizDetailDial
 import { QuizListFilters } from "@/features/quiz-list/components/QuizListFilters";
 import { Pagination } from "@/features/quiz-list/components/Pagination";
 import { useQuizList } from "@/features/quiz-list/hooks/useQuizList";
-import type { QuizListItem } from "@/features/quiz-list/types";
+import type { QuizListItem } from "@/domain/quiz";
 
 export default function QuizzesPage() {
   const {

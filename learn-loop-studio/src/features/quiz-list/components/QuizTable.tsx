@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import type { QuizListItem } from "../types";
+import type { QuizListItem } from "@/domain/quiz";
 
 interface QuizTableProps {
   items: QuizListItem[];

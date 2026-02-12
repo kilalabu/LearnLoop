@@ -15,7 +15,9 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, ExternalLink, Eye, FileText, Loader2 } from "lucide-react";
-import type { QuizListItem } from "../types";
+import type { QuizListItem } from "@/domain/quiz";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface QuizDetailDialogProps {
   quiz: QuizListItem | null;
@@ -160,11 +162,10 @@ export function QuizDetailDialog({
                     className="flex items-center gap-2"
                   >
                     <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
-                        opt.isCorrect
-                          ? "bg-success text-success-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
+                      className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shrink-0 ${opt.isCorrect
+                        ? "bg-success text-success-foreground"
+                        : "bg-muted text-muted-foreground"
+                        }`}
                     >
                       {String.fromCharCode(65 + index)}
                     </span>
@@ -278,18 +279,16 @@ export function QuizDetailDialog({
                 {quiz.options.map((opt, index) => (
                   <div
                     key={opt.id}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
-                      opt.isCorrect
-                        ? "bg-success/10 border border-success/20"
-                        : "bg-muted/20"
-                    }`}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${opt.isCorrect
+                      ? "bg-success/10 border border-success/20"
+                      : "bg-muted/20"
+                      }`}
                   >
                     <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0 ${
-                        opt.isCorrect
-                          ? "bg-success text-success-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold shrink-0 ${opt.isCorrect
+                        ? "bg-success text-success-foreground"
+                        : "bg-muted text-muted-foreground"
+                        }`}
                     >
                       {String.fromCharCode(65 + index)}
                     </span>
@@ -374,7 +373,10 @@ export function QuizDetailDialog({
   );
 }
 
-/** シンプルな Markdown プレビュー（基本的な変換のみ） */
+/**
+ * Markdown プレビューコンポーネント
+ * react-markdown を使用して安全かつリッチにレンダリングする。
+ */
 function MarkdownPreview({ content }: { content: string }) {
   if (!content) {
     return (
@@ -382,36 +384,32 @@ function MarkdownPreview({ content }: { content: string }) {
     );
   }
 
-  // 基本的なMarkdown変換
-  const html = content
-    // コードブロック
-    .replace(
-      /```(\w*)\n([\s\S]*?)```/g,
-      '<pre class="bg-muted rounded-md p-3 overflow-x-auto"><code>$2</code></pre>'
-    )
-    // インラインコード
-    .replace(
-      /`([^`]+)`/g,
-      '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>'
-    )
-    // 太字
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    // 見出し
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold mt-3 mb-1">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-semibold mt-4 mb-1">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-4 mb-2">$1</h1>')
-    // リスト
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal">$1</li>')
-    // 改行
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/\n/g, "<br />");
-
   return (
-    <div
-      className="text-sm leading-relaxed"
-      dangerouslySetInnerHTML={{ __html: `<p>${html}</p>` }}
-    />
+    <div className="text-sm leading-relaxed prose prose-sm max-w-none text-foreground dark:prose-invert">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // Shadcn UI や Tailwind のスタイルに合わせるためのカスタマイズ
+          h1: ({ ...props }) => <h1 className="text-xl font-bold mt-4 mb-2" {...props} />,
+          h2: ({ ...props }) => <h2 className="text-lg font-semibold mt-4 mb-1" {...props} />,
+          h3: ({ ...props }) => <h3 className="text-base font-semibold mt-3 mb-1" {...props} />,
+          code: ({ ...props }) => (
+            <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono" {...props} />
+          ),
+          pre: ({ ...props }) => (
+            <pre className="bg-muted rounded-md p-3 overflow-x-auto my-2" {...props} />
+          ),
+          ul: ({ ...props }) => <ul className="ml-4 list-disc my-2" {...props} />,
+          ol: ({ ...props }) => <ol className="ml-4 list-decimal my-2" {...props} />,
+          li: ({ ...props }) => <li className="mb-1" {...props} />,
+          a: ({ ...props }) => (
+            <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 }
 
