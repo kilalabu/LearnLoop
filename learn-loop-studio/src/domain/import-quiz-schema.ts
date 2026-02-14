@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { QUIZ_CATEGORIES } from './quiz-constants';
 
 // ---------------------------------------------------------------------------
 // クイズ取り込み用 AI スキーマ（Zod）
@@ -13,7 +14,7 @@ export const ImportQuizSchema = z.object({
     "問題文。問題番号や接頭辞（Q1, 問1等）は除外し、純粋な本文のみとすること。"
   ),
   options: z.array(ImportQuizOptionSchema).min(2).describe(
-    "選択肢のリスト（2個以上）。原文に含まれる選択肢をすべて抽出すること。個数の上限はない。"
+    "選択肢のリスト（2個以上）。原文に含まれる選択肢をすべて抽出すること。記号（A), B) 等）は除去してテキスト部分のみとすること。"
   ),
   answers: z.array(z.string()).describe(
     "正解の選択肢文字列のリスト。optionsに含まれる文字列と完全一致させること。"
@@ -21,13 +22,11 @@ export const ImportQuizSchema = z.object({
   explanation: z.string().describe(
     "解説。原文の解説をそのまま保持すること。コードブロック、表、リスト、ネストされた詳細などのマークダウン記法はすべて維持すること。"
   ),
+  category: z.enum(QUIZ_CATEGORIES).describe("この問題に最も適切なカテゴリ"),
 });
-
-import { QUIZ_CATEGORIES } from './quiz-constants';
 
 export const ImportQuizResponseSchema = z.object({
   topic: z.string().describe("入力内容から抽出された主題"),
-  category: z.enum(QUIZ_CATEGORIES).describe("入力内容から判断した最適なカテゴリ"),
   quizzes: z.array(ImportQuizSchema).min(1).describe(
     "取り込まれたクイズのリスト。入力に含まれるすべてのクイズを抽出すること。"
   ),

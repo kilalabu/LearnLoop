@@ -17,13 +17,13 @@ const OUTPUT_FORMAT_INSTRUCTION = `
 以下のJSON形式で出力してください:
 {
   "topic": "入力内容から抽出された主題",
-  "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか",
   "quizzes": [
     {
       "question": "問題文",
       "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
       "answers": ["正解の選択肢テキスト"],
-      "explanation": "解説（Markdown形式）"
+      "explanation": "解説（Markdown形式）",
+      "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか"
     }
   ]
 }
@@ -119,7 +119,7 @@ export class NotionBatchProvider implements BatchProvider<NotionSubmissionPage> 
             isCorrect: quiz.answers.includes(optText),
           })),
           explanation: quiz.explanation,
-          category: validated.category || validated.topic || 'General',
+          category: quiz.category || validated.topic || 'General',
           sourceType: 'notion',
           sourceUrl: page.sourceUrl,
         }));

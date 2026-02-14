@@ -29,13 +29,13 @@ const OUTPUT_FORMAT_INSTRUCTION = `
 以下のJSON形式で出力してください:
 {
   "topic": "主題",
-  "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか",
   "quizzes": [
     {
       "question": "問題文",
       "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
       "answers": ["正解の選択肢テキスト"],
-      "explanation": "解説"
+      "explanation": "解説",
+      "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか"
     }
   ]
 }
@@ -142,7 +142,7 @@ export class StudioBatchProvider implements BatchProvider<StudioBatchRow> {
             isCorrect: quiz.answers.includes(optText),
           })),
           explanation: quiz.explanation,
-          category: validated.category || validated.topic || row.source_name,
+          category: quiz.category || row.source_name,
           sourceType: 'import',
         }));
 

@@ -2,7 +2,7 @@
 // スキーマ定義の re-export（後方互換性のため）
 // ---------------------------------------------------------------------------
 // AI生成用スキーマ
-export { QuizOptionSchema, QuizSchema, GenerateQuizResponseSchema } from './generate-quiz-schema';
+export { QuizSchema, GenerateQuizResponseSchema } from './generate-quiz-schema';
 export type { Quiz, GeneratedQuizResponse } from './generate-quiz-schema';
 
 // 取り込み用スキーマ
