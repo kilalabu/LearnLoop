@@ -1,4 +1,4 @@
-name: Nightly Batch - Notion Quiz Generation
+name: Quiz Generation Batch
 
 on:
   schedule:
