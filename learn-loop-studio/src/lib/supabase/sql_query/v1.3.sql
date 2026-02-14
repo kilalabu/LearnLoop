@@ -24,7 +24,6 @@ GENERATED ALWAYS AS (
 
 -- 2. クイズ一覧表示用の VIEW
 -- Repository でのクエリを簡潔にし、正確なページネーションを実現するために作成。
--- ※ RLS は自動的に元テーブルのものが引き継がれます（ownerが同じ場合）
 CREATE OR REPLACE VIEW public.quiz_view AS
 SELECT 
   q.id,
