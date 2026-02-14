@@ -17,6 +17,7 @@ const OUTPUT_FORMAT_INSTRUCTION = `
 以下のJSON形式で出力してください:
 {
   "topic": "入力内容から抽出された主題",
+  "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか",
   "quizzes": [
     {
       "question": "問題文",
@@ -118,7 +119,7 @@ export class NotionBatchProvider implements BatchProvider<NotionSubmissionPage> 
             isCorrect: quiz.answers.includes(optText),
           })),
           explanation: quiz.explanation,
-          category: validated.topic || 'General',
+          category: validated.category || validated.topic || 'General',
           sourceType: 'notion',
           sourceUrl: page.sourceUrl,
         }));

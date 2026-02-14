@@ -31,7 +31,6 @@ interface GenerateScreenProps {
   onGenerate: (
     sourceType: 'text' | 'url' | 'import',
     data: string,
-    category: string,
     modelId?: string,
     maxQuestions?: 'default' | 'unlimited' | number
   ) => Promise<void>;
@@ -47,7 +46,6 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
   const [sourceUrl, setSourceUrl] = useState("");
   const [importFiles, setImportFiles] = useState<GenerateItem[]>([]);
   const [generationMode, setGenerationMode] = useState<'immediate' | 'batch'>('batch');
-  const [category, setCategory] = useState("");
   const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
   const [maxQuestions, setMaxQuestions] = useState<'default' | 'unlimited' | 'custom'>('default');
   const [customQuestionCount, setCustomQuestionCount] = useState<string>("5");
@@ -66,7 +64,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
   const isTextValid = charCount >= 20 && charCount <= MAX_CHARS;
   const isImportValid = importFiles.length > 0 && importFiles.every(f => f.content.length >= 20);
 
-  const canGenerate = category.length > 0 && !isGenerating && (
+  const canGenerate = !isGenerating && (
     (sourceType === 'text' && isTextValid) ||
     (sourceType === 'url' && isUrlValid(sourceUrl)) ||
     (sourceType === 'import' && isImportValid)
@@ -91,12 +89,12 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
 
     // 即時生成モード: API/AI SDK を使用してその場で結果を表示する
     if (sourceType === 'text') {
-      onGenerate('text', sourceText, category, selectedModel, effectiveMaxQuestions);
+      onGenerate('text', sourceText, selectedModel, effectiveMaxQuestions);
     } else if (sourceType === 'url') {
-      onGenerate('url', sourceUrl, category, selectedModel, effectiveMaxQuestions);
+      onGenerate('url', sourceUrl, selectedModel, effectiveMaxQuestions);
     } else if (sourceType === 'import') {
       // 即時取り込み時は、UX のシンプル化のため、選択されている最初のファイルのみを処理対象とする
-      onGenerate('import', importFiles[0].content, category, selectedModel, effectiveMaxQuestions);
+      onGenerate('import', importFiles[0].content, selectedModel, effectiveMaxQuestions);
     }
   };
 
@@ -147,19 +145,6 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
         <section className="space-y-3">
           <Label className="text-sm font-bold flex items-center gap-2">
             <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">1</span>
-            カテゴリを入力
-          </Label>
-          <Input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="例: Docker, ネットワーク, 英語..."
-            className="h-14 bg-card rounded-2xl border-2 border-border hover:border-primary/50 transition-all text-base px-6 font-medium focus-visible:ring-primary"
-          />
-        </section>
-
-        <section className="space-y-3">
-          <Label className="text-sm font-bold flex items-center gap-2">
-            <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">2</span>
             ソースを選択して入力
           </Label>
 
@@ -318,7 +303,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
         {!(sourceType === 'import' && generationMode === 'batch') && (
           <section className="space-y-3">
             <Label className="text-sm font-bold flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">3</span>
+              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">2</span>
               AIモデルを選択
             </Label>
             <Select value={selectedModel} onValueChange={(v) => setSelectedModel(v as ModelId)}>
@@ -337,7 +322,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
         {sourceType !== 'import' && (
           <section className="space-y-3">
             <Label className="text-sm font-bold flex items-center gap-2">
-              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">4</span>
+              <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">3</span>
               問題数の上限
             </Label>
             <div className="flex items-center gap-3">

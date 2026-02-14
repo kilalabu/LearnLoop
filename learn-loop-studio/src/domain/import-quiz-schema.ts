@@ -23,8 +23,11 @@ export const ImportQuizSchema = z.object({
   ),
 });
 
+import { QUIZ_CATEGORIES } from './quiz-constants';
+
 export const ImportQuizResponseSchema = z.object({
   topic: z.string().describe("入力内容から抽出された主題"),
+  category: z.enum(QUIZ_CATEGORIES).describe("入力内容から判断した最適なカテゴリ"),
   quizzes: z.array(ImportQuizSchema).min(1).describe(
     "取り込まれたクイズのリスト。入力に含まれるすべてのクイズを抽出すること。"
   ),

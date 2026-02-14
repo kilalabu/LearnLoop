@@ -3,15 +3,21 @@ import { ImportQuizResponseSchema, ImportQuizResponse } from '@/domain/quiz';
 import { getModel } from '@/lib/ai/models';
 import { QuizGenerator, type MaxQuestions } from './quiz-generator';
 
+import { QUIZ_CATEGORIES } from '@/domain/quiz-constants';
+
 /**
  * 取り込み専用のシステムプロンプト。
  * フィールドごとの変換ルールは ImportQuizSchema の describe() で定義済み。
  */
-const SYSTEM_PROMPT = `あなたはクイズデータの構造化変換の専門家です。
+const SYSTEM_PROMPT = `あなたはクイズデータの構造化変換の専門家。
 
 ## パース指針
-- 正解や解説が明示されている場合はそのまま採用してください
-- 問題の区切りが不明確な場合は、見出し（##, ###）やナンバリング（Q1, Q2 等）を手がかりにしてください
+- 正解や解説が明示されている場合はそのまま採用して
+- 問題の区切りが不明確な場合は、見出し（##, ###）やナンバリング（Q1, Q2 等）を手がかりにして
+
+## カテゴリ選択
+- 内容を分析し、以下のリストから最も適切なカテゴリを1つ選択して
+- リスト: ${QUIZ_CATEGORIES.join(', ')}
 `;
 
 /**

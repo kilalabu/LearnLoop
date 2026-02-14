@@ -9,6 +9,10 @@ export type { Quiz, GeneratedQuizResponse } from './generate-quiz-schema';
 export { ImportQuizOptionSchema, ImportQuizSchema, ImportQuizResponseSchema } from './import-quiz-schema';
 export type { ImportQuiz, ImportQuizResponse } from './import-quiz-schema';
 
+import { QUIZ_CATEGORIES, QuizCategory } from './quiz-constants';
+export { QUIZ_CATEGORIES };
+export type { QuizCategory };
+
 // ---------------------------------------------------------------------------
 // DB 入出力型
 // ---------------------------------------------------------------------------
@@ -19,7 +23,7 @@ export interface SaveQuizInput {
   question: string;
   options: { id: string; text: string; isCorrect: boolean }[];
   explanation: string;
-  category: string;
+  category: QuizCategory | string; // 移行期のため string も許容するが原則 QuizCategory
   sourceType: 'text' | 'url' | 'manual' | 'import' | 'notion';
   sourceUrl?: string;
 }

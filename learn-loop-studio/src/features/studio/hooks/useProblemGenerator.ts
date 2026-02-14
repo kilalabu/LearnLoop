@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 /** /api/quiz/generate のレスポンス内の個別クイズ */
 interface GeneratedQuiz {
   question: string;
+  category: string;
   options: string[];
   answers: string[];
   explanation: string;
@@ -26,7 +27,6 @@ export const useProblemGenerator = () => {
   const generateProblems = useCallback(async (
     sourceType: 'text' | 'url' | 'import',
     data: string,
-    category: string,
     modelId?: string,
     maxQuestions?: 'default' | 'unlimited' | number
   ) => {
@@ -46,7 +46,7 @@ export const useProblemGenerator = () => {
       const newProblems: Problem[] = result.quizzes.map((quiz: GeneratedQuiz) => ({
         id: uuidv4(),
         question: quiz.question,
-        category: category || result.topic || 'General',
+        category: quiz.category || result.category || result.topic || 'Others',
         explanation: quiz.explanation,
         sourceType: sourceType,
         sourceUrl: sourceType === 'url' ? data : undefined,
