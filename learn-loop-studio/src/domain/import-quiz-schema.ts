@@ -10,7 +10,7 @@ export const ImportQuizOptionSchema = z.string().describe(
 
 export const ImportQuizSchema = z.object({
   question: z.string().describe(
-    "問題文。原文の問題文をそのまま抽出すること。改変や要約は行わないこと。"
+    "問題文。問題番号や接頭辞（Q1, 問1等）は除外し、純粋な本文のみとすること。"
   ),
   options: z.array(ImportQuizOptionSchema).min(2).describe(
     "選択肢のリスト（2個以上）。原文に含まれる選択肢をすべて抽出すること。個数の上限はない。"
