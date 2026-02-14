@@ -16,6 +16,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, ExternalLink, Eye, FileText, Loader2 } from "lucide-react";
 import type { QuizListItem } from "@/domain/quiz";
+import { QUIZ_CATEGORIES } from "@/domain/quiz-constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -124,17 +132,32 @@ export function QuizDetailDialog({
             {/* カテゴリ */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold">カテゴリ</Label>
-              <Input
+              <Select
                 value={editData.category}
-                onChange={(e) =>
+                onValueChange={(value) =>
                   setEditData((prev) => ({
                     ...prev,
-                    category: e.target.value,
+                    category: value,
                   }))
                 }
-                placeholder="例: Docker, ネットワーク..."
-                className="bg-card"
-              />
+              >
+                <SelectTrigger className="bg-card">
+                  <SelectValue placeholder="カテゴリを選択..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {/* 現在の値がリストにない場合に表示（過去データ互換性のため） */}
+                  {editData.category && !QUIZ_CATEGORIES.includes(editData.category as any) && (
+                    <SelectItem value={editData.category}>
+                      {editData.category} (現在の値)
+                    </SelectItem>
+                  )}
+                  {QUIZ_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* 問題文 */}
