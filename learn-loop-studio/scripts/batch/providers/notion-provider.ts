@@ -7,9 +7,35 @@ import { SYSTEM_PROMPT, QuizGenerator } from '../../../src/services/quiz-generat
 import { createServiceClient, getPlaceholderUserId } from '../../../src/lib/supabase/client';
 import { QuizRepository } from '../../../src/repositories/quiz-repository';
 import { GenerateQuizResponseSchema } from '../../../src/domain/generate-quiz-schema';
+import { QUIZ_CATEGORIES } from '../../../src/domain/quiz-constants';
 import { BatchProvider, BatchRequestItem } from './base-provider';
 import { NotionSubmissionPage, MAX_CONTENT_LENGTH, BatchOutputLine } from '../../lib/batch-types';
 import { SaveQuizInput } from '../../../src/domain/quiz';
+
+const QUIZ_GENERATION_RULES = `
+### 出題ルール
+1. 本質的な観点: 以下から、技術領域によらない普遍的な理解を問うこと。
+   - 意図と課題 (Why): 設計の背景、解決する課題。
+   - 動作原理 (Mechanism): 内部データフロー、抽象化の仕組み。
+   - 選択の代償 (Trade-off): 利点と引き換えにする制約。
+   - 境界と失敗 (Failure Analysis): アンチパターン、限界条件。
+   - 思考の転換 (Mental Model): 従来技術との概念的な違い。
+2. 状況設定: 実務でありそうな具体的なシナリオを含めること。
+
+### 選択肢ルール
+- 2から4つとし、正解は1つ以上（複数選択可）とする。
+- 誤答はテキストの論理を読み違えた際に陥りやすい、説得力のある内容にすること。
+- 正解（answers）は選択肢（options）の文字列と完全一致させること。
+
+### 解説ルール
+1. 論理的根拠: 正解・誤答の理由を論理的に説明する。
+2. 抽象化・一般化: 普遍的な原理を補足し、他領域でも応用できる知見とする。
+3. 視認性: Markdown形式で記述すること。
+
+### カテゴリ
+問題に最も適切なカテゴリを以下から1つ選択すること:
+${QUIZ_CATEGORIES.join(' | ')}
+`;
 
 /** クイズ生成リクエストの出力形式指示プロンプト */
 const OUTPUT_FORMAT_INSTRUCTION = `
@@ -23,13 +49,10 @@ const OUTPUT_FORMAT_INSTRUCTION = `
       "options": ["選択肢1", "選択肢2", "選択肢3", "選択肢4"],
       "answers": ["正解の選択肢テキスト"],
       "explanation": "解説（Markdown形式）",
-      "category": "Mobile|Frontend|Backend|Infra|Data Storage|Architecture|CS|QA|AI|Soft Skills|Tooling|Security|Others のいずれか"
+      "category": "カテゴリ名"
     }
   ]
-}
-- options は 2〜4 個
-- answers は options に含まれる文字列と完全一致させること
-- quizzes は 1 問以上`;
+}`;
 
 export class NotionBatchProvider implements BatchProvider<NotionSubmissionPage> {
   readonly name = 'Notion';
@@ -61,6 +84,7 @@ export class NotionBatchProvider implements BatchProvider<NotionSubmissionPage> 
 
     const systemPrompt = SYSTEM_PROMPT
       + QuizGenerator.buildMaxQuestionsInstruction('default')
+      + QUIZ_GENERATION_RULES
       + OUTPUT_FORMAT_INSTRUCTION;
 
     return {
