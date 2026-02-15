@@ -1,0 +1,48 @@
+name: Android App Distribution
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'learn_loop_app/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-distribute:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.5' # .mise.toml と同期すること
+
+      - name: Install dependencies
+        working-directory: learn_loop_app
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: learn_loop_app
+        run: |
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL=${{ secrets.SUPABASE_URL }} \
+            --dart-define=SUPABASE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }} \
+            --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} \
+            --dart-define=API_BASE_URL=${{ secrets.APP_API_BASE_URL }}
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: dev-team
+          file: learn_loop_app/build/app/outputs/flutter-apk/app-release.apk
