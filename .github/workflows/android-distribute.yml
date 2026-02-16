@@ -74,6 +74,13 @@ jobs:
             --dart-define=GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }} \
             --dart-define=API_BASE_URL=${{ secrets.APP_API_BASE_URL }}
 
+      - name: Verify APK signing certificate
+        working-directory: learn_loop_app
+        run: |
+          APK_PATH=build/app/outputs/flutter-apk/app-release.apk
+          echo "=== APK Signing Info ==="
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -1)/apksigner verify --print-certs "$APK_PATH" 2>&1 | grep -i sha-1
+
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
