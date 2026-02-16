@@ -33,11 +33,37 @@ jobs:
       - name: Restore debug keystore
         run: |
           mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | base64 --decode > ~/.android/debug.keystore
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 --decode > ~/.android/debug.keystore
 
       - name: Verify keystore SHA-1
         run: |
           keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android 2>&1 | grep SHA1
+
+      - name: Verify dart-define values
+        run: |
+          echo "=== SUPABASE_URL ==="
+          echo "Length: ${#SUPABASE_URL}"
+          echo "Starts with: ${SUPABASE_URL:0:8}..."
+          echo "Ends with: ...${SUPABASE_URL: -15}"
+          echo ""
+          echo "=== SUPABASE_KEY ==="
+          echo "Length: ${#SUPABASE_KEY}"
+          echo "Starts with: ${SUPABASE_KEY:0:5}..."
+          echo ""
+          echo "=== GOOGLE_WEB_CLIENT_ID ==="
+          echo "Length: ${#GOOGLE_WEB_CLIENT_ID}"
+          echo "Starts with: ${GOOGLE_WEB_CLIENT_ID:0:10}..."
+          echo "Ends with: ...${GOOGLE_WEB_CLIENT_ID: -25}"
+          echo ""
+          echo "=== API_BASE_URL ==="
+          echo "Length: ${#API_BASE_URL}"
+          echo "Starts with: ${API_BASE_URL:0:8}..."
+          echo "Ends with: ...${API_BASE_URL: -15}"
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          API_BASE_URL: ${{ secrets.APP_API_BASE_URL }}
 
       - name: Build APK
         working-directory: learn_loop_app
