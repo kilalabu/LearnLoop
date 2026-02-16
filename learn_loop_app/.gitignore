@@ -44,5 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Debug keystore (秘密情報)
+/android/app/debug.keystore
+
 # Environment variables
 .env

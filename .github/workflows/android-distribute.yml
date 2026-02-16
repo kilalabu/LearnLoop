@@ -32,12 +32,11 @@ jobs:
 
       - name: Restore debug keystore
         run: |
-          mkdir -p ~/.android
-          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 --decode > ~/.android/debug.keystore
+          echo "${{ secrets.DEBUG_KEYSTORE_BASE64 }}" | tr -d '\n\r ' | base64 --decode > learn_loop_app/android/app/debug.keystore
 
       - name: Verify keystore SHA-1
         run: |
-          keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android 2>&1 | grep SHA1
+          keytool -list -v -keystore learn_loop_app/android/app/debug.keystore -alias androiddebugkey -storepass android 2>&1 | grep SHA1
 
       - name: Verify dart-define values
         run: |
