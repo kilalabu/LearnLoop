@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import '../../domain/models/quiz.dart';
 import '../home/home_view_model.dart';
 import 'state/quiz_state.dart';
@@ -105,6 +106,45 @@ class QuizViewModel extends Notifier<QuizState> {
         selectedOptionIds: {},
       );
     }
+  }
+
+  /// クリップボードにコピー
+  void copyToClipboard() {
+    final currentState = state;
+    if (currentState is! QuizShowingResult) return;
+
+    final quiz = currentState.quizzes[currentState.currentIndex];
+    final text = _buildCopyText(quiz);
+    Clipboard.setData(ClipboardData(text: text));
+    HapticFeedback.lightImpact();
+  }
+
+  /// クイズの問題・正解・解説をまとめたコピー用テキストを生成する
+  static String _buildCopyText(Quiz quiz) {
+    // 正解の選択肢を取得（複数正解対応）
+    final correctOptions = quiz.options.where((o) => o.isCorrect).toList();
+    final correctLines = correctOptions
+        .map((o) => '${o.label}. ${o.text}')
+        .join('\n');
+
+    final buffer = StringBuffer();
+    buffer.writeln('【問題】');
+    buffer.writeln(quiz.question);
+    buffer.writeln();
+    buffer.writeln('【正解】');
+    buffer.writeln(correctLines);
+    buffer.writeln();
+    buffer.writeln('【解説】');
+    buffer.write(quiz.explanation);
+
+    // sourceUrl がある場合のみ出典行を追加
+    if (quiz.sourceUrl != null) {
+      buffer.writeln();
+      buffer.writeln();
+      buffer.write('出典: ${quiz.sourceUrl}');
+    }
+
+    return buffer.toString();
   }
 
   /// やり直し

@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_card.dart';
+import 'copy_quiz_button.dart';
+import 'source_link_button.dart';
 
 /// 解説カード
 class ExplanationCard extends StatelessWidget {
@@ -53,41 +55,15 @@ class ExplanationCard extends StatelessWidget {
               }
             },
           ),
-          if (sourceUrl != null) ...[
-            AppSpacing.gapMd,
-            GestureDetector(
-              onTap: () async {
-                final uri = Uri.parse(sourceUrl!);
-                if (await canLaunchUrl(uri)) {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderXl,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'ソースを見る',
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(Icons.open_in_new, size: 16, color: AppColors.primary),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          AppSpacing.gapMd,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (sourceUrl != null) SourceLinkButton(url: sourceUrl!),
+              const CopyQuizButton(),
+            ],
+          ),
         ],
       ),
     );
