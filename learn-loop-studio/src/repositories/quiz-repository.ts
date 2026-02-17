@@ -41,8 +41,8 @@ export class QuizRepository {
    * 1. 復習クイズ: next_review_at が現在以前のもの（復習期限が来たもの）
    * 2. 新規クイズ: まだ一度も解いていないもの
    */
-  async fetchStudySession(limit: number = 10): Promise<FormattedQuiz[]> {
-    // ① 復習クイズ取得: 復習期限が来ているものを優先度順（古い順）で取得
+  async fetchStudySession(limit: number = 12, reviewLimit: number = 6): Promise<FormattedQuiz[]> {
+    // ① 復習クイズ取得: 復習期限が来ているものを「reviewLimit」を上限に取得
     const { data: reviewRows, error: reviewError } = await this.supabase
       .from('user_progress')
       .select('quiz_id, quizzes(*)')
@@ -50,7 +50,7 @@ export class QuizRepository {
       .eq('is_hidden', false)
       .lte('next_review_at', new Date().toISOString())
       .order('next_review_at', { ascending: true })
-      .limit(limit);
+      .limit(reviewLimit);
 
     if (reviewError) {
       throw new QuizRepositoryError(`復習クイズの取得に失敗しました: ${reviewError.message}`);
@@ -67,8 +67,10 @@ export class QuizRepository {
         };
       });
 
-    // ② 残り枠で新規クイズを取得
+    // ② 残り枠（全体上限 - 取得できた復習数）で新規クイズを取得
     const remaining = limit - reviews.length;
+
+    // 全体リミットに達している場合は即時返却
     if (remaining <= 0) return reviews;
 
     // 新規クイズ: user_progress にレコードがない = まだ解いていない問題
