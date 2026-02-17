@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 /// LearnLoop デザインシステム - タイポグラフィ
 abstract final class AppTypography {
   static TextTheme get textTheme {
-    return GoogleFonts.interTextTheme(
+    return GoogleFonts.notoSansJpTextTheme(
       const TextTheme(
         // Display
         displayLarge: TextStyle(
