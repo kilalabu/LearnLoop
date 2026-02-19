@@ -42,12 +42,12 @@ export class QuizRepository {
    * 2. 新規クイズ: まだ一度も解いていないもの
    */
   async fetchStudySession(limit: number = 12, reviewLimit: number = 6): Promise<FormattedQuiz[]> {
-    // ① 復習クイズ取得: 復習期限が来ているものを「reviewLimit」を上限に取得
+    // ① 復習クイズ取得: quiz_view を使い、learning_status='learning' かつ復習期限が来ているものを取得
     const { data: reviewRows, error: reviewError } = await this.supabase
-      .from('user_progress')
-      .select('quiz_id, quizzes(*)')
+      .from('quiz_view')
+      .select('*')
       .eq('user_id', this.userId)
-      .eq('is_hidden', false)
+      .eq('learning_status', 'learning')
       .lte('next_review_at', new Date().toISOString())
       .order('next_review_at', { ascending: true })
       .limit(reviewLimit);
@@ -57,15 +57,10 @@ export class QuizRepository {
     }
 
     // 復習クイズを整形（type: 'review' を付与）
-    const reviews: FormattedQuiz[] = (reviewRows ?? [])
-      .filter((row) => row.quizzes)  // quizzes が存在するもののみ
-      .map((row) => {
-        const quiz = Array.isArray(row.quizzes) ? row.quizzes[0] : row.quizzes;
-        return {
-          ...this.formatQuizRow(quiz as QuizRow),
-          type: 'review' as const,
-        };
-      });
+    const reviews: FormattedQuiz[] = (reviewRows ?? []).map((row) => ({
+      ...this.formatQuizRow(row as QuizRow),
+      type: 'review' as const,
+    }));
 
     // ② 残り枠（全体上限 - 取得できた復習数）で新規クイズを取得
     const remaining = limit - reviews.length;
@@ -73,12 +68,12 @@ export class QuizRepository {
     // 全体リミットに達している場合は即時返却
     if (remaining <= 0) return reviews;
 
-    // 新規クイズ: user_progress にレコードがない = まだ解いていない問題
+    // 新規クイズ: learning_status='unanswered' = まだ一度も解いていない問題
     const { data: newRows, error: newError } = await this.supabase
-      .from('quizzes')
-      .select('*, user_progress!left(id)')
+      .from('quiz_view')
+      .select('*')
       .eq('user_id', this.userId)
-      .is('user_progress.id', null)
+      .eq('learning_status', 'unanswered')
       .order('created_at', { ascending: true })
       .limit(remaining);
 

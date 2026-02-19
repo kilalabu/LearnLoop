@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
     // クエリパラメータから取得件数を取得（デフォルト10件）
     const { searchParams } = new URL(req.url);
-    const limit = Number(searchParams.get('limit')) || 10;
+    const limit = Number(searchParams.get('limit')) || 12;
 
     const repo = new QuizRepository(auth.supabase, auth.userId);
     const quizzes = await repo.fetchStudySession(limit);
