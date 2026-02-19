@@ -62,6 +62,27 @@ class ApiClient {
     }
   }
 
+  /// PATCHリクエスト
+  Future<Map<String, dynamic>> patch(
+    String path,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$_baseUrl$path'),
+        headers: _headers,
+        body: jsonEncode(body),
+      );
+      return _handleResponse(response);
+    } on SocketException catch (e) {
+      debugPrint('ApiClient: SocketException for $_baseUrl$path: $e');
+      throw NetworkException();
+    } on TimeoutException {
+      debugPrint('ApiClient: TimeoutException for $_baseUrl$path');
+      throw NetworkException('リクエストがタイムアウトしました。');
+    }
+  }
+
   /// レスポンス共通処理
   Map<String, dynamic> _handleResponse(http.Response response) {
     switch (response.statusCode) {

@@ -23,7 +23,7 @@ class UserProgressRepositoryImpl implements UserProgressRepository {
 
   @override
   Future<void> hideQuiz({required String quizId}) async {
-    await _apiClient.post('/api/quiz/$quizId/hide', {});
+    await _apiClient.patch('/api/quiz/$quizId/progress', {'isHidden': true});
   }
 
   @override

@@ -114,7 +114,7 @@ class QuizResultScreen extends ConsumerWidget {
 
                     AppSpacing.gapMd,
 
-                    // 「もう出さない」チェックボックス
+                    // スキップ設定
                     GestureDetector(
                       onTap: () => viewModel.toggleHidden(),
                       child: Row(
@@ -125,7 +125,9 @@ class QuizResultScreen extends ConsumerWidget {
                             child: Checkbox(
                               value: state.isHiddenChecked,
                               onChanged: (_) => viewModel.toggleHidden(),
-                              activeColor: theme.colorScheme.error.withValues(alpha: 0.8),
+                              activeColor: theme.colorScheme.error.withValues(
+                                alpha: 0.8,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -133,9 +135,11 @@ class QuizResultScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'この問題をもう出さない',
+                            'この問題を次回からスキップする',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         ],
