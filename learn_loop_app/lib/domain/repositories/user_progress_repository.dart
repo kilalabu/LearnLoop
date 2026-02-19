@@ -5,6 +5,9 @@ abstract interface class UserProgressRepository {
 
   /// クイズの進捗を記録
   Future<void> recordAnswer({required String quizId, required bool isCorrect});
+
+  /// クイズを「もう出さない」に設定
+  Future<void> hideQuiz({required String quizId});
 }
 
 /// ユーザー統計情報

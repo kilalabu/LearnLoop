@@ -112,6 +112,36 @@ class QuizResultScreen extends ConsumerWidget {
                       sourceUrl: quiz.sourceUrl,
                     ),
 
+                    AppSpacing.gapMd,
+
+                    // 「もう出さない」チェックボックス
+                    GestureDetector(
+                      onTap: () => viewModel.toggleHidden(),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: state.isHiddenChecked,
+                              onChanged: (_) => viewModel.toggleHidden(),
+                              activeColor: theme.colorScheme.error.withValues(alpha: 0.8),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'この問題をもう出さない',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     AppSpacing.gapLg,
                   ],
                 ),

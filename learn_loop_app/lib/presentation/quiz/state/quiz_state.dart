@@ -22,6 +22,8 @@ sealed class QuizState with _$QuizState {
     required int currentIndex,
     required Set<String> selectedOptionIds,
     required bool isCorrect,
+    /// 解説の非表示選択肢を展開済みかどうか
+    @Default(false) bool isHiddenChecked,
   }) = QuizShowingResult;
 
   /// 全問完了

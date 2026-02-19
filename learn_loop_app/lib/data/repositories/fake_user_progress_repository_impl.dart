@@ -27,4 +27,9 @@ class FakeUserProgressRepositoryImpl implements UserProgressRepository {
       _correctCount++;
     }
   }
+
+  @override
+  Future<void> hideQuiz({required String quizId}) async {
+    // フェイク実装: 何もしない
+  }
 }

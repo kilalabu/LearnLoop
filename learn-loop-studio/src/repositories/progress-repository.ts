@@ -85,6 +85,22 @@ export class ProgressRepository {
     }
   }
 
+  /**
+   * クイズの is_hidden フラグを更新する。
+   * user_progress レコードが存在しない場合は何もしない（回答済みの問題のみ非表示にできる）。
+   */
+  async updateHidden(quizId: string, isHidden: boolean): Promise<void> {
+    const { error } = await this.supabase
+      .from('user_progress')
+      .update({ is_hidden: isHidden })
+      .eq('user_id', this.userId)
+      .eq('quiz_id', quizId);
+
+    if (error) {
+      throw new ProgressRepositoryError(`is_hidden の更新に失敗しました: ${error.message}`);
+    }
+  }
+
   /** ユーザーの統計情報を返す */
   async getStats(): Promise<UserStats> {
     const { data: progressList, error } = await this.supabase

@@ -88,10 +88,29 @@ class QuizViewModel extends Notifier<QuizState> {
     );
   }
 
+  /// 「もう出さない」チェックをトグル
+  void toggleHidden() {
+    final currentState = state;
+    if (currentState is! QuizShowingResult) return;
+
+    state = currentState.copyWith(
+      isHiddenChecked: !currentState.isHiddenChecked,
+    );
+  }
+
   /// 次のクイズへ
   void nextQuestion() {
     final currentState = state;
     if (currentState is! QuizShowingResult) return;
+
+    // 「もう出さない」がチェックされていたら is_hidden を更新(fire-and-forget)
+    if (currentState.isHiddenChecked) {
+      final quiz = currentState.quizzes[currentState.currentIndex];
+      final progressRepo = ref.read(userProgressRepositoryProvider);
+      progressRepo
+          .hideQuiz(quizId: quiz.id)
+          .catchError((e) => debugPrint('非表示更新失敗: $e'));
+    }
 
     final nextIndex = currentState.currentIndex + 1;
     if (nextIndex >= currentState.quizzes.length) {

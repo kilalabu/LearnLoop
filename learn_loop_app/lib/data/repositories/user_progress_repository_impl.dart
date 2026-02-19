@@ -22,6 +22,11 @@ class UserProgressRepositoryImpl implements UserProgressRepository {
   }
 
   @override
+  Future<void> hideQuiz({required String quizId}) async {
+    await _apiClient.post('/api/quiz/$quizId/hide', {});
+  }
+
+  @override
   Future<UserStats> getStats() async {
     final data = await _apiClient.get('/api/quiz/stats');
     return UserStats(

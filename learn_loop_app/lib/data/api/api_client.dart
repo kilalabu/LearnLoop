@@ -20,10 +20,9 @@ class ApiClient {
   ApiClient({required SupabaseClient supabase}) : _supabase = supabase;
 
   Map<String, String> get _headers => {
-        'Authorization':
-            'Bearer ${_supabase.auth.currentSession?.accessToken}',
-        'Content-Type': 'application/json',
-      };
+    'Authorization': 'Bearer ${_supabase.auth.currentSession?.accessToken}',
+    'Content-Type': 'application/json',
+  };
 
   /// GETリクエスト
   Future<Map<String, dynamic>> get(String path) async {
@@ -44,7 +43,9 @@ class ApiClient {
 
   /// POSTリクエスト
   Future<Map<String, dynamic>> post(
-      String path, Map<String, dynamic> body) async {
+    String path,
+    Map<String, dynamic> body,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl$path'),
