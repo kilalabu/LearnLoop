@@ -34,6 +34,11 @@ class QuizRepositoryImpl implements QuizRepository {
             explanation: json['explanation'],
             sourceUrl: json['sourceUrl'],
             genre: json['genre'],
+            type: switch (json['type']) {
+              'new' => QuizType.newQuiz,
+              'review' => QuizType.review,
+              _ => null,
+            },
           ),
         )
         .toList();

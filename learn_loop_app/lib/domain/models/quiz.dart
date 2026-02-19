@@ -12,6 +12,7 @@ abstract class Quiz with _$Quiz {
     required String explanation,
     String? sourceUrl,
     String? genre,
+    QuizType? type,
   }) = _Quiz;
 }
 
@@ -24,4 +25,13 @@ abstract class QuizOption with _$QuizOption {
     required String text,
     required bool isCorrect,
   }) = _QuizOption;
+}
+
+/// クイズの出題区分
+enum QuizType {
+  /// 新規出題
+  newQuiz,
+
+  /// 復習出題
+  review,
 }

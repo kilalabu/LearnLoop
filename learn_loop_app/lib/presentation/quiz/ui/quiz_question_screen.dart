@@ -125,10 +125,22 @@ class QuizQuestionScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (quiz.genre != null)
-                    AppBadge(label: quiz.genre!)
-                  else
-                    const SizedBox(),
+                  // ジャンルバッジと新規/復習バッジを横並びで表示
+                  Row(
+                    children: [
+                      if (quiz.genre != null) ...[
+                        AppBadge(label: quiz.genre!),
+                        const SizedBox(width: 8),
+                      ],
+                      if (quiz.type != null)
+                        AppBadge(
+                          label: quiz.type == QuizType.newQuiz ? '新規' : '復習',
+                          color: quiz.type == QuizType.newQuiz
+                              ? AppColors.success
+                              : AppColors.streak,
+                        ),
+                    ],
+                  ),
                   Text(
                     'じっくり考えよう!',
                     style: theme.textTheme.labelSmall?.copyWith(
