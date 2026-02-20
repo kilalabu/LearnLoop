@@ -7,9 +7,12 @@ export async function GET(req: NextRequest) {
     const auth = await authenticateRequest(req);
     if (auth instanceof NextResponse) return auth;
 
-    // クエリパラメータから取得件数を取得（デフォルト10件）
+    // クエリパラメータから取得件数を取得
+    // 0・負の値・NaN は不正な値とみなし undefined 扱い
+    const DECIMAL = 10; // parseInt の第2引数: 10進数として解釈する基数
     const { searchParams } = new URL(req.url);
-    const limit = Number(searchParams.get('limit')) || 12;
+    const rawLimit = parseInt(searchParams.get('limit') ?? '', DECIMAL);
+    const limit = !isNaN(rawLimit) && rawLimit > 0 ? rawLimit : undefined;
 
     const repo = new QuizRepository(auth.supabase, auth.userId);
     const quizzes = await repo.fetchStudySession(limit);

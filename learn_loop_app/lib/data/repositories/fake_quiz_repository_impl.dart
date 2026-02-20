@@ -115,8 +115,9 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
   ];
 
   @override
-  Future<List<Quiz>> getTodayQuizzes() async {
+  Future<List<Quiz>> getTodayQuizzes({int? limit}) async {
     await Future.delayed(const Duration(milliseconds: 300));
+    // Fake実装のため limit は無視してすべて返す
     return _fakeQuizzes;
   }
 

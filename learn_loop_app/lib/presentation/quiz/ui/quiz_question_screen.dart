@@ -82,7 +82,11 @@ class QuizQuestionScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    onPressed: () => context.go('/'),
+                    onPressed: () {
+                      // ホーム画面の統計情報を再読み込みして、回答済み分を反映
+                      ref.invalidate(homeViewModelProvider);
+                      context.go('/');
+                    },
                     icon: const Icon(Icons.close),
                     style: IconButton.styleFrom(
                       foregroundColor: theme.colorScheme.onSurface.withValues(

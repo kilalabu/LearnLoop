@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../domain/models/quiz.dart';
 import '../home/home_view_model.dart';
 import 'state/quiz_state.dart';
@@ -21,9 +22,29 @@ class QuizViewModel extends Notifier<QuizState> {
 
   Future<void> _loadQuizzes() async {
     try {
+      final sessionRepo = ref.read(quizSessionRepositoryProvider);
+      final progress = await sessionRepo.getSessionProgress();
+
+      // 今日の深夜0時の millisecondsSinceEpoch で日付を比較
+      final now = DateTime.now();
+      final todayMidnight =
+          DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+
+      int? limit;
+      if (progress != null && todayMidnight > progress.sessionDateMs) {
+        // 翌日以降: 古いセッションをクリアして全件取得
+        await sessionRepo.clearSession();
+      } else if (progress != null) {
+        // 同日: 残り問題数を limit に設定（0 以下は全問完了済みのため制限なし）
+        limit = progress.remaining > 0 ? progress.remaining : null;
+      }
+
       final quizRepo = ref.read(quizRepositoryProvider);
-      _quizzes = await quizRepo.getTodayQuizzes();
+      _quizzes = await quizRepo.getTodayQuizzes(limit: limit);
       _correctCount = 0;
+
+      // 今日の日付と totalCount を保存（answeredCount は既存値を引き継ぐ）
+      await sessionRepo.saveSession(remainingCount: _quizzes.length);
 
       if (_quizzes.isEmpty) {
         state = const QuizState.completed(correctCount: 0, totalCount: 0);
@@ -114,11 +135,23 @@ class QuizViewModel extends Notifier<QuizState> {
 
     final nextIndex = currentState.currentIndex + 1;
     if (nextIndex >= currentState.quizzes.length) {
+      // 全問完了: セッションをクリア(fire-and-forget)
+      final sessionRepo = ref.read(quizSessionRepositoryProvider);
+      sessionRepo
+          .clearSession()
+          .catchError((e) => debugPrint('セッションクリア失敗: $e'));
+
       state = QuizState.completed(
         correctCount: _correctCount,
         totalCount: currentState.quizzes.length,
       );
     } else {
+      // 途中: 残り問題数をデクリメント(fire-and-forget)
+      final sessionRepo = ref.read(quizSessionRepositoryProvider);
+      sessionRepo
+          .decrementRemaining()
+          .catchError((e) => debugPrint('セッション更新失敗: $e'));
+
       state = QuizState.answering(
         quizzes: currentState.quizzes,
         currentIndex: nextIndex,
@@ -167,7 +200,10 @@ class QuizViewModel extends Notifier<QuizState> {
   }
 
   /// やり直し
-  void restart() {
+  Future<void> restart() async {
+    final sessionRepo = ref.read(quizSessionRepositoryProvider);
+    await sessionRepo.clearSession();
+    _correctCount = 0;
     _loadQuizzes();
   }
 }

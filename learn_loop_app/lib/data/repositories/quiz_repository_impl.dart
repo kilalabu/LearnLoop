@@ -14,8 +14,12 @@ class QuizRepositoryImpl implements QuizRepository {
   List<Quiz>? _cachedQuizzes;
 
   @override
-  Future<List<Quiz>> getTodayQuizzes() async {
-    final data = await _apiClient.get('/api/quiz/today');
+  Future<List<Quiz>> getTodayQuizzes({int? limit}) async {
+    // limit が指定された場合のみクエリパラメータを付与する
+    final path = limit != null
+        ? Uri(path: '/api/quiz/today', queryParameters: {'limit': limit.toString()}).toString()
+        : '/api/quiz/today';
+    final data = await _apiClient.get(path);
     final quizzes = (data['quizzes'] as List)
         .map(
           (json) => Quiz(

@@ -149,6 +149,76 @@ describe('QuizRepository', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('limit を指定すると .limit() に totalLimit が渡される', async () => {
+      // Arrange: 復習クイズ0件、新規クイズ3件を返す設定
+      let callCount = 0;
+      mock.chain.then = vi.fn().mockImplementation((resolve: (v: unknown) => void) => {
+        callCount++;
+        if (callCount === 1) {
+          // 1回目クエリ（復習クイズ）: 空を返す
+          return resolve({ data: [], error: null });
+        }
+        // 2回目クエリ（新規クイズ）: 3件を返す
+        return resolve({
+          data: [
+            { id: 'q1', question: '問題1', options: [], explanation: '解説1', source_url: null, category: 'TypeScript' },
+            { id: 'q2', question: '問題2', options: [], explanation: '解説2', source_url: null, category: 'TypeScript' },
+            { id: 'q3', question: '問題3', options: [], explanation: '解説3', source_url: null, category: 'TypeScript' },
+          ],
+          error: null,
+        });
+      });
+
+      // Act: limit=3 を指定して呼び出す
+      const result = await repo.fetchStudySession(3);
+
+      // Assert: 戻り値は 3 件以下に制限される
+      expect(result).toHaveLength(3);
+
+      // .limit() が呼ばれた引数を確認する
+      // limit() の呼び出し回数と引数を検証:
+      // 1回目（復習クイズ）は reviewLimit(=6) が渡される
+      // 2回目（新規クイズ）は remaining = totalLimit(3) - reviews.length(0) = 3 が渡される
+      const limitCalls = mock.chain.limit.mock.calls;
+      // 新規クイズ取得の .limit() には 3 が渡されている
+      expect(limitCalls).toContainEqual([3]);
+    });
+
+    it('limit を指定しない場合、デフォルト 12 件で動作する', async () => {
+      // Arrange: 復習クイズ0件、新規クイズ 12 件を返す設定
+      let callCount = 0;
+      mock.chain.then = vi.fn().mockImplementation((resolve: (v: unknown) => void) => {
+        callCount++;
+        if (callCount === 1) {
+          // 1回目クエリ（復習クイズ）: 空を返す
+          return resolve({ data: [], error: null });
+        }
+        // 2回目クエリ（新規クイズ）: 12 件を返す
+        return resolve({
+          data: Array.from({ length: 12 }, (_, i) => ({
+            id: `q${i + 1}`,
+            question: `問題${i + 1}`,
+            options: [],
+            explanation: `解説${i + 1}`,
+            source_url: null,
+            category: 'TypeScript',
+          })),
+          error: null,
+        });
+      });
+
+      // Act: limit を指定せずに呼び出す
+      const result = await repo.fetchStudySession();
+
+      // Assert: 戻り値は 12 件（デフォルト上限）
+      expect(result).toHaveLength(12);
+
+      // .limit() の呼び出し引数を検証:
+      // 新規クイズ取得の .limit() には remaining = 12 - 0 = 12 が渡される
+      const limitCalls = mock.chain.limit.mock.calls;
+      expect(limitCalls).toContainEqual([12]);
+    });
   });
 
   describe('fetchList()', () => {
