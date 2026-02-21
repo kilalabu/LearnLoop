@@ -47,5 +47,9 @@ app.*.map.json
 # Debug keystore (秘密情報)
 /android/app/debug.keystore
 
+# Firebase 設定ファイル（秘密情報を含むためコミットしない）
+android/app/google-services.json
+
 # Environment variables
 .env
+ios/Runner/GoogleService-Info.plist
