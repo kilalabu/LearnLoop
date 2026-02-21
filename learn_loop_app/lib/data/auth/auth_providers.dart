@@ -14,7 +14,10 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   // サインイン成功時に FCM トークンを DB に登録する
   // Stream を map で変換し、副作用として PushNotificationService を呼び出す
   return stream.asyncMap((authState) async {
-    if (authState.event == AuthChangeEvent.signedIn) {
+    // signedIn: 新規ログイン時
+    // initialSession: アプリ起動時に既存セッションが復元された場合
+    if (authState.event == AuthChangeEvent.signedIn ||
+        authState.event == AuthChangeEvent.initialSession) {
       await PushNotificationService().initialize();
     }
     return authState;
