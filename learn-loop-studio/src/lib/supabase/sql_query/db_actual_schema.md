@@ -1,6 +1,6 @@
 # データベーステーブル構成書 (最終版)
 
-このドキュメントでは、`src/lib/supabase/sql_query` の変更履歴（v1.0 〜 v1.6）に基づいた、最終的なデータベーステーブル構成をまとめます。
+このドキュメントでは、`src/lib/supabase/sql_query` の変更履歴（v1.0 〜 v1.7）に基づいた、最終的なデータベーステーブル構成をまとめます。
 
 ## 1. テーブル定義
 
@@ -96,7 +96,7 @@ AIによるクイズ一括生成のリクエストを管理します。
 - **RLS ポリシー**: ユーザー自身のトークンのみ操作可能。バッチは `service_role` でバイパス。
 
 ### 3.2 `user_notification_settings` (通知設定・履歴)
-Push 通知の二重送信防止のための最終通知日時を管理するテーブル。RLS なし（`service_role` 専用）。
+Push 通知の二重送信防止のための最終通知日時を管理するテーブル。RLS 有効・ポリシーなし（`service_role` 専用）。
 
 | カラム名 | 型 | 制約 | 説明 |
 | :--- | :--- | :--- | :--- |
@@ -147,3 +147,4 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
 | **v1.4** | `quiz_view` に `security_invoker = true` を設定。RLS が呼び出し元権限で正しく適用されるよう修正。 |
 | **v1.5** | Push通知対応。`user_push_tokens`, `user_notification_settings` テーブル追加。`get_reminder_targets` RPC 追加。 |
 | **v1.6** | `get_reminder_targets` RPC のバグ修正。`AT TIME ZONE` 演算子優先順位の問題を括弧追加で修正。 |
+| **v1.7** | `user_notification_settings` に RLS を有効化。ポリシーなし（`service_role` のみアクセス可）。`authenticated`/`anon` ロールからの意図しないアクセスを防止。 |
