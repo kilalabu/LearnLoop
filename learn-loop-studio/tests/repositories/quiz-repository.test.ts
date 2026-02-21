@@ -111,7 +111,7 @@ describe('QuizRepository', () => {
         });
       });
 
-      const result = await repo.fetchStudySession();
+      const result = await repo.fetchStudySession(12);
 
       expect(result).toHaveLength(1);
       const quiz = result[0];
@@ -145,7 +145,7 @@ describe('QuizRepository', () => {
       // 両方のクエリが null を返す
       mock.setResult({ data: null, error: null });
 
-      const result = await repo.fetchStudySession();
+      const result = await repo.fetchStudySession(12);
 
       expect(result).toEqual([]);
     });
@@ -208,8 +208,8 @@ describe('QuizRepository', () => {
         });
       });
 
-      // Act: limit を指定せずに呼び出す
-      const result = await repo.fetchStudySession();
+      // Act: limit を指定せずに呼び出す（デフォルト 12 と同じ値を明示）
+      const result = await repo.fetchStudySession(12);
 
       // Assert: 戻り値は 12 件（デフォルト上限）
       expect(result).toHaveLength(12);

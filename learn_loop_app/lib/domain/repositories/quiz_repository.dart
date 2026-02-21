@@ -3,8 +3,8 @@ import '../models/quiz.dart';
 /// クイズリポジトリ インターフェース
 abstract interface class QuizRepository {
   /// 今日出題すべきクイズを取得
-  /// [limit] を指定すると取得件数を制限できる
-  Future<List<Quiz>> getTodayQuizzes({int? limit});
+  /// [limit] 取得件数（必須）
+  Future<List<Quiz>> getTodayQuizzes({required int limit});
 
   /// IDでクイズを取得
   Future<Quiz?> getQuizById(String id);

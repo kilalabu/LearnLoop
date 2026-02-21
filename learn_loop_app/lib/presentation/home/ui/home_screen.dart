@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:learn_loop_app/presentation/home/state/home_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../home_view_model.dart';
@@ -43,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, homeData) {
+  Widget _buildContent(BuildContext context, WidgetRef ref, HomeData homeData) {
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -123,7 +124,6 @@ class HomeScreen extends ConsumerWidget {
 
           // Today's Questions Card
           TodayCard(
-            pendingCount: homeData.pendingCount,
             completionRate: homeData.completionRate,
             onStartPressed: () => context.go('/quiz'),
           ),

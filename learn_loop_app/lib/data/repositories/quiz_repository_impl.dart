@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../core/constants/quiz_constants.dart';
 import '../../domain/models/quiz.dart';
 import '../../domain/repositories/quiz_repository.dart';
 import '../api/api_client.dart';
@@ -14,11 +15,8 @@ class QuizRepositoryImpl implements QuizRepository {
   List<Quiz>? _cachedQuizzes;
 
   @override
-  Future<List<Quiz>> getTodayQuizzes({int? limit}) async {
-    // limit が指定された場合のみクエリパラメータを付与する
-    final path = limit != null
-        ? Uri(path: '/api/quiz/today', queryParameters: {'limit': limit.toString()}).toString()
-        : '/api/quiz/today';
+  Future<List<Quiz>> getTodayQuizzes({required int limit}) async {
+    final path = Uri(path: '/api/quiz/today', queryParameters: {'limit': limit.toString()}).toString();
     final data = await _apiClient.get(path);
     final quizzes = (data['quizzes'] as List)
         .map(
@@ -52,7 +50,8 @@ class QuizRepositoryImpl implements QuizRepository {
 
   @override
   Future<Quiz?> getQuizById(String id) async {
-    _cachedQuizzes ??= await getTodayQuizzes();
+    // キャッシュがない場合はデフォルトの上限で取得する
+    _cachedQuizzes ??= await getTodayQuizzes(limit: QuizConstants.dailyLimit);
     return _cachedQuizzes!.where((q) => q.id == id).firstOrNull;
   }
 

@@ -9,12 +9,10 @@ import 'progress_ring.dart';
 class TodayCard extends StatelessWidget {
   const TodayCard({
     super.key,
-    required this.pendingCount,
     required this.completionRate,
     required this.onStartPressed,
   });
 
-  final int pendingCount;
   final double completionRate;
   final VoidCallback onStartPressed;
 
@@ -47,13 +45,13 @@ class TodayCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '$pendingCount',
+                  '${(completionRate * 100).round()}%',
                   style: theme.textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  '問 待機中',
+                  '完了',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -63,14 +61,14 @@ class TodayCard extends StatelessWidget {
           ),
           AppSpacing.gapLg,
           AppButton(
-            onPressed: pendingCount > 0 ? onStartPressed : null,
+            onPressed: completionRate < 1.0 ? onStartPressed : null,
             isFullWidth: true,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.bolt, size: 20),
                 const SizedBox(width: 8),
-                Text(pendingCount > 0 ? '学習を始める' : '完了しました'),
+                Text(completionRate < 1.0 ? '学習を始める' : '完了しました'),
               ],
             ),
           ),

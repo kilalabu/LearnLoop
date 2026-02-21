@@ -41,10 +41,7 @@ export class QuizRepository {
    * 1. 復習クイズ: next_review_at が現在以前のもの（復習期限が来たもの）
    * 2. 新規クイズ: まだ一度も解いていないもの
    */
-  async fetchStudySession(limit?: number, reviewLimit: number = 6): Promise<FormattedQuiz[]> {
-    // デフォルトの全体上限（12件）。limit が指定されていない場合はこの値を使う
-    const totalLimit = limit ?? 12;
-
+  async fetchStudySession(limit: number, reviewLimit: number = 6): Promise<FormattedQuiz[]> {
     // ① 復習クイズ取得: quiz_view を使い、learning_status='learning' かつ復習期限が来ているものを取得
     const { data: reviewRows, error: reviewError } = await this.supabase
       .from('quiz_view')
@@ -66,7 +63,7 @@ export class QuizRepository {
     }));
 
     // ② 残り枠（全体上限 - 取得できた復習数）で新規クイズを取得
-    const remaining = totalLimit - reviews.length;
+    const remaining = limit - reviews.length;
 
     // 全体リミットに達している場合は即時返却
     if (remaining <= 0) return reviews;
@@ -90,8 +87,8 @@ export class QuizRepository {
       type: 'new' as const,
     }));
 
-    // ③ 復習クイズ + 新規クイズを結合して返す（合計を totalLimit 件に制限）
-    return [...reviews, ...newQuizzes].slice(0, totalLimit);
+    // ③ 復習クイズ + 新規クイズを結合して返す（合計を limit 件に制限）
+    return [...reviews, ...newQuizzes].slice(0, limit);
   }
 
   /**

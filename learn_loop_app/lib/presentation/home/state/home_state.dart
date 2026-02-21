@@ -18,13 +18,10 @@ abstract class HomeData with _$HomeData {
     required int totalCount,
     required int streak,
     required double accuracy, // 0.0 ~ 1.0
+    required double completionRate, // 完了率 0.0 ~ 1.0
   }) = _HomeData;
 
   const HomeData._();
-
-  /// 完了率
-  double get completionRate =>
-      totalCount > 0 ? (totalCount - pendingCount) / totalCount : 0.0;
 
   /// 正答率（パーセント表示用）
   int get accuracyPercent => (accuracy * 100).round();

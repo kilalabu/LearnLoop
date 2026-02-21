@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import '../../core/constants/quiz_constants.dart';
 import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../domain/models/quiz.dart';
 import '../home/home_view_model.dart';
@@ -25,19 +26,14 @@ class QuizViewModel extends Notifier<QuizState> {
       final sessionRepo = ref.read(quizSessionRepositoryProvider);
       final progress = await sessionRepo.getSessionProgress();
 
-      // 今日の深夜0時の millisecondsSinceEpoch で日付を比較
-      final now = DateTime.now();
-      final todayMidnight =
-          DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
-
-      int? limit;
-      if (progress != null && todayMidnight > progress.sessionDateMs) {
-        // 翌日以降: 古いセッションをクリアして全件取得
-        await sessionRepo.clearSession();
-      } else if (progress != null) {
-        // 同日: 残り問題数を limit に設定（0 以下は全問完了済みのため制限なし）
-        limit = progress.remaining > 0 ? progress.remaining : null;
+      // 当日完了済み（remaining == 0 かつセッションあり）の場合は即座に完了状態を表示
+      if (progress != null && progress.remaining == 0) {
+        state = const QuizState.completed(correctCount: 0, totalCount: 0);
+        return;
       }
+
+      // 未開始 or 途中再開: セッションの残り問題数をクエリパラメータとして渡して取得
+      final limit = progress?.remaining ?? QuizConstants.dailyLimit;
 
       final quizRepo = ref.read(quizRepositoryProvider);
       _quizzes = await quizRepo.getTodayQuizzes(limit: limit);
@@ -135,12 +131,7 @@ class QuizViewModel extends Notifier<QuizState> {
 
     final nextIndex = currentState.currentIndex + 1;
     if (nextIndex >= currentState.quizzes.length) {
-      // 全問完了: セッションをクリア(fire-and-forget)
-      final sessionRepo = ref.read(quizSessionRepositoryProvider);
-      sessionRepo
-          .clearSession()
-          .catchError((e) => debugPrint('セッションクリア失敗: $e'));
-
+      // 全問完了: clearSession は呼ばない。remaining = 0 が完了の証跡として残る
       state = QuizState.completed(
         correctCount: _correctCount,
         totalCount: currentState.quizzes.length,
@@ -148,9 +139,9 @@ class QuizViewModel extends Notifier<QuizState> {
     } else {
       // 途中: 残り問題数をデクリメント(fire-and-forget)
       final sessionRepo = ref.read(quizSessionRepositoryProvider);
-      sessionRepo
-          .decrementRemaining()
-          .catchError((e) => debugPrint('セッション更新失敗: $e'));
+      sessionRepo.decrementRemaining().catchError(
+        (e) => debugPrint('セッション更新失敗: $e'),
+      );
 
       state = QuizState.answering(
         quizzes: currentState.quizzes,
