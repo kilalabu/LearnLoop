@@ -1,0 +1,41 @@
+name: Reminder Notifications Batch
+
+on:
+  schedule:
+    # JST 08:00, 12:00, 19:00 に相当するUTC時刻
+    # JST 08:00 = UTC 前日 23:00
+    - cron: '0 23 * * *'
+    # JST 12:00 = UTC 03:00
+    - cron: '0 3 * * *'
+    # JST 19:00 = UTC 10:00
+    - cron: '0 10 * * *'
+  # 手動実行も可能（動作確認・緊急配信用）
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: learn-loop-studio
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: learn-loop-studio/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Send reminder notifications
+        run: npm run batch:reminders
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          FCM_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON_B64 }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
