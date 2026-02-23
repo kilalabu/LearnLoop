@@ -34,20 +34,24 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
 
     final sw = Stopwatch()..start();
     final progress = await sessionRepo.getSessionProgress();
-    final pendingCount = progress?.remaining ?? QuizConstants.dailyLimit;
 
     debugPrint('[HOME] getSummary start: ${sw.elapsedMilliseconds}ms');
     final summary = await quizRepo.getSummary();
     debugPrint('[HOME] getSummary done: ${sw.elapsedMilliseconds}ms');
 
-    // 完了率 = (dailyLimit - 残り) / dailyLimit
-    final completionRate = QuizConstants.dailyLimit > 0
-        ? (QuizConstants.dailyLimit - pendingCount).clamp(
-                0,
-                QuizConstants.dailyLimit,
-              ) /
-              QuizConstants.dailyLimit
+    // 完了率 = 回答済み問題数 / 1日の総問題数 (dailySessionCount * dailyLimit)
+    final completed = progress?.completedSessions ?? 0;
+    final remaining = progress?.remaining ?? QuizConstants.dailyLimit;
+    final totalQuestions =
+        QuizConstants.dailySessionCount * QuizConstants.dailyLimit; // 36
+    final answeredSoFar =
+        (completed * QuizConstants.dailyLimit) +
+        (QuizConstants.dailyLimit - remaining);
+    final completionRate = totalQuestions > 0
+        ? answeredSoFar.clamp(0, totalQuestions) / totalQuestions
         : 0.0;
+    final pendingCount =
+        totalQuestions - answeredSoFar.clamp(0, totalQuestions);
 
     return HomeData(
       pendingCount: pendingCount,
