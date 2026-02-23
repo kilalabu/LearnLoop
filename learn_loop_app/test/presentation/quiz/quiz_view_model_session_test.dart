@@ -82,6 +82,13 @@ class MockQuizSessionRepository implements QuizSessionRepository {
   /// clearSession が呼ばれたかどうか
   bool cleared = false;
 
+  /// incrementCompletedSessions が呼ばれた回数
+  int incrementCompletedCount = 0;
+
+  /// incrementCompletedSessions 呼び出し後に progressToReturn を差し替えるコールバック
+  /// テストで完了後の状態を注入するために使う
+  void Function()? onIncrementCompleted;
+
   @override
   Future<QuizSessionProgress?> getSessionProgress() async => progressToReturn;
 
@@ -100,6 +107,16 @@ class MockQuizSessionRepository implements QuizSessionRepository {
     cleared = true;
     progressToReturn = null;
   }
+
+  @override
+  Future<void> incrementCompletedSessions() async {
+    incrementCompletedCount++;
+    // テストで注入されたコールバックがあれば呼ぶ
+    onIncrementCompleted?.call();
+  }
+
+  @override
+  Future<void> unlockNextSession() async {}
 }
 
 // ---------------------------------------------------------------------------
@@ -216,15 +233,16 @@ void main() {
       // Act
       await _waitForStableState(container);
 
-      // Assert: 昨日のセッションなので limit=null（全件取得）であること
+      // Assert: 古いセッションはクリアされていること
+      expect(mockSessionRepo.cleared, isTrue, reason: '翌日起動後は古いセッションがクリアされるべき');
+
+      // 新規セッション開始なので dailyLimit(12) が渡されること
+      // （clearSession後に_startNewSession()が呼ばれ limit: QuizConstants.dailyLimit が使われる）
       expect(
         mockRepo.lastCalledLimit,
-        isNull,
-        reason: '翌日以降は limit を指定せず全件取得すべき',
+        equals(12),
+        reason: '翌日以降は新規セッションとして dailyLimit(12) で取得すべき',
       );
-
-      // 翌日の古いセッションはクリアされていること
-      expect(mockSessionRepo.cleared, isTrue, reason: '翌日起動後は古いセッションがクリアされるべき');
     });
 
     // -------------------------------------------------------------------------
@@ -252,7 +270,7 @@ void main() {
       viewModel.submitAnswer();
 
       // nextQuestion() を呼んで2問目へ進む
-      viewModel.nextQuestion();
+      await viewModel.nextQuestion();
 
       // fire-and-forget の書き込みを settle
       await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -266,15 +284,28 @@ void main() {
     });
 
     // -------------------------------------------------------------------------
-    // 4. 全問完了時にセッションがクリアされること
+    // 4. 全問完了時に QuizCompleted 状態になること
+    //    新フィールド（completedSessions, availableSessions, isAllDone）も検証する
     // -------------------------------------------------------------------------
-    test('全問完了時にセッションデータがクリアされる', () async {
+    test('全問完了時に QuizCompleted 状態になり新フィールドが正しい値を持つ', () async {
       // Arrange: 1問のみのセッション（全問完了させる）
+      // incrementCompletedSessions が呼ばれた後、completed=3 を返すよう設定して
+      // SessionActionAllDone（全セッション完了）が確実に返るようにする
       final mockSessionRepo = MockQuizSessionRepository()
         ..progressToReturn = QuizSessionProgress(
           sessionDateMs: _todayMidnight(),
           remaining: 1,
+          completedSessions: 2, // 既に2セッション完了済み（あと1で上限3）
         );
+
+      // incrementCompletedSessions 呼出後に completed=3, remaining=0 に差し替える
+      mockSessionRepo.onIncrementCompleted = () {
+        mockSessionRepo.progressToReturn = QuizSessionProgress(
+          sessionDateMs: _todayMidnight(),
+          remaining: 0,
+          completedSessions: 3, // 上限に達した状態
+        );
+      };
 
       final mockRepo = MockQuizRepository(quizzesToReturn: [_makeQuiz('q1')]);
       final container = _makeContainer(mockRepo, mockSessionRepo);
@@ -285,12 +316,12 @@ void main() {
       // 1問だけ回答して完了させる
       viewModel.toggleOption('q1_o1');
       viewModel.submitAnswer();
-      viewModel.nextQuestion();
+      await viewModel.nextQuestion();
 
       // fire-and-forget の書き込みを settle
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      // Assert: 状態が completed になっていること
+      // Assert: 状態が QuizCompleted になっていること
       final state = container.read(quizViewModelProvider);
       expect(
         state,
@@ -298,11 +329,17 @@ void main() {
         reason: '全1問を完了したので QuizCompleted 状態になるべき',
       );
 
-      // clearSession が呼ばれていること
+      // 新フィールドの検証
+      final completed = state as QuizCompleted;
       expect(
-        mockSessionRepo.cleared,
+        completed.isAllDone,
         isTrue,
-        reason: '全問完了後は clearSession が呼ばれるべき',
+        reason: '全3セッション完了なので isAllDone=true になるべき',
+      );
+      expect(
+        completed.completedSessions,
+        equals(3),
+        reason: 'completedSessions は 3（上限）になるべき',
       );
     });
 
@@ -335,11 +372,12 @@ void main() {
       await viewModel.restart();
       await _waitForStableState(container);
 
-      // Assert: 2回目の getTodayQuizzes は limit=null で呼ばれること（セッションクリア後）
+      // Assert: 2回目の getTodayQuizzes は dailyLimit(12) で呼ばれること
+      // （restart() → clearSession() → _startNewSession() → limit: QuizConstants.dailyLimit）
       expect(
         mockRepo.lastCalledLimit,
-        isNull,
-        reason: 'restart() はセッションをクリアするので limit=null で全件取得すべき',
+        equals(12),
+        reason: 'restart() 後は新規セッションとして dailyLimit(12) で全件取得すべき',
       );
     });
   });
