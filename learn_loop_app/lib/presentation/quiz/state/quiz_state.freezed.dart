@@ -128,13 +128,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)?  showingResult,TResult Function( int correctCount,  int totalCount)?  completed,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)?  showingResult,TResult Function( int correctCount,  int totalCount,  int completedSessions,  int availableSessions,  bool isAllDone)?  completed,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case QuizLoading() when loading != null:
 return loading();case QuizAnswering() when answering != null:
 return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
 return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect,_that.isHiddenChecked);case QuizCompleted() when completed != null:
-return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
+return completed(_that.correctCount,_that.totalCount,_that.completedSessions,_that.availableSessions,_that.isAllDone);case QuizError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -153,13 +153,13 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)  answering,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)  showingResult,required TResult Function( int correctCount,  int totalCount)  completed,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)  answering,required TResult Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)  showingResult,required TResult Function( int correctCount,  int totalCount,  int completedSessions,  int availableSessions,  bool isAllDone)  completed,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case QuizLoading():
 return loading();case QuizAnswering():
 return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult():
 return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect,_that.isHiddenChecked);case QuizCompleted():
-return completed(_that.correctCount,_that.totalCount);case QuizError():
+return completed(_that.correctCount,_that.totalCount,_that.completedSessions,_that.availableSessions,_that.isAllDone);case QuizError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -174,13 +174,13 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)?  showingResult,TResult? Function( int correctCount,  int totalCount)?  completed,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds)?  answering,TResult? Function( List<Quiz> quizzes,  int currentIndex,  Set<String> selectedOptionIds,  bool isCorrect,  bool isHiddenChecked)?  showingResult,TResult? Function( int correctCount,  int totalCount,  int completedSessions,  int availableSessions,  bool isAllDone)?  completed,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case QuizLoading() when loading != null:
 return loading();case QuizAnswering() when answering != null:
 return answering(_that.quizzes,_that.currentIndex,_that.selectedOptionIds);case QuizShowingResult() when showingResult != null:
 return showingResult(_that.quizzes,_that.currentIndex,_that.selectedOptionIds,_that.isCorrect,_that.isHiddenChecked);case QuizCompleted() when completed != null:
-return completed(_that.correctCount,_that.totalCount);case QuizError() when error != null:
+return completed(_that.correctCount,_that.totalCount,_that.completedSessions,_that.availableSessions,_that.isAllDone);case QuizError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -394,11 +394,14 @@ as bool,
 
 
 class QuizCompleted implements QuizState {
-  const QuizCompleted({required this.correctCount, required this.totalCount});
+  const QuizCompleted({required this.correctCount, required this.totalCount, required this.completedSessions, required this.availableSessions, required this.isAllDone});
   
 
  final  int correctCount;
  final  int totalCount;
+ final  int completedSessions;
+ final  int availableSessions;
+ final  bool isAllDone;
 
 /// Create a copy of QuizState
 /// with the given fields replaced by the non-null parameter values.
@@ -410,16 +413,16 @@ $QuizCompletedCopyWith<QuizCompleted> get copyWith => _$QuizCompletedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizCompleted&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizCompleted&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions)&&(identical(other.availableSessions, availableSessions) || other.availableSessions == availableSessions)&&(identical(other.isAllDone, isAllDone) || other.isAllDone == isAllDone));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,correctCount,totalCount);
+int get hashCode => Object.hash(runtimeType,correctCount,totalCount,completedSessions,availableSessions,isAllDone);
 
 @override
 String toString() {
-  return 'QuizState.completed(correctCount: $correctCount, totalCount: $totalCount)';
+  return 'QuizState.completed(correctCount: $correctCount, totalCount: $totalCount, completedSessions: $completedSessions, availableSessions: $availableSessions, isAllDone: $isAllDone)';
 }
 
 
@@ -430,7 +433,7 @@ abstract mixin class $QuizCompletedCopyWith<$Res> implements $QuizStateCopyWith<
   factory $QuizCompletedCopyWith(QuizCompleted value, $Res Function(QuizCompleted) _then) = _$QuizCompletedCopyWithImpl;
 @useResult
 $Res call({
- int correctCount, int totalCount
+ int correctCount, int totalCount, int completedSessions, int availableSessions, bool isAllDone
 });
 
 
@@ -447,11 +450,14 @@ class _$QuizCompletedCopyWithImpl<$Res>
 
 /// Create a copy of QuizState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? correctCount = null,Object? totalCount = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? correctCount = null,Object? totalCount = null,Object? completedSessions = null,Object? availableSessions = null,Object? isAllDone = null,}) {
   return _then(QuizCompleted(
 correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
 as int,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,completedSessions: null == completedSessions ? _self.completedSessions : completedSessions // ignore: cast_nullable_to_non_nullable
+as int,availableSessions: null == availableSessions ? _self.availableSessions : availableSessions // ignore: cast_nullable_to_non_nullable
+as int,isAllDone: null == isAllDone ? _self.isAllDone : isAllDone // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

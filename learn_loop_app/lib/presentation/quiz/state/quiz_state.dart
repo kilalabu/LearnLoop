@@ -30,6 +30,9 @@ sealed class QuizState with _$QuizState {
   const factory QuizState.completed({
     required int correctCount,
     required int totalCount,
+    required int completedSessions,
+    required int availableSessions,
+    required bool isAllDone,
   }) = QuizCompleted;
 
   /// エラー

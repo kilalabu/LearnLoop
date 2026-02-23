@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import '../../core/constants/quiz_constants.dart';
 import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../domain/models/quiz.dart';
+import '../../domain/models/session_action.dart';
+import '../../domain/usecases/resolve_session_use_case.dart';
 import '../home/home_view_model.dart';
 import 'state/quiz_state.dart';
 
@@ -23,37 +25,89 @@ class QuizViewModel extends Notifier<QuizState> {
 
   Future<void> _loadQuizzes() async {
     try {
-      final sessionRepo = ref.read(quizSessionRepositoryProvider);
-      final progress = await sessionRepo.getSessionProgress();
+      final useCase = ResolveSessionUseCase(
+        ref.read(quizSessionRepositoryProvider),
+      );
+      final action = await useCase.call();
 
-      // 当日完了済み（remaining == 0 かつセッションあり）の場合は即座に完了状態を表示
-      if (progress != null && progress.remaining == 0) {
-        state = const QuizState.completed(correctCount: 0, totalCount: 0);
-        return;
-      }
+      switch (action) {
+        case SessionActionStartNew():
+          await _startNewSession();
 
-      // 未開始 or 途中再開: セッションの残り問題数をクエリパラメータとして渡して取得
-      final limit = progress?.remaining ?? QuizConstants.dailyLimit;
+        case SessionActionResume(:final remaining):
+          // 途中再開: 残り問題数を limit にしてクイズを取得
+          final quizRepo = ref.read(quizRepositoryProvider);
+          _quizzes = await quizRepo.getTodayQuizzes(limit: remaining);
+          _correctCount = 0;
+          final sessionRepo = ref.read(quizSessionRepositoryProvider);
+          await sessionRepo.saveSession(remainingCount: _quizzes.length);
+          if (_quizzes.isEmpty) {
+            state = _buildCompletedState(0, 0, isAllDone: true);
+          } else {
+            state = QuizState.answering(
+              quizzes: _quizzes,
+              currentIndex: 0,
+              selectedOptionIds: {},
+            );
+          }
 
-      final quizRepo = ref.read(quizRepositoryProvider);
-      _quizzes = await quizRepo.getTodayQuizzes(limit: limit);
-      _correctCount = 0;
+        case SessionActionDone(:final completedSessions, :final availableSessions):
+          // セッション完了済みで次のセッションを待っている状態
+          state = QuizState.completed(
+            correctCount: 0,
+            totalCount: 0,
+            completedSessions: completedSessions,
+            availableSessions: availableSessions,
+            isAllDone: false,
+          );
 
-      // 今日の日付と totalCount を保存（answeredCount は既存値を引き継ぐ）
-      await sessionRepo.saveSession(remainingCount: _quizzes.length);
-
-      if (_quizzes.isEmpty) {
-        state = const QuizState.completed(correctCount: 0, totalCount: 0);
-      } else {
-        state = QuizState.answering(
-          quizzes: _quizzes,
-          currentIndex: 0,
-          selectedOptionIds: {},
-        );
+        case SessionActionAllDone(:final completedSessions):
+          // 全セッション完了
+          state = QuizState.completed(
+            correctCount: 0,
+            totalCount: 0,
+            completedSessions: completedSessions,
+            availableSessions: QuizConstants.dailySessionCount,
+            isAllDone: true,
+          );
       }
     } catch (e) {
       state = QuizState.error(e.toString());
     }
+  }
+
+  /// 新規セッションを開始してクイズを読み込む
+  Future<void> _startNewSession() async {
+    final quizRepo = ref.read(quizRepositoryProvider);
+    final sessionRepo = ref.read(quizSessionRepositoryProvider);
+    _quizzes = await quizRepo.getTodayQuizzes(limit: QuizConstants.dailyLimit);
+    _correctCount = 0;
+    await sessionRepo.saveSession(remainingCount: _quizzes.length);
+    if (_quizzes.isEmpty) {
+      state = _buildCompletedState(0, 0, isAllDone: true);
+    } else {
+      state = QuizState.answering(
+        quizzes: _quizzes,
+        currentIndex: 0,
+        selectedOptionIds: {},
+      );
+    }
+  }
+
+  /// 完了状態を構築するヘルパー
+  QuizState _buildCompletedState(
+    int correctCount,
+    int totalCount, {
+    required bool isAllDone,
+  }) {
+    return QuizState.completed(
+      correctCount: correctCount,
+      totalCount: totalCount,
+      completedSessions:
+          isAllDone ? QuizConstants.dailySessionCount : 0,
+      availableSessions: QuizConstants.dailySessionCount,
+      isAllDone: isAllDone,
+    );
   }
 
   /// 選択肢をトグル
@@ -116,7 +170,7 @@ class QuizViewModel extends Notifier<QuizState> {
   }
 
   /// 次のクイズへ
-  void nextQuestion() {
+  Future<void> nextQuestion() async {
     final currentState = state;
     if (currentState is! QuizShowingResult) return;
 
@@ -131,11 +185,8 @@ class QuizViewModel extends Notifier<QuizState> {
 
     final nextIndex = currentState.currentIndex + 1;
     if (nextIndex >= currentState.quizzes.length) {
-      // 全問完了: clearSession は呼ばない。remaining = 0 が完了の証跡として残る
-      state = QuizState.completed(
-        correctCount: _correctCount,
-        totalCount: currentState.quizzes.length,
-      );
+      // 全問終了: セッション完了処理に移行
+      await _showSessionCompleted();
     } else {
       // 途中: 残り問題数をデクリメント(fire-and-forget)
       final sessionRepo = ref.read(quizSessionRepositoryProvider);
@@ -149,6 +200,53 @@ class QuizViewModel extends Notifier<QuizState> {
         selectedOptionIds: {},
       );
     }
+  }
+
+  /// セッション完了後の状態を決定する
+  Future<void> _showSessionCompleted() async {
+    final sessionRepo = ref.read(quizSessionRepositoryProvider);
+    // 完了セッション数を +1 してから remaining=0 で保存
+    await sessionRepo.incrementCompletedSessions();
+    await sessionRepo.saveSession(remainingCount: 0);
+
+    // UseCase で次のアクションを判定
+    final useCase = ResolveSessionUseCase(sessionRepo);
+    final action = await useCase.call();
+
+    switch (action) {
+      case SessionActionDone(:final completedSessions, :final availableSessions):
+        state = QuizState.completed(
+          correctCount: _correctCount,
+          totalCount: _quizzes.length,
+          completedSessions: completedSessions,
+          availableSessions: availableSessions,
+          isAllDone: false,
+        );
+      case SessionActionAllDone(:final completedSessions):
+        state = QuizState.completed(
+          correctCount: _correctCount,
+          totalCount: _quizzes.length,
+          completedSessions: completedSessions,
+          availableSessions: QuizConstants.dailySessionCount,
+          isAllDone: true,
+        );
+      default:
+        // 予期しないアクション（新規 or 再開）の場合は再ロード
+        await _loadQuizzes();
+    }
+  }
+
+  /// 次のセッションを開始する（completedSessions < availableSessions のとき）
+  Future<void> startNextSession() async {
+    state = const QuizState.loading();
+    await _startNewSession();
+  }
+
+  /// 次のセッションを手動解放する（アドオン購入など）
+  Future<void> unlockNextSession() async {
+    final sessionRepo = ref.read(quizSessionRepositoryProvider);
+    await sessionRepo.unlockNextSession();
+    await _loadQuizzes();
   }
 
   /// クリップボードにコピー

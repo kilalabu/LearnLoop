@@ -39,8 +39,21 @@ class QuizQuestionScreen extends ConsumerWidget {
               ],
             ),
           ),
-          QuizCompleted(:final correctCount, :final totalCount) =>
-            _buildCompletedScreen(context, ref, correctCount, totalCount),
+          QuizCompleted(
+            :final correctCount,
+            :final totalCount,
+            :final completedSessions,
+            :final availableSessions,
+            :final isAllDone,
+          ) => _buildCompletedScreen(
+            context,
+            ref,
+            correctCount,
+            totalCount,
+            completedSessions,
+            availableSessions,
+            isAllDone,
+          ),
           QuizAnswering(
             :final quizzes,
             :final currentIndex,
@@ -286,8 +299,12 @@ class QuizQuestionScreen extends ConsumerWidget {
     WidgetRef ref,
     int correctCount,
     int totalCount,
+    int completedSessions,
+    int availableSessions,
+    bool isAllDone,
   ) {
     final theme = Theme.of(context);
+    final viewModel = ref.read(quizViewModelProvider.notifier);
 
     return Center(
       child: Padding(
@@ -316,21 +333,77 @@ class QuizQuestionScreen extends ConsumerWidget {
               ),
             ),
             AppSpacing.gapSm,
+            // totalCount == 0 のときは「準備完了」、それ以外は正解数を表示
+            if (totalCount > 0)
+              Text(
+                '$correctCount / $totalCount 問正解',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: AppColors.success,
+                ),
+              ),
+            AppSpacing.gapSm,
             Text(
-              '$correctCount / $totalCount 問正解',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: AppColors.success,
+              'セッション $completedSessions / $availableSessions',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             AppSpacing.gapXxl,
-            AppButton(
-              onPressed: () {
-                ref.invalidate(homeViewModelProvider);
-                context.go('/');
-              },
-              isFullWidth: true,
-              child: const Text('ホームに戻る'),
-            ),
+
+            // ボタン: 状態に応じて3パターン
+            if (isAllDone) ...[
+              // 全セッション完了
+              Text(
+                '今日のクイズはすべて完了しました！',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              AppSpacing.gapLg,
+              AppButton(
+                onPressed: () {
+                  ref.invalidate(homeViewModelProvider);
+                  context.go('/');
+                },
+                isFullWidth: true,
+                child: const Text('ホームに戻る'),
+              ),
+            ] else if (completedSessions < availableSessions) ...[
+              // 次のセッションが解放済み
+              AppButton(
+                onPressed: () => viewModel.startNextSession(),
+                isFullWidth: true,
+                child: const Text('次のセッションを開始'),
+              ),
+              AppSpacing.gapMd,
+              AppButton(
+                onPressed: () {
+                  ref.invalidate(homeViewModelProvider);
+                  context.go('/');
+                },
+                variant: AppButtonVariant.outline,
+                isFullWidth: true,
+                child: const Text('ホームに戻る'),
+              ),
+            ] else ...[
+              // 次のセッションはまだ解放されていない（手動解放が可能）
+              AppButton(
+                onPressed: () => viewModel.unlockNextSession(),
+                isFullWidth: true,
+                child: const Text('次のセッションを解放する'),
+              ),
+              AppSpacing.gapMd,
+              AppButton(
+                onPressed: () {
+                  ref.invalidate(homeViewModelProvider);
+                  context.go('/');
+                },
+                variant: AppButtonVariant.outline,
+                isFullWidth: true,
+                child: const Text('ホームに戻る'),
+              ),
+            ],
           ],
         ),
       ),
