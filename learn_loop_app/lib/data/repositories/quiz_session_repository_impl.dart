@@ -8,6 +8,8 @@ class QuizSessionRepositoryImpl implements QuizSessionRepository {
   // SharedPreferences のキー定数
   static const _keyDate = 'quiz_session_date';
   static const _keyRemaining = 'quiz_session_remaining';
+  static const _keyCompleted = 'quiz_session_completed';
+  static const _keyUnlocked = 'quiz_session_unlocked';
 
   @override
   Future<QuizSessionProgress?> getSessionProgress() async {
@@ -20,6 +22,8 @@ class QuizSessionRepositoryImpl implements QuizSessionRepository {
     return QuizSessionProgress(
       sessionDateMs: date,
       remaining: prefs.getInt(_keyRemaining) ?? 0,
+      completedSessions: prefs.getInt(_keyCompleted) ?? 0,
+      unlockedExtraSessions: prefs.getInt(_keyUnlocked) ?? 0,
     );
   }
 
@@ -49,10 +53,26 @@ class QuizSessionRepositoryImpl implements QuizSessionRepository {
   }
 
   @override
+  Future<void> incrementCompletedSessions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_keyCompleted) ?? 0;
+    await prefs.setInt(_keyCompleted, current + 1);
+  }
+
+  @override
+  Future<void> unlockNextSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_keyUnlocked) ?? 0;
+    await prefs.setInt(_keyUnlocked, current + 1);
+  }
+
+  @override
   Future<void> clearSession() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyDate);
     await prefs.remove(_keyRemaining);
+    await prefs.remove(_keyCompleted);
+    await prefs.remove(_keyUnlocked);
   }
 }
 
