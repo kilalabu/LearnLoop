@@ -19,4 +19,10 @@ abstract interface class QuizSessionRepository {
 
   /// セッションデータを全削除する。
   Future<void> clearSession();
+
+  /// 完了セッション数を +1 する
+  Future<void> incrementCompletedSessions();
+
+  /// 手動解放: unlockedExtraSessions を +1 する
+  Future<void> unlockNextSession();
 }
