@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/quiz_constants.dart';
 import '../../domain/repositories/quiz_repository.dart';
@@ -30,12 +31,14 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
   Future<HomeData> _loadHomeData() async {
     final quizRepo = ref.read(quizRepositoryProvider);
     final sessionRepo = ref.read(quizSessionRepositoryProvider);
-    final progressRepo = ref.read(userProgressRepositoryProvider);
 
+    final sw = Stopwatch()..start();
     final progress = await sessionRepo.getSessionProgress();
     final pendingCount = progress?.remaining ?? QuizConstants.dailyLimit;
-    final totalCount = await quizRepo.getTotalQuizCount();
-    final stats = await progressRepo.getStats();
+
+    debugPrint('[HOME] getSummary start: ${sw.elapsedMilliseconds}ms');
+    final summary = await quizRepo.getSummary();
+    debugPrint('[HOME] getSummary done: ${sw.elapsedMilliseconds}ms');
 
     // 完了率 = (dailyLimit - 残り) / dailyLimit
     final completionRate = QuizConstants.dailyLimit > 0
@@ -48,9 +51,9 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
 
     return HomeData(
       pendingCount: pendingCount,
-      totalCount: totalCount,
-      streak: stats.streak,
-      accuracy: stats.accuracy,
+      totalCount: summary.count,
+      streak: summary.streak,
+      accuracy: summary.accuracy,
       completionRate: completionRate,
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learn_loop_app/data/repositories/quiz_session_repository_impl.dart';
+import 'package:learn_loop_app/domain/models/home_summary.dart';
 import 'package:learn_loop_app/domain/models/quiz.dart';
 import 'package:learn_loop_app/domain/repositories/quiz_repository.dart';
 import 'package:learn_loop_app/domain/repositories/quiz_session_repository.dart';
@@ -38,7 +39,12 @@ class MockQuizRepository implements QuizRepository {
   Future<Quiz?> getQuizById(String id) async => null;
 
   @override
-  Future<int> getTotalQuizCount() async => quizzesToReturn.length;
+  Future<HomeSummary> getSummary() async => HomeSummary(
+    count: quizzesToReturn.length,
+    streak: 0,
+    accuracy: 0.0,
+    totalAnswered: 0,
+  );
 }
 
 /// テスト用の UserProgressRepository モック（副作用をスキップ）
@@ -102,14 +108,14 @@ class MockQuizSessionRepository implements QuizSessionRepository {
 
 /// テスト用クイズを生成するファクトリ
 Quiz _makeQuiz(String id) => Quiz(
-      id: id,
-      question: '問題 $id',
-      options: [
-        QuizOption(id: '${id}_o1', label: 'A', text: '選択肢A', isCorrect: true),
-        QuizOption(id: '${id}_o2', label: 'B', text: '選択肢B', isCorrect: false),
-      ],
-      explanation: '解説 $id',
-    );
+  id: id,
+  question: '問題 $id',
+  options: [
+    QuizOption(id: '${id}_o1', label: 'A', text: '選択肢A', isCorrect: true),
+    QuizOption(id: '${id}_o2', label: 'B', text: '選択肢B', isCorrect: false),
+  ],
+  explanation: '解説 $id',
+);
 
 /// 今日の深夜0時の millisecondsSinceEpoch を返す
 int _todayMidnight() {
@@ -120,8 +126,11 @@ int _todayMidnight() {
 /// 昨日の深夜0時の millisecondsSinceEpoch を返す
 int _yesterdayMidnight() {
   final yesterday = DateTime.now().subtract(const Duration(days: 1));
-  return DateTime(yesterday.year, yesterday.month, yesterday.day)
-      .millisecondsSinceEpoch;
+  return DateTime(
+    yesterday.year,
+    yesterday.month,
+    yesterday.day,
+  ).millisecondsSinceEpoch;
 }
 
 /// ProviderContainer を作成し、テストが終わったら自動 dispose するヘルパー
@@ -132,8 +141,9 @@ ProviderContainer _makeContainer(
   final container = ProviderContainer(
     overrides: [
       quizRepositoryProvider.overrideWithValue(mockRepo),
-      userProgressRepositoryProvider
-          .overrideWithValue(MockUserProgressRepository()),
+      userProgressRepositoryProvider.overrideWithValue(
+        MockUserProgressRepository(),
+      ),
       // QuizSessionRepository をモックで上書き
       quizSessionRepositoryProvider.overrideWithValue(mockSessionRepo),
     ],
@@ -180,8 +190,11 @@ void main() {
       await _waitForStableState(container);
 
       // Assert: getTodayQuizzes に limit=3 が渡されていること
-      expect(mockRepo.lastCalledLimit, equals(3),
-          reason: 'limit は remaining(3) と等しいべき');
+      expect(
+        mockRepo.lastCalledLimit,
+        equals(3),
+        reason: 'limit は remaining(3) と等しいべき',
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -204,12 +217,14 @@ void main() {
       await _waitForStableState(container);
 
       // Assert: 昨日のセッションなので limit=null（全件取得）であること
-      expect(mockRepo.lastCalledLimit, isNull,
-          reason: '翌日以降は limit を指定せず全件取得すべき');
+      expect(
+        mockRepo.lastCalledLimit,
+        isNull,
+        reason: '翌日以降は limit を指定せず全件取得すべき',
+      );
 
       // 翌日の古いセッションはクリアされていること
-      expect(mockSessionRepo.cleared, isTrue,
-          reason: '翌日起動後は古いセッションがクリアされるべき');
+      expect(mockSessionRepo.cleared, isTrue, reason: '翌日起動後は古いセッションがクリアされるべき');
     });
 
     // -------------------------------------------------------------------------
@@ -243,8 +258,11 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       // Assert: decrementRemaining が 1 回呼ばれていること
-      expect(mockSessionRepo.decrementCount, equals(1),
-          reason: '1問進めた後は decrementRemaining が1回呼ばれるべき');
+      expect(
+        mockSessionRepo.decrementCount,
+        equals(1),
+        reason: '1問進めた後は decrementRemaining が1回呼ばれるべき',
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -258,9 +276,7 @@ void main() {
           remaining: 1,
         );
 
-      final mockRepo = MockQuizRepository(
-        quizzesToReturn: [_makeQuiz('q1')],
-      );
+      final mockRepo = MockQuizRepository(quizzesToReturn: [_makeQuiz('q1')]);
       final container = _makeContainer(mockRepo, mockSessionRepo);
       final viewModel = container.read(quizViewModelProvider.notifier);
 
@@ -276,12 +292,18 @@ void main() {
 
       // Assert: 状態が completed になっていること
       final state = container.read(quizViewModelProvider);
-      expect(state, isA<QuizCompleted>(),
-          reason: '全1問を完了したので QuizCompleted 状態になるべき');
+      expect(
+        state,
+        isA<QuizCompleted>(),
+        reason: '全1問を完了したので QuizCompleted 状態になるべき',
+      );
 
       // clearSession が呼ばれていること
-      expect(mockSessionRepo.cleared, isTrue,
-          reason: '全問完了後は clearSession が呼ばれるべき');
+      expect(
+        mockSessionRepo.cleared,
+        isTrue,
+        reason: '全問完了後は clearSession が呼ばれるべき',
+      );
     });
 
     // -------------------------------------------------------------------------
@@ -303,16 +325,22 @@ void main() {
 
       // 最初のロードを待つ（この時点では limit=2 が渡されている）
       await _waitForStableState(container);
-      expect(mockRepo.lastCalledLimit, equals(2),
-          reason: '初回ロード時: limit = remaining(2)');
+      expect(
+        mockRepo.lastCalledLimit,
+        equals(2),
+        reason: '初回ロード時: limit = remaining(2)',
+      );
 
       // Act: restart() を呼ぶ
       await viewModel.restart();
       await _waitForStableState(container);
 
       // Assert: 2回目の getTodayQuizzes は limit=null で呼ばれること（セッションクリア後）
-      expect(mockRepo.lastCalledLimit, isNull,
-          reason: 'restart() はセッションをクリアするので limit=null で全件取得すべき');
+      expect(
+        mockRepo.lastCalledLimit,
+        isNull,
+        reason: 'restart() はセッションをクリアするので limit=null で全件取得すべき',
+      );
     });
   });
 }

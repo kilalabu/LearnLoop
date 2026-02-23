@@ -1,3 +1,4 @@
+import '../models/home_summary.dart';
 import '../models/quiz.dart';
 
 /// クイズリポジトリ インターフェース
@@ -9,6 +10,6 @@ abstract interface class QuizRepository {
   /// IDでクイズを取得
   Future<Quiz?> getQuizById(String id);
 
-  /// 全クイズ数を取得
-  Future<int> getTotalQuizCount();
+  /// サマリーを1リクエストで取得
+  Future<HomeSummary> getSummary();
 }

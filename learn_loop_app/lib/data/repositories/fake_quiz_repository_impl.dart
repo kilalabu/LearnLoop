@@ -1,3 +1,4 @@
+import '../../domain/models/home_summary.dart';
 import '../../domain/models/quiz.dart';
 import '../../domain/repositories/quiz_repository.dart';
 
@@ -132,7 +133,13 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
   }
 
   @override
-  Future<int> getTotalQuizCount() async {
-    return _fakeQuizzes.length;
+  Future<HomeSummary> getSummary() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    return HomeSummary(
+      count: _fakeQuizzes.length,
+      streak: 0,
+      accuracy: 0.0,
+      totalAnswered: 0,
+    );
   }
 }

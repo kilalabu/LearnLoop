@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/constants/quiz_constants.dart';
+import '../../domain/models/home_summary.dart';
 import '../../domain/models/quiz.dart';
 import '../../domain/repositories/quiz_repository.dart';
 import '../api/api_client.dart';
@@ -16,7 +17,10 @@ class QuizRepositoryImpl implements QuizRepository {
 
   @override
   Future<List<Quiz>> getTodayQuizzes({required int limit}) async {
-    final path = Uri(path: '/api/quiz/today', queryParameters: {'limit': limit.toString()}).toString();
+    final path = Uri(
+      path: '/api/quiz/today',
+      queryParameters: {'limit': limit.toString()},
+    ).toString();
     final data = await _apiClient.get(path);
     final quizzes = (data['quizzes'] as List)
         .map(
@@ -56,8 +60,13 @@ class QuizRepositoryImpl implements QuizRepository {
   }
 
   @override
-  Future<int> getTotalQuizCount() async {
-    final data = await _apiClient.get('/api/quiz/count');
-    return data['count'] as int;
+  Future<HomeSummary> getSummary() async {
+    final data = await _apiClient.get('/api/quiz/summary');
+    return HomeSummary(
+      count: data['count'] as int,
+      streak: data['streak'] as int,
+      accuracy: (data['accuracy'] as num).toDouble(),
+      totalAnswered: data['totalAnswered'] as int,
+    );
   }
 }
