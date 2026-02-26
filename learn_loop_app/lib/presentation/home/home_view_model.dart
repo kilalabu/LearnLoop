@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/quiz_constants.dart';
 import '../../domain/repositories/quiz_repository.dart';
 import '../../domain/repositories/user_progress_repository.dart';
+import '../../domain/usecases/reset_session_if_date_changed_use_case.dart';
 import '../../data/repositories/quiz_repository_impl.dart';
 import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../data/repositories/user_progress_repository_impl.dart';
@@ -32,12 +32,11 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
     final quizRepo = ref.read(quizRepositoryProvider);
     final sessionRepo = ref.read(quizSessionRepositoryProvider);
 
-    final sw = Stopwatch()..start();
-    final progress = await sessionRepo.getSessionProgress();
+    // 日付チェック: 前日以前のデータが残っていればクリアする
+    await ResetSessionIfDateChangedUseCase(sessionRepo).call();
 
-    debugPrint('[HOME] getSummary start: ${sw.elapsedMilliseconds}ms');
+    final progress = await sessionRepo.getSessionProgress();
     final summary = await quizRepo.getSummary();
-    debugPrint('[HOME] getSummary done: ${sw.elapsedMilliseconds}ms');
 
     // 完了率 = 回答済み問題数 / 1日の総問題数 (dailySessionCount * dailyLimit)
     final completed = progress?.completedSessions ?? 0;
