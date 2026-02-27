@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -198,11 +199,14 @@ class QuizQuestionScreen extends ConsumerWidget {
                       ),
                       AppSpacing.gapMd,
                       Expanded(
-                        child: Text(
-                          quiz.question,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            height: 1.5,
+                        child: MarkdownBody(
+                          data: quiz.question,
+                          selectable: true,
+                          styleSheet: MarkdownStyleSheet(
+                            p: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              height: 1.5,
+                            ),
                           ),
                         ),
                       ),
