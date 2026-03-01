@@ -1,3 +1,6 @@
+import '../models/daily_answer_record.dart';
+import '../models/daily_stats_result.dart';
+
 /// ユーザー進捗リポジトリ インターフェース
 abstract interface class UserProgressRepository {
   /// 統計情報を取得
@@ -8,6 +11,9 @@ abstract interface class UserProgressRepository {
 
   /// クイズを「もう出さない」に設定
   Future<void> hideQuiz({required String quizId});
+
+  /// 日付ごとの回答統計一覧を取得する（ページング対応）
+  Future<DailyStatsResult> getDailyStats({int limit = 20, int offset = 0});
 }
 
 /// ユーザー統計情報

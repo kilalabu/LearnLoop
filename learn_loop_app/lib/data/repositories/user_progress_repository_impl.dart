@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../domain/models/daily_answer_record.dart';
+import '../../domain/models/daily_stats_result.dart';
 import '../../domain/repositories/user_progress_repository.dart';
 import '../api/api_client.dart';
 
@@ -33,6 +35,29 @@ class UserProgressRepositoryImpl implements UserProgressRepository {
       streak: data['streak'] as int,
       accuracy: (data['accuracy'] as num).toDouble(),
       totalAnswered: data['totalAnswered'] as int,
+    );
+  }
+
+  @override
+  Future<DailyStatsResult> getDailyStats({
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final data = await _apiClient.get(
+      '/api/quiz/daily-stats?limit=$limit&offset=$offset',
+    );
+    return DailyStatsResult(
+      totalRequired: data['totalRequired'] as int,
+      history: (data['history'] as List)
+          .map(
+            (e) => DailyAnswerRecord(
+              date: e['date'] as String,
+              answeredCount: e['answeredCount'] as int,
+              correctCount: e['correctCount'] as int,
+            ),
+          )
+          .toList(),
+      hasMore: data['hasMore'] as bool,
     );
   }
 }
