@@ -53,6 +53,19 @@
   - `attempt_count = 0` -> `'unanswered'`
   - その他 -> `'learning'`
 
+### 1.5 `answer_logs` (回答ログ)
+回答履歴を時系列で記録するログテーブル。上書きしない（INSERT専用）。RLS有効。
+
+| カラム名 | 型 | 制約 | 説明 |
+| :--- | :--- | :--- | :--- |
+| `id` | `uuid` | PK, DEFAULT gen_random() | ログID |
+| `user_id` | `uuid` | FK (profiles.id) | ユーザーID |
+| `quiz_id` | `uuid` | FK (quizzes.id) | クイズID |
+| `is_correct` | `boolean` | NOT NULL | 正解/不正解 |
+| `answered_at` | `timestamptz` | DEFAULT now() | 回答日時（`created_at` は追加しない。`answered_at` がドメイン用語として採用済み） |
+
+- **RLS ポリシー**: ユーザー自身のレコードのみ操作可能。
+
 ### 1.4 `quiz_batch_requests` (バッチリクエスト)
 AIによるクイズ一括生成のリクエストを管理します。
 
@@ -120,6 +133,17 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
   - `user_push_tokens` にトークンが登録されているユーザーのみ
   - `last_notified_at >= p_window_start` のユーザーを除外
 
+### 4.2 `get_daily_answer_stats(p_user_id, p_limit, p_offset, p_date)`
+回答履歴画面で使用する日付別集計 RPC。JST（Asia/Tokyo）基準で `answered_at` を日付変換し `GROUP BY` 集計する。
+
+- **セキュリティ**: `SECURITY DEFINER`
+- **引数**:
+  - `p_user_id uuid`: 対象ユーザーID
+  - `p_limit int` (DEFAULT 21): 取得件数（`hasMore` 判定のため呼び出し側は `limit + 1` を渡す）
+  - `p_offset int` (DEFAULT 0): オフセット（ページング用）
+  - `p_date text` (DEFAULT NULL): 'YYYY-MM-DD' 指定時はその日のみ返す（将来フェーズ: SharedPreferences置き換え用）
+- **戻り値**: `(date text, answered_count bigint, correct_count bigint)` の行セット
+
 ---
 
 ## 5. インデックス構成
@@ -132,6 +156,7 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
 - `idx_user_progress_learning_status`: 学習ステータス別のフィルタリング
 - `idx_user_push_tokens_user_id`: FCMトークンのユーザー検索
 - `idx_user_progress_next_review_user`: 復習期限・ユーザー複合検索（`is_hidden = false` 部分インデックス）
+- `idx_answer_logs_user_answered_at`: user_id + answered_at 複合インデックス（日付絞り込みのパフォーマンス向上）
 - その他、外部キー制約に基づくインデックス
 
 ---
@@ -148,3 +173,4 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
 | **v1.5** | Push通知対応。`user_push_tokens`, `user_notification_settings` テーブル追加。`get_reminder_targets` RPC 追加。 |
 | **v1.6** | `get_reminder_targets` RPC のバグ修正。`AT TIME ZONE` 演算子優先順位の問題を括弧追加で修正。 |
 | **v1.7** | `user_notification_settings` に RLS を有効化。ポリシーなし（`service_role` のみアクセス可）。`authenticated`/`anon` ロールからの意図しないアクセスを防止。 |
+| **v1.8** | 回答履歴画面対応。`answer_logs` テーブル追加（INSERT専用ログ）、`get_daily_answer_stats` RPC 追加（JST基準の日付別集計）。 |

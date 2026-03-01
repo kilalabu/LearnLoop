@@ -1,6 +1,13 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { UserStats } from '@/domain/progress';
+import { UserStats, DailyAnswerRecord, DailyStatsResponse } from '@/domain/progress';
 import { calculateNextReview } from '@/services/spaced-repetition';
+
+/** get_daily_answer_stats RPC の1行分の戻り値型 */
+interface DailyAnswerStatsRow {
+  date: string;
+  answered_count: number;
+  correct_count: number;
+}
 
 export class ProgressRepository {
   constructor(
@@ -83,6 +90,19 @@ export class ProgressRepository {
         throw new ProgressRepositoryError(`回答の記録に失敗しました: ${error.message}`);
       }
     }
+
+    // answer_logs に追記（正誤ログ。user_progress とは別に毎回1行保存）
+    const { error: logError } = await this.supabase
+      .from('answer_logs')
+      .insert({
+        user_id: this.userId,
+        quiz_id: quizId,
+        is_correct: isCorrect,
+      });
+    if (logError) {
+      // ログの記録失敗はユーザー体験に影響しないため、エラーとしてログ出力のみ
+      console.error('answer_logs の記録に失敗しました:', logError.message);
+    }
   }
 
   /**
@@ -127,6 +147,35 @@ export class ProgressRepository {
       streak,
       accuracy: Math.round(accuracy * 100) / 100,
       totalAnswered,
+    };
+  }
+
+  async getDailyStats(limit: number, offset: number): Promise<DailyStatsResponse> {
+    // JSTで日付グループ化（UTC+9）。hasMore 判定のため limit+1 件取得する
+    const { data, error } = await this.supabase.rpc('get_daily_answer_stats', {
+      p_user_id: this.userId,
+      p_limit: limit + 1,
+      p_offset: offset,
+    });
+
+    if (error) throw new ProgressRepositoryError(`統計取得エラー: ${error.message}`);
+
+    const records = data ?? [];
+    const hasMore = records.length > limit;
+    const history: DailyAnswerRecord[] = records.slice(0, limit).map((r: DailyAnswerStatsRow) => ({
+      date: r.date,
+      answeredCount: Number(r.answered_count),
+      correctCount: Number(r.correct_count),
+    }));
+
+    // サーバー側定数（Flutter 側の QuizConstants と一致させる）
+    const DAILY_SESSION_COUNT = 3;
+    const DAILY_LIMIT = 12;
+
+    return {
+      totalRequired: DAILY_SESSION_COUNT * DAILY_LIMIT,
+      history,
+      hasMore,
     };
   }
 }
