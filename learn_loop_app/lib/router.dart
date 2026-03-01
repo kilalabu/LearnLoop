@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'data/auth/auth_providers.dart';
+import 'presentation/history/ui/history_screen.dart';
 import 'presentation/home/ui/home_screen.dart';
 import 'presentation/login/ui/login_screen.dart';
 import 'presentation/quiz/ui/quiz_question_screen.dart';
@@ -39,6 +40,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/quiz/result',
         builder: (context, state) => const QuizResultScreen(),
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (context, state) => const HistoryScreen(),
       ),
     ],
   );

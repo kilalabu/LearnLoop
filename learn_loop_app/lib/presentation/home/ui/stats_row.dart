@@ -10,22 +10,28 @@ class StatsRow extends StatelessWidget {
     required this.streak,
     required this.accuracy,
     required this.totalCount,
+    this.onStreakTap,
   });
 
   final int streak;
   final int accuracy; // パーセント (0-100)
   final int totalCount;
+  /// 連続日数カードのタップコールバック（履歴画面への遷移などに使用）
+  final VoidCallback? onStreakTap;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: _StatCard(
-            icon: Icons.local_fire_department,
-            value: '$streak',
-            label: '連続日数',
-            color: AppColors.streak,
+          child: GestureDetector(
+            onTap: onStreakTap,
+            child: _StatCard(
+              icon: Icons.local_fire_department,
+              value: '$streak',
+              label: '連続日数',
+              color: AppColors.streak,
+            ),
           ),
         ),
         AppSpacing.gapSm,

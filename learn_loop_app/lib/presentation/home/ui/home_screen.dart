@@ -135,6 +135,8 @@ class HomeScreen extends ConsumerWidget {
             streak: homeData.streak,
             accuracy: homeData.accuracyPercent,
             totalCount: homeData.totalCount,
+            // 連続日数カードをタップで回答履歴画面へ遷移
+            onStreakTap: () => context.push('/history'),
           ),
 
           AppSpacing.gapXxl,
