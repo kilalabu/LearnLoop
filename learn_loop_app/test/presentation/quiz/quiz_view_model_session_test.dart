@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learn_loop_app/data/repositories/quiz_session_repository_impl.dart';
+import 'package:learn_loop_app/domain/models/daily_stats_result.dart';
 import 'package:learn_loop_app/domain/models/home_summary.dart';
 import 'package:learn_loop_app/domain/models/quiz.dart';
 import 'package:learn_loop_app/domain/repositories/quiz_repository.dart';
@@ -61,6 +62,12 @@ class MockUserProgressRepository implements UserProgressRepository {
   @override
   Future<UserStats> getStats() async {
     return const UserStats(streak: 0, accuracy: 0.0, totalAnswered: 0);
+  }
+
+  @override
+  Future<DailyStatsResult> getDailyStats({int limit = 20, int offset = 0}) {
+    // TODO: implement getDailyStats
+    throw UnimplementedError();
   }
 }
 
