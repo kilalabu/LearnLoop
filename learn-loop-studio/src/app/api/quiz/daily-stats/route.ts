@@ -11,9 +11,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limit = Number(searchParams.get('limit') ?? '20');
     const offset = Number(searchParams.get('offset') ?? '0');
+    // 'YYYY-MM-DD' 形式。指定時はその日のみ返す。未指定なら全日付対象
+    const date = searchParams.get('date') ?? undefined;
 
     const repo = new ProgressRepository(auth.supabase, auth.userId);
-    const stats = await repo.getDailyStats(limit, offset);
+    const stats = await repo.getDailyStats(limit, offset, date);
 
     return NextResponse.json(stats);
   } catch (error) {

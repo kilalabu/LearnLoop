@@ -150,12 +150,17 @@ export class ProgressRepository {
     };
   }
 
-  async getDailyStats(limit: number, offset: number): Promise<DailyStatsResponse> {
+  async getDailyStats(
+    limit: number,
+    offset: number,
+    date?: string   // 'YYYY-MM-DD' 形式。指定時はその日のみ返す（RPC の p_date に渡す）
+  ): Promise<DailyStatsResponse> {
     // JSTで日付グループ化（UTC+9）。hasMore 判定のため limit+1 件取得する
     const { data, error } = await this.supabase.rpc('get_daily_answer_stats', {
       p_user_id: this.userId,
       p_limit: limit + 1,
       p_offset: offset,
+      p_date: date ?? null,   // undefined は null として渡す（全日付対象）
     });
 
     if (error) throw new ProgressRepositoryError(`統計取得エラー: ${error.message}`);
