@@ -9,7 +9,7 @@ abstract class UserProgress with _$UserProgress {
     required String id,
     required String quizId,
     required bool isCorrect,
-    required int attempt_count,
+    required int attemptCount,
     DateTime? lastAnsweredAt,
     required int forgettingStep,
     DateTime? nextReviewAt,

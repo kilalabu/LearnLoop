@@ -55,13 +55,12 @@ extension SessionActionPatterns on SessionAction {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SessionActionStartNew value)?  startNew,TResult Function( SessionActionResume value)?  resume,TResult Function( SessionActionDone value)?  sessionDone,TResult Function( SessionActionAllDone value)?  allDone,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SessionActionStartNew value)?  startNew,TResult Function( SessionActionResume value)?  resume,TResult Function( SessionActionAllDone value)?  allDone,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case SessionActionStartNew() when startNew != null:
 return startNew(_that);case SessionActionResume() when resume != null:
-return resume(_that);case SessionActionDone() when sessionDone != null:
-return sessionDone(_that);case SessionActionAllDone() when allDone != null:
+return resume(_that);case SessionActionAllDone() when allDone != null:
 return allDone(_that);case _:
   return orElse();
 
@@ -80,13 +79,12 @@ return allDone(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SessionActionStartNew value)  startNew,required TResult Function( SessionActionResume value)  resume,required TResult Function( SessionActionDone value)  sessionDone,required TResult Function( SessionActionAllDone value)  allDone,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SessionActionStartNew value)  startNew,required TResult Function( SessionActionResume value)  resume,required TResult Function( SessionActionAllDone value)  allDone,}){
 final _that = this;
 switch (_that) {
 case SessionActionStartNew():
 return startNew(_that);case SessionActionResume():
-return resume(_that);case SessionActionDone():
-return sessionDone(_that);case SessionActionAllDone():
+return resume(_that);case SessionActionAllDone():
 return allDone(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -101,13 +99,12 @@ return allDone(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SessionActionStartNew value)?  startNew,TResult? Function( SessionActionResume value)?  resume,TResult? Function( SessionActionDone value)?  sessionDone,TResult? Function( SessionActionAllDone value)?  allDone,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SessionActionStartNew value)?  startNew,TResult? Function( SessionActionResume value)?  resume,TResult? Function( SessionActionAllDone value)?  allDone,}){
 final _that = this;
 switch (_that) {
 case SessionActionStartNew() when startNew != null:
 return startNew(_that);case SessionActionResume() when resume != null:
-return resume(_that);case SessionActionDone() when sessionDone != null:
-return sessionDone(_that);case SessionActionAllDone() when allDone != null:
+return resume(_that);case SessionActionAllDone() when allDone != null:
 return allDone(_that);case _:
   return null;
 
@@ -125,12 +122,11 @@ return allDone(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  startNew,TResult Function( int remaining)?  resume,TResult Function( int completedSessions,  int availableSessions)?  sessionDone,TResult Function( int completedSessions)?  allDone,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  startNew,TResult Function( int remaining)?  resume,TResult Function( int completedSessions)?  allDone,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SessionActionStartNew() when startNew != null:
 return startNew();case SessionActionResume() when resume != null:
-return resume(_that.remaining);case SessionActionDone() when sessionDone != null:
-return sessionDone(_that.completedSessions,_that.availableSessions);case SessionActionAllDone() when allDone != null:
+return resume(_that.remaining);case SessionActionAllDone() when allDone != null:
 return allDone(_that.completedSessions);case _:
   return orElse();
 
@@ -149,12 +145,11 @@ return allDone(_that.completedSessions);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  startNew,required TResult Function( int remaining)  resume,required TResult Function( int completedSessions,  int availableSessions)  sessionDone,required TResult Function( int completedSessions)  allDone,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  startNew,required TResult Function( int remaining)  resume,required TResult Function( int completedSessions)  allDone,}) {final _that = this;
 switch (_that) {
 case SessionActionStartNew():
 return startNew();case SessionActionResume():
-return resume(_that.remaining);case SessionActionDone():
-return sessionDone(_that.completedSessions,_that.availableSessions);case SessionActionAllDone():
+return resume(_that.remaining);case SessionActionAllDone():
 return allDone(_that.completedSessions);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -169,12 +164,11 @@ return allDone(_that.completedSessions);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  startNew,TResult? Function( int remaining)?  resume,TResult? Function( int completedSessions,  int availableSessions)?  sessionDone,TResult? Function( int completedSessions)?  allDone,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  startNew,TResult? Function( int remaining)?  resume,TResult? Function( int completedSessions)?  allDone,}) {final _that = this;
 switch (_that) {
 case SessionActionStartNew() when startNew != null:
 return startNew();case SessionActionResume() when resume != null:
-return resume(_that.remaining);case SessionActionDone() when sessionDone != null:
-return sessionDone(_that.completedSessions,_that.availableSessions);case SessionActionAllDone() when allDone != null:
+return resume(_that.remaining);case SessionActionAllDone() when allDone != null:
 return allDone(_that.completedSessions);case _:
   return null;
 
@@ -274,74 +268,6 @@ class _$SessionActionResumeCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? remaining = null,}) {
   return _then(SessionActionResume(
 remaining: null == remaining ? _self.remaining : remaining // ignore: cast_nullable_to_non_nullable
-as int,
-  ));
-}
-
-
-}
-
-/// @nodoc
-
-
-class SessionActionDone implements SessionAction {
-  const SessionActionDone({required this.completedSessions, required this.availableSessions});
-  
-
- final  int completedSessions;
- final  int availableSessions;
-
-/// Create a copy of SessionAction
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$SessionActionDoneCopyWith<SessionActionDone> get copyWith => _$SessionActionDoneCopyWithImpl<SessionActionDone>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SessionActionDone&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions)&&(identical(other.availableSessions, availableSessions) || other.availableSessions == availableSessions));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,completedSessions,availableSessions);
-
-@override
-String toString() {
-  return 'SessionAction.sessionDone(completedSessions: $completedSessions, availableSessions: $availableSessions)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $SessionActionDoneCopyWith<$Res> implements $SessionActionCopyWith<$Res> {
-  factory $SessionActionDoneCopyWith(SessionActionDone value, $Res Function(SessionActionDone) _then) = _$SessionActionDoneCopyWithImpl;
-@useResult
-$Res call({
- int completedSessions, int availableSessions
-});
-
-
-
-
-}
-/// @nodoc
-class _$SessionActionDoneCopyWithImpl<$Res>
-    implements $SessionActionDoneCopyWith<$Res> {
-  _$SessionActionDoneCopyWithImpl(this._self, this._then);
-
-  final SessionActionDone _self;
-  final $Res Function(SessionActionDone) _then;
-
-/// Create a copy of SessionAction
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? completedSessions = null,Object? availableSessions = null,}) {
-  return _then(SessionActionDone(
-completedSessions: null == completedSessions ? _self.completedSessions : completedSessions // ignore: cast_nullable_to_non_nullable
-as int,availableSessions: null == availableSessions ? _self.availableSessions : availableSessions // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

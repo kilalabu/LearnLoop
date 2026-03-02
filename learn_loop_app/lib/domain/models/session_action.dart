@@ -12,12 +12,6 @@ sealed class SessionAction with _$SessionAction {
     required int remaining,
   }) = SessionActionResume;
 
-  /// セッション完了（まだ次がある or 手動解放可能）
-  const factory SessionAction.sessionDone({
-    required int completedSessions,
-    required int availableSessions,
-  }) = SessionActionDone;
-
   /// 全セッション完了
   const factory SessionAction.allDone({
     required int completedSessions,

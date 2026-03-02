@@ -14,8 +14,5 @@ abstract class QuizSessionProgress with _$QuizSessionProgress {
 
     /// 今日完了したセッション数
     @Default(0) int completedSessions,
-
-    /// 手動で解放した追加セッション数
-    @Default(0) int unlockedExtraSessions,
   }) = _QuizSessionProgress;
 }

@@ -2,12 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:learn_loop_app/core/constants/quiz_constants.dart';
-import 'package:learn_loop_app/data/repositories/quiz_session_repository_impl.dart';
 import 'package:learn_loop_app/domain/models/daily_stats_result.dart';
 import 'package:learn_loop_app/domain/models/home_summary.dart';
 import 'package:learn_loop_app/domain/models/quiz.dart';
 import 'package:learn_loop_app/domain/repositories/quiz_repository.dart';
-import 'package:learn_loop_app/domain/repositories/quiz_session_repository.dart';
 import 'package:learn_loop_app/domain/repositories/user_progress_repository.dart';
 import 'package:learn_loop_app/presentation/home/home_view_model.dart';
 import 'package:learn_loop_app/presentation/quiz/quiz_view_model.dart';
@@ -78,24 +76,6 @@ class MockUserProgressRepository implements UserProgressRepository {
 }
 
 // ---------------------------------------------------------------------------
-// テスト用モック: QuizSessionRepository
-// ---------------------------------------------------------------------------
-
-/// 手動モック実装。手動解放セッション数を記録できる。
-class MockQuizSessionRepository implements QuizSessionRepository {
-  /// 手動解放済みのセッション追加数
-  int unlockedExtraSessions = 0;
-
-  @override
-  Future<int> getUnlockedExtraSessions() async => unlockedExtraSessions;
-
-  @override
-  Future<void> unlockNextSession() async {
-    unlockedExtraSessions++;
-  }
-}
-
-// ---------------------------------------------------------------------------
 // テストヘルパー
 // ---------------------------------------------------------------------------
 
@@ -112,8 +92,7 @@ Quiz _makeQuiz(String id) => Quiz(
 
 /// ProviderContainer を作成し、テストが終わったら自動 dispose するヘルパー
 ProviderContainer _makeContainer(
-  MockQuizRepository mockRepo,
-  MockQuizSessionRepository mockSessionRepo, {
+  MockQuizRepository mockRepo, {
   MockUserProgressRepository? mockProgressRepo,
 }) {
   final progressRepo = mockProgressRepo ?? MockUserProgressRepository();
@@ -121,8 +100,6 @@ ProviderContainer _makeContainer(
     overrides: [
       quizRepositoryProvider.overrideWithValue(mockRepo),
       userProgressRepositoryProvider.overrideWithValue(progressRepo),
-      // QuizSessionRepository をモックで上書き
-      quizSessionRepositoryProvider.overrideWithValue(mockSessionRepo),
     ],
   );
   addTearDown(container.dispose);
@@ -161,7 +138,6 @@ void main() {
       );
       final container = _makeContainer(
         mockRepo,
-        MockQuizSessionRepository(),
         mockProgressRepo: mockProgressRepo,
       );
 
@@ -189,7 +165,6 @@ void main() {
       );
       final container = _makeContainer(
         mockRepo,
-        MockQuizSessionRepository(),
         mockProgressRepo: mockProgressRepo,
       );
 
@@ -217,7 +192,6 @@ void main() {
       );
       final container = _makeContainer(
         mockRepo,
-        MockQuizSessionRepository(),
         mockProgressRepo: mockProgressRepo,
       );
       final viewModel = container.read(quizViewModelProvider.notifier);
@@ -260,7 +234,6 @@ void main() {
       final mockRepo = MockQuizRepository(quizzesToReturn: [_makeQuiz('q1')]);
       final container = _makeContainer(
         mockRepo,
-        MockQuizSessionRepository(),
         mockProgressRepo: mockProgressRepo,
       );
 
@@ -295,13 +268,11 @@ void main() {
       final mockProgressRepo = MockUserProgressRepository()
         ..answeredCountToReturn = QuizConstants.dailyLimit - 2; // 残り2問
 
-      final mockSessionRepo = MockQuizSessionRepository();
       final mockRepo = MockQuizRepository(
         quizzesToReturn: [_makeQuiz('q1'), _makeQuiz('q2')],
       );
       final container = _makeContainer(
         mockRepo,
-        mockSessionRepo,
         mockProgressRepo: mockProgressRepo,
       );
       final viewModel = container.read(quizViewModelProvider.notifier);

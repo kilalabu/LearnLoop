@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/quiz_constants.dart';
-import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../domain/models/quiz.dart';
 import '../../domain/models/session_action.dart';
 import '../../domain/usecases/resolve_session_use_case.dart';
@@ -27,7 +26,6 @@ class QuizViewModel extends Notifier<QuizState> {
     try {
       final useCase = ResolveSessionUseCase(
         ref.read(userProgressRepositoryProvider),
-        ref.read(quizSessionRepositoryProvider),
       );
       final action = await useCase.call();
 
@@ -50,23 +48,12 @@ class QuizViewModel extends Notifier<QuizState> {
             );
           }
 
-        case SessionActionDone(:final completedSessions, :final availableSessions):
-          // セッション完了済みで次のセッションを待っている状態
-          state = QuizState.completed(
-            correctCount: 0,
-            totalCount: 0,
-            completedSessions: completedSessions,
-            availableSessions: availableSessions,
-            isAllDone: false,
-          );
-
         case SessionActionAllDone(:final completedSessions):
           // 全セッション完了
           state = QuizState.completed(
             correctCount: 0,
             totalCount: 0,
             completedSessions: completedSessions,
-            availableSessions: QuizConstants.dailySessionCount,
             isAllDone: true,
           );
       }
@@ -100,9 +87,7 @@ class QuizViewModel extends Notifier<QuizState> {
     return QuizState.completed(
       correctCount: correctCount,
       totalCount: totalCount,
-      completedSessions:
-          isAllDone ? QuizConstants.dailySessionCount : 0,
-      availableSessions: QuizConstants.dailySessionCount,
+      completedSessions: isAllDone ? QuizConstants.dailySessionCount : 0,
       isAllDone: isAllDone,
     );
   }
@@ -198,25 +183,15 @@ class QuizViewModel extends Notifier<QuizState> {
     // UseCase で次のアクションを判定
     final useCase = ResolveSessionUseCase(
       ref.read(userProgressRepositoryProvider),
-      ref.read(quizSessionRepositoryProvider),
     );
     final action = await useCase.call();
 
     switch (action) {
-      case SessionActionDone(:final completedSessions, :final availableSessions):
-        state = QuizState.completed(
-          correctCount: _correctCount,
-          totalCount: _quizzes.length,
-          completedSessions: completedSessions,
-          availableSessions: availableSessions,
-          isAllDone: false,
-        );
       case SessionActionAllDone(:final completedSessions):
         state = QuizState.completed(
           correctCount: _correctCount,
           totalCount: _quizzes.length,
           completedSessions: completedSessions,
-          availableSessions: QuizConstants.dailySessionCount,
           isAllDone: true,
         );
       default:
@@ -229,13 +204,6 @@ class QuizViewModel extends Notifier<QuizState> {
   Future<void> startNextSession() async {
     state = const QuizState.loading();
     await _startNewSession();
-  }
-
-  /// 次のセッションを手動解放する（アドオン購入など）
-  Future<void> unlockNextSession() async {
-    final sessionRepo = ref.read(quizSessionRepositoryProvider);
-    await sessionRepo.unlockNextSession();
-    await _loadQuizzes();
   }
 
   /// クリップボードにコピー

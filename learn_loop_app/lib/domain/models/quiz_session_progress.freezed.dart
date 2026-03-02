@@ -17,8 +17,7 @@ mixin _$QuizSessionProgress {
 /// [廃止済み] DB 移行により不使用。互換のためフィールドは残す。
  int get sessionDateMs;/// 残り問題数（現セッション内）
  int get remaining;/// 今日完了したセッション数
- int get completedSessions;/// 手動で解放した追加セッション数
- int get unlockedExtraSessions;
+ int get completedSessions;
 /// Create a copy of QuizSessionProgress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +28,16 @@ $QuizSessionProgressCopyWith<QuizSessionProgress> get copyWith => _$QuizSessionP
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizSessionProgress&&(identical(other.sessionDateMs, sessionDateMs) || other.sessionDateMs == sessionDateMs)&&(identical(other.remaining, remaining) || other.remaining == remaining)&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions)&&(identical(other.unlockedExtraSessions, unlockedExtraSessions) || other.unlockedExtraSessions == unlockedExtraSessions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuizSessionProgress&&(identical(other.sessionDateMs, sessionDateMs) || other.sessionDateMs == sessionDateMs)&&(identical(other.remaining, remaining) || other.remaining == remaining)&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sessionDateMs,remaining,completedSessions,unlockedExtraSessions);
+int get hashCode => Object.hash(runtimeType,sessionDateMs,remaining,completedSessions);
 
 @override
 String toString() {
-  return 'QuizSessionProgress(sessionDateMs: $sessionDateMs, remaining: $remaining, completedSessions: $completedSessions, unlockedExtraSessions: $unlockedExtraSessions)';
+  return 'QuizSessionProgress(sessionDateMs: $sessionDateMs, remaining: $remaining, completedSessions: $completedSessions)';
 }
 
 
@@ -49,7 +48,7 @@ abstract mixin class $QuizSessionProgressCopyWith<$Res>  {
   factory $QuizSessionProgressCopyWith(QuizSessionProgress value, $Res Function(QuizSessionProgress) _then) = _$QuizSessionProgressCopyWithImpl;
 @useResult
 $Res call({
- int sessionDateMs, int remaining, int completedSessions, int unlockedExtraSessions
+ int sessionDateMs, int remaining, int completedSessions
 });
 
 
@@ -66,12 +65,11 @@ class _$QuizSessionProgressCopyWithImpl<$Res>
 
 /// Create a copy of QuizSessionProgress
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? sessionDateMs = null,Object? remaining = null,Object? completedSessions = null,Object? unlockedExtraSessions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? sessionDateMs = null,Object? remaining = null,Object? completedSessions = null,}) {
   return _then(_self.copyWith(
 sessionDateMs: null == sessionDateMs ? _self.sessionDateMs : sessionDateMs // ignore: cast_nullable_to_non_nullable
 as int,remaining: null == remaining ? _self.remaining : remaining // ignore: cast_nullable_to_non_nullable
 as int,completedSessions: null == completedSessions ? _self.completedSessions : completedSessions // ignore: cast_nullable_to_non_nullable
-as int,unlockedExtraSessions: null == unlockedExtraSessions ? _self.unlockedExtraSessions : unlockedExtraSessions // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -157,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int sessionDateMs,  int remaining,  int completedSessions,  int unlockedExtraSessions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int sessionDateMs,  int remaining,  int completedSessions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _QuizSessionProgress() when $default != null:
-return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_that.unlockedExtraSessions);case _:
+return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions);case _:
   return orElse();
 
 }
@@ -178,10 +176,10 @@ return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int sessionDateMs,  int remaining,  int completedSessions,  int unlockedExtraSessions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int sessionDateMs,  int remaining,  int completedSessions)  $default,) {final _that = this;
 switch (_that) {
 case _QuizSessionProgress():
-return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_that.unlockedExtraSessions);case _:
+return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +196,10 @@ return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int sessionDateMs,  int remaining,  int completedSessions,  int unlockedExtraSessions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int sessionDateMs,  int remaining,  int completedSessions)?  $default,) {final _that = this;
 switch (_that) {
 case _QuizSessionProgress() when $default != null:
-return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_that.unlockedExtraSessions);case _:
+return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions);case _:
   return null;
 
 }
@@ -213,7 +211,7 @@ return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_tha
 
 
 class _QuizSessionProgress implements QuizSessionProgress {
-  const _QuizSessionProgress({this.sessionDateMs = 0, required this.remaining, this.completedSessions = 0, this.unlockedExtraSessions = 0});
+  const _QuizSessionProgress({this.sessionDateMs = 0, required this.remaining, this.completedSessions = 0});
   
 
 /// [廃止済み] DB 移行により不使用。互換のためフィールドは残す。
@@ -222,8 +220,6 @@ class _QuizSessionProgress implements QuizSessionProgress {
 @override final  int remaining;
 /// 今日完了したセッション数
 @override@JsonKey() final  int completedSessions;
-/// 手動で解放した追加セッション数
-@override@JsonKey() final  int unlockedExtraSessions;
 
 /// Create a copy of QuizSessionProgress
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +231,16 @@ _$QuizSessionProgressCopyWith<_QuizSessionProgress> get copyWith => __$QuizSessi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuizSessionProgress&&(identical(other.sessionDateMs, sessionDateMs) || other.sessionDateMs == sessionDateMs)&&(identical(other.remaining, remaining) || other.remaining == remaining)&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions)&&(identical(other.unlockedExtraSessions, unlockedExtraSessions) || other.unlockedExtraSessions == unlockedExtraSessions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuizSessionProgress&&(identical(other.sessionDateMs, sessionDateMs) || other.sessionDateMs == sessionDateMs)&&(identical(other.remaining, remaining) || other.remaining == remaining)&&(identical(other.completedSessions, completedSessions) || other.completedSessions == completedSessions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,sessionDateMs,remaining,completedSessions,unlockedExtraSessions);
+int get hashCode => Object.hash(runtimeType,sessionDateMs,remaining,completedSessions);
 
 @override
 String toString() {
-  return 'QuizSessionProgress(sessionDateMs: $sessionDateMs, remaining: $remaining, completedSessions: $completedSessions, unlockedExtraSessions: $unlockedExtraSessions)';
+  return 'QuizSessionProgress(sessionDateMs: $sessionDateMs, remaining: $remaining, completedSessions: $completedSessions)';
 }
 
 
@@ -255,7 +251,7 @@ abstract mixin class _$QuizSessionProgressCopyWith<$Res> implements $QuizSession
   factory _$QuizSessionProgressCopyWith(_QuizSessionProgress value, $Res Function(_QuizSessionProgress) _then) = __$QuizSessionProgressCopyWithImpl;
 @override @useResult
 $Res call({
- int sessionDateMs, int remaining, int completedSessions, int unlockedExtraSessions
+ int sessionDateMs, int remaining, int completedSessions
 });
 
 
@@ -272,12 +268,11 @@ class __$QuizSessionProgressCopyWithImpl<$Res>
 
 /// Create a copy of QuizSessionProgress
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? sessionDateMs = null,Object? remaining = null,Object? completedSessions = null,Object? unlockedExtraSessions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? sessionDateMs = null,Object? remaining = null,Object? completedSessions = null,}) {
   return _then(_QuizSessionProgress(
 sessionDateMs: null == sessionDateMs ? _self.sessionDateMs : sessionDateMs // ignore: cast_nullable_to_non_nullable
 as int,remaining: null == remaining ? _self.remaining : remaining // ignore: cast_nullable_to_non_nullable
 as int,completedSessions: null == completedSessions ? _self.completedSessions : completedSessions // ignore: cast_nullable_to_non_nullable
-as int,unlockedExtraSessions: null == unlockedExtraSessions ? _self.unlockedExtraSessions : unlockedExtraSessions // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

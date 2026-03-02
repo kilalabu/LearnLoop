@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/quiz_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/app_badge.dart';
@@ -44,7 +45,6 @@ class QuizQuestionScreen extends ConsumerWidget {
             :final correctCount,
             :final totalCount,
             :final completedSessions,
-            :final availableSessions,
             :final isAllDone,
           ) => _buildCompletedScreen(
             context,
@@ -52,7 +52,6 @@ class QuizQuestionScreen extends ConsumerWidget {
             correctCount,
             totalCount,
             completedSessions,
-            availableSessions,
             isAllDone,
           ),
           QuizAnswering(
@@ -304,7 +303,6 @@ class QuizQuestionScreen extends ConsumerWidget {
     int correctCount,
     int totalCount,
     int completedSessions,
-    int availableSessions,
     bool isAllDone,
   ) {
     final theme = Theme.of(context);
@@ -347,14 +345,14 @@ class QuizQuestionScreen extends ConsumerWidget {
               ),
             AppSpacing.gapSm,
             Text(
-              'セッション $completedSessions / $availableSessions',
+              'セッション $completedSessions / ${QuizConstants.dailySessionCount}',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             AppSpacing.gapXxl,
 
-            // ボタン: 状態に応じて3パターン
+            // ボタン: 状態に応じて2パターン
             if (isAllDone) ...[
               // 全セッション完了
               Text(
@@ -373,29 +371,12 @@ class QuizQuestionScreen extends ConsumerWidget {
                 isFullWidth: true,
                 child: const Text('ホームに戻る'),
               ),
-            ] else if (completedSessions < availableSessions) ...[
-              // 次のセッションが解放済み
+            ] else ...[
+              // セッション完了 → 次のセッションを即開始できる
               AppButton(
                 onPressed: () => viewModel.startNextSession(),
                 isFullWidth: true,
                 child: const Text('次のセッションを開始'),
-              ),
-              AppSpacing.gapMd,
-              AppButton(
-                onPressed: () {
-                  ref.invalidate(homeViewModelProvider);
-                  context.go('/');
-                },
-                variant: AppButtonVariant.outline,
-                isFullWidth: true,
-                child: const Text('ホームに戻る'),
-              ),
-            ] else ...[
-              // 次のセッションはまだ解放されていない（手動解放が可能）
-              AppButton(
-                onPressed: () => viewModel.unlockNextSession(),
-                isFullWidth: true,
-                child: const Text('次のセッションを解放する'),
               ),
               AppSpacing.gapMd,
               AppButton(

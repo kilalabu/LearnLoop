@@ -31,7 +31,6 @@ sealed class QuizState with _$QuizState {
     required int correctCount,
     required int totalCount,
     required int completedSessions,
-    required int availableSessions,
     required bool isAllDone,
   }) = QuizCompleted;
 
