@@ -51,6 +51,7 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
       streak: summary.streak,
       accuracy: summary.accuracy,
       completionRate: completionRate,
+      newQuestionCount: summary.unansweredCount,
     );
   }
 

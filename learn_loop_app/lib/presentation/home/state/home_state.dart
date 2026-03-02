@@ -19,10 +19,6 @@ abstract class HomeData with _$HomeData {
     required int streak,
     required double accuracy, // 0.0 ~ 1.0
     required double completionRate, // 完了率 0.0 ~ 1.0
+    required int newQuestionCount, // 新規問題数（learning_status='unanswered' の問題数）
   }) = _HomeData;
-
-  const HomeData._();
-
-  /// 正答率（パーセント表示用）
-  int get accuracyPercent => (accuracy * 100).round();
 }

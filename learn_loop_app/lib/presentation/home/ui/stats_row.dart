@@ -8,14 +8,15 @@ class StatsRow extends StatelessWidget {
   const StatsRow({
     super.key,
     required this.streak,
-    required this.accuracy,
+    required this.newQuestionCount,
     required this.totalCount,
     this.onStreakTap,
   });
 
   final int streak;
-  final int accuracy; // パーセント (0-100)
+  final int newQuestionCount; // 新規問題数（learning_status='unanswered' の問題数）
   final int totalCount;
+
   /// 連続日数カードのタップコールバック（履歴画面への遷移などに使用）
   final VoidCallback? onStreakTap;
 
@@ -37,9 +38,9 @@ class StatsRow extends StatelessWidget {
         AppSpacing.gapSm,
         Expanded(
           child: _StatCard(
-            icon: Icons.auto_awesome,
-            value: '$accuracy%',
-            label: '正答率',
+            icon: Icons.fiber_new,
+            value: '$newQuestionCount',
+            label: '新規問題数',
             color: AppColors.success,
           ),
         ),

@@ -10,5 +10,6 @@ abstract class HomeSummary with _$HomeSummary {
     required int streak,
     required double accuracy,
     required int totalAnswered,
+    required int unansweredCount,
   }) = _HomeSummary;
 }

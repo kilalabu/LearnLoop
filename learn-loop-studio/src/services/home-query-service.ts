@@ -1,13 +1,13 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { QuizRepository } from '@/repositories/quiz-repository';
 import { ProgressRepository } from '@/repositories/progress-repository';
-import { UserStats } from '@/domain/progress';
 
 export interface HomeSummary {
   count: number;
   streak: number;
   accuracy: number;
   totalAnswered: number;
+  unansweredCount: number; // learning_status='unanswered' の問題数
 }
 
 /**
@@ -25,16 +25,18 @@ export class HomeQueryService {
   }
 
   async getSummary(): Promise<HomeSummary> {
-    const [count, stats] = await Promise.all([
-      this.quizRepo.getCount(),
+    const [stats, quizCount, unansweredCount] = await Promise.all([
       this.progressRepo.getStats(),
+      this.quizRepo.getCount(),
+      this.quizRepo.getUnansweredCount(), // 未回答問題数を並列取得
     ]);
 
     return {
-      count,
+      count: quizCount,
       streak: stats.streak,
       accuracy: stats.accuracy,
       totalAnswered: stats.totalAnswered,
+      unansweredCount,
     };
   }
 }

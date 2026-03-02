@@ -156,6 +156,18 @@ export class QuizRepository {
     return count ?? 0;
   }
 
+  /** 未回答（learning_status='unanswered'）の問題数を取得する */
+  async getUnansweredCount(): Promise<number> {
+    const { count, error } = await this.supabase
+      .from('quiz_view')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', this.userId)
+      .eq('learning_status', 'unanswered');
+
+    if (error) throw new Error(`getUnansweredCount failed: ${error.message}`);
+    return count ?? 0;
+  }
+
   /**
    * クイズ一覧を取得する。
    * VIEW (quiz_view) を使用することで、DB側で正確なフィルタリング・ソート・ページネーションを実現します。

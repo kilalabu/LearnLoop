@@ -67,6 +67,7 @@ class QuizRepositoryImpl implements QuizRepository {
       streak: data['streak'] as int,
       accuracy: (data['accuracy'] as num).toDouble(),
       totalAnswered: data['totalAnswered'] as int,
+      unansweredCount: data['unansweredCount'] as int,
     );
   }
 }

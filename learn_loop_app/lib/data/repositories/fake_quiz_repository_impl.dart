@@ -140,6 +140,7 @@ Dockerはコンテナ型の仮想化技術であり、ホストOSのカーネル
       streak: 0,
       accuracy: 0.0,
       totalAnswered: 0,
+      unansweredCount: 40,
     );
   }
 }

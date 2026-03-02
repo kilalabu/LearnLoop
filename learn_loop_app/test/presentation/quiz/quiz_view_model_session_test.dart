@@ -44,6 +44,7 @@ class MockQuizRepository implements QuizRepository {
     streak: 0,
     accuracy: 0.0,
     totalAnswered: 0,
+    unansweredCount: 40,
   );
 }
 

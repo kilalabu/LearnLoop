@@ -354,7 +354,8 @@ as String,
 mixin _$HomeData {
 
  int get pendingCount; int get totalCount; int get streak; double get accuracy;// 0.0 ~ 1.0
- double get completionRate;
+ double get completionRate;// 完了率 0.0 ~ 1.0
+ int get newQuestionCount;
 /// Create a copy of HomeData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -365,16 +366,16 @@ $HomeDataCopyWith<HomeData> get copyWith => _$HomeDataCopyWithImpl<HomeData>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeData&&(identical(other.pendingCount, pendingCount) || other.pendingCount == pendingCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.completionRate, completionRate) || other.completionRate == completionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeData&&(identical(other.pendingCount, pendingCount) || other.pendingCount == pendingCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.completionRate, completionRate) || other.completionRate == completionRate)&&(identical(other.newQuestionCount, newQuestionCount) || other.newQuestionCount == newQuestionCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pendingCount,totalCount,streak,accuracy,completionRate);
+int get hashCode => Object.hash(runtimeType,pendingCount,totalCount,streak,accuracy,completionRate,newQuestionCount);
 
 @override
 String toString() {
-  return 'HomeData(pendingCount: $pendingCount, totalCount: $totalCount, streak: $streak, accuracy: $accuracy, completionRate: $completionRate)';
+  return 'HomeData(pendingCount: $pendingCount, totalCount: $totalCount, streak: $streak, accuracy: $accuracy, completionRate: $completionRate, newQuestionCount: $newQuestionCount)';
 }
 
 
@@ -385,7 +386,7 @@ abstract mixin class $HomeDataCopyWith<$Res>  {
   factory $HomeDataCopyWith(HomeData value, $Res Function(HomeData) _then) = _$HomeDataCopyWithImpl;
 @useResult
 $Res call({
- int pendingCount, int totalCount, int streak, double accuracy, double completionRate
+ int pendingCount, int totalCount, int streak, double accuracy, double completionRate, int newQuestionCount
 });
 
 
@@ -402,14 +403,15 @@ class _$HomeDataCopyWithImpl<$Res>
 
 /// Create a copy of HomeData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? pendingCount = null,Object? totalCount = null,Object? streak = null,Object? accuracy = null,Object? completionRate = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? pendingCount = null,Object? totalCount = null,Object? streak = null,Object? accuracy = null,Object? completionRate = null,Object? newQuestionCount = null,}) {
   return _then(_self.copyWith(
 pendingCount: null == pendingCount ? _self.pendingCount : pendingCount // ignore: cast_nullable_to_non_nullable
 as int,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as int,streak: null == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as int,accuracy: null == accuracy ? _self.accuracy : accuracy // ignore: cast_nullable_to_non_nullable
 as double,completionRate: null == completionRate ? _self.completionRate : completionRate // ignore: cast_nullable_to_non_nullable
-as double,
+as double,newQuestionCount: null == newQuestionCount ? _self.newQuestionCount : newQuestionCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -494,10 +496,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate,  int newQuestionCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomeData() when $default != null:
-return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate);case _:
+return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate,_that.newQuestionCount);case _:
   return orElse();
 
 }
@@ -515,10 +517,10 @@ return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate,  int newQuestionCount)  $default,) {final _that = this;
 switch (_that) {
 case _HomeData():
-return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate);case _:
+return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate,_that.newQuestionCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -535,10 +537,10 @@ return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pendingCount,  int totalCount,  int streak,  double accuracy,  double completionRate,  int newQuestionCount)?  $default,) {final _that = this;
 switch (_that) {
 case _HomeData() when $default != null:
-return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate);case _:
+return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,_that.completionRate,_that.newQuestionCount);case _:
   return null;
 
 }
@@ -549,8 +551,8 @@ return $default(_that.pendingCount,_that.totalCount,_that.streak,_that.accuracy,
 /// @nodoc
 
 
-class _HomeData extends HomeData {
-  const _HomeData({required this.pendingCount, required this.totalCount, required this.streak, required this.accuracy, required this.completionRate}): super._();
+class _HomeData implements HomeData {
+  const _HomeData({required this.pendingCount, required this.totalCount, required this.streak, required this.accuracy, required this.completionRate, required this.newQuestionCount});
   
 
 @override final  int pendingCount;
@@ -559,6 +561,8 @@ class _HomeData extends HomeData {
 @override final  double accuracy;
 // 0.0 ~ 1.0
 @override final  double completionRate;
+// 完了率 0.0 ~ 1.0
+@override final  int newQuestionCount;
 
 /// Create a copy of HomeData
 /// with the given fields replaced by the non-null parameter values.
@@ -570,16 +574,16 @@ _$HomeDataCopyWith<_HomeData> get copyWith => __$HomeDataCopyWithImpl<_HomeData>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeData&&(identical(other.pendingCount, pendingCount) || other.pendingCount == pendingCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.completionRate, completionRate) || other.completionRate == completionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeData&&(identical(other.pendingCount, pendingCount) || other.pendingCount == pendingCount)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.completionRate, completionRate) || other.completionRate == completionRate)&&(identical(other.newQuestionCount, newQuestionCount) || other.newQuestionCount == newQuestionCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pendingCount,totalCount,streak,accuracy,completionRate);
+int get hashCode => Object.hash(runtimeType,pendingCount,totalCount,streak,accuracy,completionRate,newQuestionCount);
 
 @override
 String toString() {
-  return 'HomeData(pendingCount: $pendingCount, totalCount: $totalCount, streak: $streak, accuracy: $accuracy, completionRate: $completionRate)';
+  return 'HomeData(pendingCount: $pendingCount, totalCount: $totalCount, streak: $streak, accuracy: $accuracy, completionRate: $completionRate, newQuestionCount: $newQuestionCount)';
 }
 
 
@@ -590,7 +594,7 @@ abstract mixin class _$HomeDataCopyWith<$Res> implements $HomeDataCopyWith<$Res>
   factory _$HomeDataCopyWith(_HomeData value, $Res Function(_HomeData) _then) = __$HomeDataCopyWithImpl;
 @override @useResult
 $Res call({
- int pendingCount, int totalCount, int streak, double accuracy, double completionRate
+ int pendingCount, int totalCount, int streak, double accuracy, double completionRate, int newQuestionCount
 });
 
 
@@ -607,14 +611,15 @@ class __$HomeDataCopyWithImpl<$Res>
 
 /// Create a copy of HomeData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? pendingCount = null,Object? totalCount = null,Object? streak = null,Object? accuracy = null,Object? completionRate = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? pendingCount = null,Object? totalCount = null,Object? streak = null,Object? accuracy = null,Object? completionRate = null,Object? newQuestionCount = null,}) {
   return _then(_HomeData(
 pendingCount: null == pendingCount ? _self.pendingCount : pendingCount // ignore: cast_nullable_to_non_nullable
 as int,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as int,streak: null == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as int,accuracy: null == accuracy ? _self.accuracy : accuracy // ignore: cast_nullable_to_non_nullable
 as double,completionRate: null == completionRate ? _self.completionRate : completionRate // ignore: cast_nullable_to_non_nullable
-as double,
+as double,newQuestionCount: null == newQuestionCount ? _self.newQuestionCount : newQuestionCount // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

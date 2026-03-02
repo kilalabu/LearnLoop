@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomeSummary {
 
- int get count; int get streak; double get accuracy; int get totalAnswered;
+ int get count; int get streak; double get accuracy; int get totalAnswered; int get unansweredCount;
 /// Create a copy of HomeSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $HomeSummaryCopyWith<HomeSummary> get copyWith => _$HomeSummaryCopyWithImpl<Home
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeSummary&&(identical(other.count, count) || other.count == count)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.totalAnswered, totalAnswered) || other.totalAnswered == totalAnswered));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeSummary&&(identical(other.count, count) || other.count == count)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.totalAnswered, totalAnswered) || other.totalAnswered == totalAnswered)&&(identical(other.unansweredCount, unansweredCount) || other.unansweredCount == unansweredCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,count,streak,accuracy,totalAnswered);
+int get hashCode => Object.hash(runtimeType,count,streak,accuracy,totalAnswered,unansweredCount);
 
 @override
 String toString() {
-  return 'HomeSummary(count: $count, streak: $streak, accuracy: $accuracy, totalAnswered: $totalAnswered)';
+  return 'HomeSummary(count: $count, streak: $streak, accuracy: $accuracy, totalAnswered: $totalAnswered, unansweredCount: $unansweredCount)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $HomeSummaryCopyWith<$Res>  {
   factory $HomeSummaryCopyWith(HomeSummary value, $Res Function(HomeSummary) _then) = _$HomeSummaryCopyWithImpl;
 @useResult
 $Res call({
- int count, int streak, double accuracy, int totalAnswered
+ int count, int streak, double accuracy, int totalAnswered, int unansweredCount
 });
 
 
@@ -62,12 +62,13 @@ class _$HomeSummaryCopyWithImpl<$Res>
 
 /// Create a copy of HomeSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? count = null,Object? streak = null,Object? accuracy = null,Object? totalAnswered = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? count = null,Object? streak = null,Object? accuracy = null,Object? totalAnswered = null,Object? unansweredCount = null,}) {
   return _then(_self.copyWith(
 count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int,streak: null == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as int,accuracy: null == accuracy ? _self.accuracy : accuracy // ignore: cast_nullable_to_non_nullable
 as double,totalAnswered: null == totalAnswered ? _self.totalAnswered : totalAnswered // ignore: cast_nullable_to_non_nullable
+as int,unansweredCount: null == unansweredCount ? _self.unansweredCount : unansweredCount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -153,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int count,  int streak,  double accuracy,  int totalAnswered)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int count,  int streak,  double accuracy,  int totalAnswered,  int unansweredCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomeSummary() when $default != null:
-return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);case _:
+return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered,_that.unansweredCount);case _:
   return orElse();
 
 }
@@ -174,10 +175,10 @@ return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int count,  int streak,  double accuracy,  int totalAnswered)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int count,  int streak,  double accuracy,  int totalAnswered,  int unansweredCount)  $default,) {final _that = this;
 switch (_that) {
 case _HomeSummary():
-return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);case _:
+return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered,_that.unansweredCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +195,10 @@ return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int count,  int streak,  double accuracy,  int totalAnswered)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int count,  int streak,  double accuracy,  int totalAnswered,  int unansweredCount)?  $default,) {final _that = this;
 switch (_that) {
 case _HomeSummary() when $default != null:
-return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);case _:
+return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered,_that.unansweredCount);case _:
   return null;
 
 }
@@ -209,13 +210,14 @@ return $default(_that.count,_that.streak,_that.accuracy,_that.totalAnswered);cas
 
 
 class _HomeSummary implements HomeSummary {
-  const _HomeSummary({required this.count, required this.streak, required this.accuracy, required this.totalAnswered});
+  const _HomeSummary({required this.count, required this.streak, required this.accuracy, required this.totalAnswered, required this.unansweredCount});
   
 
 @override final  int count;
 @override final  int streak;
 @override final  double accuracy;
 @override final  int totalAnswered;
+@override final  int unansweredCount;
 
 /// Create a copy of HomeSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -227,16 +229,16 @@ _$HomeSummaryCopyWith<_HomeSummary> get copyWith => __$HomeSummaryCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeSummary&&(identical(other.count, count) || other.count == count)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.totalAnswered, totalAnswered) || other.totalAnswered == totalAnswered));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeSummary&&(identical(other.count, count) || other.count == count)&&(identical(other.streak, streak) || other.streak == streak)&&(identical(other.accuracy, accuracy) || other.accuracy == accuracy)&&(identical(other.totalAnswered, totalAnswered) || other.totalAnswered == totalAnswered)&&(identical(other.unansweredCount, unansweredCount) || other.unansweredCount == unansweredCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,count,streak,accuracy,totalAnswered);
+int get hashCode => Object.hash(runtimeType,count,streak,accuracy,totalAnswered,unansweredCount);
 
 @override
 String toString() {
-  return 'HomeSummary(count: $count, streak: $streak, accuracy: $accuracy, totalAnswered: $totalAnswered)';
+  return 'HomeSummary(count: $count, streak: $streak, accuracy: $accuracy, totalAnswered: $totalAnswered, unansweredCount: $unansweredCount)';
 }
 
 
@@ -247,7 +249,7 @@ abstract mixin class _$HomeSummaryCopyWith<$Res> implements $HomeSummaryCopyWith
   factory _$HomeSummaryCopyWith(_HomeSummary value, $Res Function(_HomeSummary) _then) = __$HomeSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- int count, int streak, double accuracy, int totalAnswered
+ int count, int streak, double accuracy, int totalAnswered, int unansweredCount
 });
 
 
@@ -264,12 +266,13 @@ class __$HomeSummaryCopyWithImpl<$Res>
 
 /// Create a copy of HomeSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? count = null,Object? streak = null,Object? accuracy = null,Object? totalAnswered = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? count = null,Object? streak = null,Object? accuracy = null,Object? totalAnswered = null,Object? unansweredCount = null,}) {
   return _then(_HomeSummary(
 count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as int,streak: null == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as int,accuracy: null == accuracy ? _self.accuracy : accuracy // ignore: cast_nullable_to_non_nullable
 as double,totalAnswered: null == totalAnswered ? _self.totalAnswered : totalAnswered // ignore: cast_nullable_to_non_nullable
+as int,unansweredCount: null == unansweredCount ? _self.unansweredCount : unansweredCount // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

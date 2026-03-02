@@ -43,6 +43,7 @@ describe('GET /api/quiz/summary', () => {
       streak: 3,
       accuracy: 0.75,
       totalAnswered: 20,
+      unansweredCount: 22,
     });
     (HomeQueryService as ReturnType<typeof vi.fn>).mockImplementation(function () {
       this.getSummary = mockGetSummary;
@@ -61,6 +62,7 @@ describe('GET /api/quiz/summary', () => {
       streak: 3,
       accuracy: 0.75,
       totalAnswered: 20,
+      unansweredCount: 22,
     });
 
     // getSummary が呼ばれていること
