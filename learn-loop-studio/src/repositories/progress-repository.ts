@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { UserStats, DailyAnswerRecord, DailyStatsResponse } from '@/domain/progress';
 import { calculateNextReview } from '@/services/spaced-repetition';
+import { DAILY_LIMIT, DAILY_SESSION_COUNT } from '@/domain/quiz-constants';
 
 /** get_daily_answer_stats RPC の1行分の戻り値型 */
 interface DailyAnswerStatsRow {
@@ -172,10 +173,6 @@ export class ProgressRepository {
       answeredCount: Number(r.answered_count),
       correctCount: Number(r.correct_count),
     }));
-
-    // サーバー側定数（Flutter 側の QuizConstants と一致させる）
-    const DAILY_SESSION_COUNT = 3;
-    const DAILY_LIMIT = 12;
 
     return {
       totalRequired: DAILY_SESSION_COUNT * DAILY_LIMIT,

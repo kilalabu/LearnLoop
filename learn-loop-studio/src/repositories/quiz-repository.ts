@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SaveQuizInput, FormattedQuiz, QuizListItem, QuizListResponse, calculateLearningStatus, UpdateQuizInput, DbUpdateQuizInput } from '@/domain/quiz';
+import { REVIEW_LIMIT, NEW_LIMIT } from '@/domain/quiz-constants';
 
 export class QuizRepository {
   constructor(
@@ -41,7 +42,14 @@ export class QuizRepository {
    * 1. 復習クイズ: next_review_at が現在以前のもの（復習期限が来たもの）
    * 2. 新規クイズ: まだ一度も解いていないもの
    */
-  async fetchStudySession(limit: number, reviewLimit: number = 6): Promise<FormattedQuiz[]> {
+  async fetchStudySession(limit: number): Promise<FormattedQuiz[]> {
+    // セッション内の枠割り当て（DAILY_LIMIT=12 の場合）:
+    //
+    // 途中再開時は残り枠 (limit) から新規枠を引いた分だけ復習を取得する:
+    //   例) 3問解いて再開 (limit=9):  min(6, max(0, 9-6)) = 3 → 復習3問 + 新規6問
+    //   例) 新規セッション (limit=12): min(6, max(0, 12-6)) = 6 → 復習6問 + 新規6問
+    const dynamicReviewLimit = Math.min(REVIEW_LIMIT, Math.max(0, limit - NEW_LIMIT));
+
     // ① 復習クイズ取得: quiz_view を使い、learning_status='learning' かつ復習期限が来ているものを取得
     const { data: reviewRows, error: reviewError } = await this.supabase
       .from('quiz_view')
@@ -50,7 +58,7 @@ export class QuizRepository {
       .eq('learning_status', 'learning')
       .lte('next_review_at', new Date().toISOString())
       .order('next_review_at', { ascending: true })
-      .limit(reviewLimit);
+      .limit(dynamicReviewLimit);
 
     if (reviewError) {
       throw new QuizRepositoryError(`復習クイズの取得に失敗しました: ${reviewError.message}`);
