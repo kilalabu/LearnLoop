@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/quiz_constants.dart';
+import '../../domain/models/home_summary.dart';
 import '../../domain/repositories/quiz_repository.dart';
 import '../../domain/repositories/user_progress_repository.dart';
-import '../../domain/usecases/reset_session_if_date_changed_use_case.dart';
 import '../../data/repositories/quiz_repository_impl.dart';
-import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../data/repositories/user_progress_repository_impl.dart';
 import 'state/home_state.dart';
 
@@ -30,30 +29,24 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
 
   Future<HomeData> _loadHomeData() async {
     final quizRepo = ref.read(quizRepositoryProvider);
-    final sessionRepo = ref.read(quizSessionRepositoryProvider);
+    final progressRepo = ref.read(userProgressRepositoryProvider);
 
-    // 日付チェック: 前日以前のデータが残っていればクリアする
-    await ResetSessionIfDateChangedUseCase(sessionRepo).call();
+    // DB から今日の回答数と問題サマリーを並列取得
+    final results = await Future.wait([
+      progressRepo.getTodayAnsweredCount(),
+      quizRepo.getSummary(),
+    ]);
+    final answeredCount = results[0] as int;
+    final summary = results[1] as HomeSummary;
 
-    final progress = await sessionRepo.getSessionProgress();
-    final summary = await quizRepo.getSummary();
-
-    // 完了率 = 回答済み問題数 / 1日の総問題数 (dailySessionCount * dailyLimit)
-    final completed = progress?.completedSessions ?? 0;
-    final remaining = progress?.remaining ?? QuizConstants.dailyLimit;
-    final totalQuestions =
-        QuizConstants.dailySessionCount * QuizConstants.dailyLimit; // 36
-    final answeredSoFar =
-        (completed * QuizConstants.dailyLimit) +
-        (QuizConstants.dailyLimit - remaining);
-    final completionRate = totalQuestions > 0
-        ? answeredSoFar.clamp(0, totalQuestions) / totalQuestions
-        : 0.0;
-    final pendingCount =
-        totalQuestions - answeredSoFar.clamp(0, totalQuestions);
+    // 完了率 = 今日の回答済み問題数 / 1日の総問題数 (36)
+    const totalQuestions =
+        QuizConstants.dailySessionCount * QuizConstants.dailyLimit;
+    final completionRate =
+        answeredCount.clamp(0, totalQuestions) / totalQuestions;
 
     return HomeData(
-      pendingCount: pendingCount,
+      pendingCount: totalQuestions - answeredCount.clamp(0, totalQuestions),
       totalCount: summary.count,
       streak: summary.streak,
       accuracy: summary.accuracy,

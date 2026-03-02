@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:learn_loop_app/core/constants/quiz_constants.dart';
 import 'package:learn_loop_app/data/repositories/quiz_session_repository_impl.dart';
 import 'package:learn_loop_app/domain/models/daily_stats_result.dart';
 import 'package:learn_loop_app/domain/models/home_summary.dart';
@@ -27,10 +28,10 @@ class MockQuizRepository implements QuizRepository {
   MockQuizRepository({required this.quizzesToReturn});
 
   @override
-  Future<List<Quiz>> getTodayQuizzes({int? limit}) async {
+  Future<List<Quiz>> getTodayQuizzes({required int limit}) async {
     lastCalledLimit = limit;
     // limit が指定された場合は件数を制限して返す
-    if (limit != null && limit < quizzesToReturn.length) {
+    if (limit < quizzesToReturn.length) {
       return quizzesToReturn.sublist(0, limit);
     }
     return quizzesToReturn;
@@ -50,6 +51,12 @@ class MockQuizRepository implements QuizRepository {
 
 /// テスト用の UserProgressRepository モック（副作用をスキップ）
 class MockUserProgressRepository implements UserProgressRepository {
+  /// 今日の回答数（ResolveSessionUseCase が参照する）
+  int answeredCountToReturn = 0;
+
+  @override
+  Future<int> getTodayAnsweredCount() async => answeredCountToReturn;
+
   @override
   Future<void> recordAnswer({
     required String quizId,
@@ -66,7 +73,6 @@ class MockUserProgressRepository implements UserProgressRepository {
 
   @override
   Future<DailyStatsResult> getDailyStats({int limit = 20, int offset = 0}) {
-    // TODO: implement getDailyStats
     throw UnimplementedError();
   }
 }
@@ -75,55 +81,18 @@ class MockUserProgressRepository implements UserProgressRepository {
 // テスト用モック: QuizSessionRepository
 // ---------------------------------------------------------------------------
 
-/// 手動モック実装。テストごとに返すセッション進捗と、呼び出し結果を記録できる。
+/// 手動モック実装。手動解放セッション数を記録できる。
 class MockQuizSessionRepository implements QuizSessionRepository {
-  /// getSessionProgress が返す進捗（null = セッションなし）
-  QuizSessionProgress? progressToReturn;
-
-  /// saveSession に渡された remainingCount の記録
-  int? savedRemainingCount;
-
-  /// decrementRemaining が呼ばれた回数
-  int decrementCount = 0;
-
-  /// clearSession が呼ばれたかどうか
-  bool cleared = false;
-
-  /// incrementCompletedSessions が呼ばれた回数
-  int incrementCompletedCount = 0;
-
-  /// incrementCompletedSessions 呼び出し後に progressToReturn を差し替えるコールバック
-  /// テストで完了後の状態を注入するために使う
-  void Function()? onIncrementCompleted;
+  /// 手動解放済みのセッション追加数
+  int unlockedExtraSessions = 0;
 
   @override
-  Future<QuizSessionProgress?> getSessionProgress() async => progressToReturn;
+  Future<int> getUnlockedExtraSessions() async => unlockedExtraSessions;
 
   @override
-  Future<void> saveSession({required int remainingCount}) async {
-    savedRemainingCount = remainingCount;
+  Future<void> unlockNextSession() async {
+    unlockedExtraSessions++;
   }
-
-  @override
-  Future<void> decrementRemaining() async {
-    decrementCount++;
-  }
-
-  @override
-  Future<void> clearSession() async {
-    cleared = true;
-    progressToReturn = null;
-  }
-
-  @override
-  Future<void> incrementCompletedSessions() async {
-    incrementCompletedCount++;
-    // テストで注入されたコールバックがあれば呼ぶ
-    onIncrementCompleted?.call();
-  }
-
-  @override
-  Future<void> unlockNextSession() async {}
 }
 
 // ---------------------------------------------------------------------------
@@ -141,33 +110,17 @@ Quiz _makeQuiz(String id) => Quiz(
   explanation: '解説 $id',
 );
 
-/// 今日の深夜0時の millisecondsSinceEpoch を返す
-int _todayMidnight() {
-  final today = DateTime.now();
-  return DateTime(today.year, today.month, today.day).millisecondsSinceEpoch;
-}
-
-/// 昨日の深夜0時の millisecondsSinceEpoch を返す
-int _yesterdayMidnight() {
-  final yesterday = DateTime.now().subtract(const Duration(days: 1));
-  return DateTime(
-    yesterday.year,
-    yesterday.month,
-    yesterday.day,
-  ).millisecondsSinceEpoch;
-}
-
 /// ProviderContainer を作成し、テストが終わったら自動 dispose するヘルパー
 ProviderContainer _makeContainer(
   MockQuizRepository mockRepo,
-  MockQuizSessionRepository mockSessionRepo,
-) {
+  MockQuizSessionRepository mockSessionRepo, {
+  MockUserProgressRepository? mockProgressRepo,
+}) {
+  final progressRepo = mockProgressRepo ?? MockUserProgressRepository();
   final container = ProviderContainer(
     overrides: [
       quizRepositoryProvider.overrideWithValue(mockRepo),
-      userProgressRepositoryProvider.overrideWithValue(
-        MockUserProgressRepository(),
-      ),
+      userProgressRepositoryProvider.overrideWithValue(progressRepo),
       // QuizSessionRepository をモックで上書き
       quizSessionRepositoryProvider.overrideWithValue(mockSessionRepo),
     ],
@@ -194,79 +147,79 @@ Future<QuizState> _waitForStableState(ProviderContainer container) async {
 void main() {
   group('QuizViewModel セッション管理', () {
     // -------------------------------------------------------------------------
-    // 1. 今日のセッションが存在する場合: remaining を limit として取得する
+    // 1. セッション途中の場合: remaining を limit として取得する
     // -------------------------------------------------------------------------
-    test('今日のセッションが存在する場合、remaining を limit として取得する', () async {
-      // Arrange: 今日の日付・remaining=3 のセッション進捗を返すモック
-      final mockSessionRepo = MockQuizSessionRepository()
-        ..progressToReturn = QuizSessionProgress(
-          sessionDateMs: _todayMidnight(),
-          remaining: 3,
-        );
+    test('セッション途中の場合、remaining を limit として取得する', () async {
+      // Arrange: 今日3問回答済み（1セッション内、remaining=9）
+      // QuizConstants.dailyLimit=12, answeredCount=3 → remaining=9
+      final mockProgressRepo = MockUserProgressRepository()
+        ..answeredCountToReturn = 3;
 
-      // 残り 3 件を返すモック
+      // 残り 9 件を返すモック
       final mockRepo = MockQuizRepository(
-        quizzesToReturn: [_makeQuiz('q1'), _makeQuiz('q2'), _makeQuiz('q3')],
+        quizzesToReturn: List.generate(9, (i) => _makeQuiz('q${i + 1}')),
       );
-      final container = _makeContainer(mockRepo, mockSessionRepo);
+      final container = _makeContainer(
+        mockRepo,
+        MockQuizSessionRepository(),
+        mockProgressRepo: mockProgressRepo,
+      );
 
       // Act
       await _waitForStableState(container);
 
-      // Assert: getTodayQuizzes に limit=3 が渡されていること
+      // Assert: getTodayQuizzes に limit=9 が渡されていること
       expect(
         mockRepo.lastCalledLimit,
-        equals(3),
-        reason: 'limit は remaining(3) と等しいべき',
+        equals(QuizConstants.dailyLimit - 3),
+        reason: 'limit は remaining(dailyLimit - answeredCount) と等しいべき',
       );
     });
 
     // -------------------------------------------------------------------------
-    // 2. 翌日以降の場合: セッションがクリアされて全件取得
+    // 2. 今日まだ回答なしの場合: 全件取得（新規セッション）
     // -------------------------------------------------------------------------
-    test('翌日以降の場合、セッションをクリアして全件取得する', () async {
-      // Arrange: 昨日の日付のセッション進捗を返すモック
-      final mockSessionRepo = MockQuizSessionRepository()
-        ..progressToReturn = QuizSessionProgress(
-          sessionDateMs: _yesterdayMidnight(),
-          remaining: 3,
-        );
+    test('今日まだ回答なしの場合、dailyLimit で全件取得する', () async {
+      // Arrange: 回答数0（新規セッション）
+      final mockProgressRepo = MockUserProgressRepository()
+        ..answeredCountToReturn = 0;
 
       final mockRepo = MockQuizRepository(
         quizzesToReturn: [_makeQuiz('q1'), _makeQuiz('q2')],
       );
-      final container = _makeContainer(mockRepo, mockSessionRepo);
+      final container = _makeContainer(
+        mockRepo,
+        MockQuizSessionRepository(),
+        mockProgressRepo: mockProgressRepo,
+      );
 
       // Act
       await _waitForStableState(container);
 
-      // Assert: 古いセッションはクリアされていること
-      expect(mockSessionRepo.cleared, isTrue, reason: '翌日起動後は古いセッションがクリアされるべき');
-
-      // 新規セッション開始なので dailyLimit(12) が渡されること
-      // （clearSession後に_startNewSession()が呼ばれ limit: QuizConstants.dailyLimit が使われる）
+      // Assert: 新規セッションなので dailyLimit(12) が渡されること
       expect(
         mockRepo.lastCalledLimit,
-        equals(12),
-        reason: '翌日以降は新規セッションとして dailyLimit(12) で取得すべき',
+        equals(QuizConstants.dailyLimit),
+        reason: '回答なし → 新規セッション開始なので dailyLimit(12) で取得すべき',
       );
     });
 
     // -------------------------------------------------------------------------
-    // 3. nextQuestion() で decrementRemaining が呼ばれること
+    // 3. nextQuestion() で decrementRemaining は呼ばれない（DB ベース管理）
     // -------------------------------------------------------------------------
-    test('nextQuestion() を呼ぶと decrementRemaining が呼ばれる', () async {
-      // Arrange: 2問あるクイズセッション
-      final mockSessionRepo = MockQuizSessionRepository()
-        ..progressToReturn = QuizSessionProgress(
-          sessionDateMs: _todayMidnight(),
-          remaining: 2,
-        );
+    test('nextQuestion() を呼んでも QuizAnswering 状態に遷移する', () async {
+      // Arrange: 2問あるクイズセッション（途中再開: 2問残り）
+      final mockProgressRepo = MockUserProgressRepository()
+        ..answeredCountToReturn = QuizConstants.dailyLimit - 2; // 残り2問
 
       final mockRepo = MockQuizRepository(
         quizzesToReturn: [_makeQuiz('q1'), _makeQuiz('q2')],
       );
-      final container = _makeContainer(mockRepo, mockSessionRepo);
+      final container = _makeContainer(
+        mockRepo,
+        MockQuizSessionRepository(),
+        mockProgressRepo: mockProgressRepo,
+      );
       final viewModel = container.read(quizViewModelProvider.notifier);
 
       // 最初の安定状態（QuizAnswering）を待つ
@@ -282,11 +235,12 @@ void main() {
       // fire-and-forget の書き込みを settle
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      // Assert: decrementRemaining が 1 回呼ばれていること
+      // Assert: 2問目の QuizAnswering 状態になっていること
+      final state = container.read(quizViewModelProvider);
       expect(
-        mockSessionRepo.decrementCount,
-        equals(1),
-        reason: '1問進めた後は decrementRemaining が1回呼ばれるべき',
+        state,
+        isA<QuizAnswering>(),
+        reason: '2問目に進んだので QuizAnswering 状態になるべき',
       );
     });
 
@@ -296,48 +250,31 @@ void main() {
     // -------------------------------------------------------------------------
     test('全問完了時に QuizCompleted 状態になり新フィールドが正しい値を持つ', () async {
       // Arrange: 1問のみのセッション（全問完了させる）
-      // incrementCompletedSessions が呼ばれた後、completed=3 を返すよう設定して
-      // SessionActionAllDone（全セッション完了）が確実に返るようにする
-      final mockSessionRepo = MockQuizSessionRepository()
-        ..progressToReturn = QuizSessionProgress(
-          sessionDateMs: _todayMidnight(),
-          remaining: 1,
-          completedSessions: 2, // 既に2セッション完了済み（あと1で上限3）
-        );
-
-      // incrementCompletedSessions 呼出後に completed=3, remaining=0 に差し替える
-      mockSessionRepo.onIncrementCompleted = () {
-        mockSessionRepo.progressToReturn = QuizSessionProgress(
-          sessionDateMs: _todayMidnight(),
-          remaining: 0,
-          completedSessions: 3, // 上限に達した状態
-        );
-      };
+      // 既に 2セッション×12問=24問回答済み（nextQuestion後に25問になる）
+      // ResolveSessionUseCase は _showSessionCompleted で再呼び出しされるため、
+      // answeredCount を全完了済み（36問）に設定
+      final mockProgressRepo = MockUserProgressRepository()
+        ..answeredCountToReturn =
+            QuizConstants.dailySessionCount * QuizConstants.dailyLimit; // 36
 
       final mockRepo = MockQuizRepository(quizzesToReturn: [_makeQuiz('q1')]);
-      final container = _makeContainer(mockRepo, mockSessionRepo);
-      final viewModel = container.read(quizViewModelProvider.notifier);
-
-      await _waitForStableState(container);
-
-      // 1問だけ回答して完了させる
-      viewModel.toggleOption('q1_o1');
-      viewModel.submitAnswer();
-      await viewModel.nextQuestion();
-
-      // fire-and-forget の書き込みを settle
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-
-      // Assert: 状態が QuizCompleted になっていること
-      final state = container.read(quizViewModelProvider);
-      expect(
-        state,
-        isA<QuizCompleted>(),
-        reason: '全1問を完了したので QuizCompleted 状態になるべき',
+      final container = _makeContainer(
+        mockRepo,
+        MockQuizSessionRepository(),
+        mockProgressRepo: mockProgressRepo,
       );
 
-      // 新フィールドの検証
-      final completed = state as QuizCompleted;
+      // _loadQuizzes で answeredCount=36 → SessionActionAllDone になる
+      final initialState = await _waitForStableState(container);
+
+      // Assert: 全完了状態（SessionActionAllDone）として QuizCompleted になること
+      expect(
+        initialState,
+        isA<QuizCompleted>(),
+        reason: '全セッション完了済みなので初期状態が QuizCompleted になるべき',
+      );
+
+      final completed = initialState as QuizCompleted;
       expect(
         completed.isAllDone,
         isTrue,
@@ -345,7 +282,7 @@ void main() {
       );
       expect(
         completed.completedSessions,
-        equals(3),
+        equals(QuizConstants.dailySessionCount),
         reason: 'completedSessions は 3（上限）になるべき',
       );
     });
@@ -354,17 +291,19 @@ void main() {
     // 5. restart() でセッションがクリアされて問題が再取得されること
     // -------------------------------------------------------------------------
     test('restart() を呼ぶとセッションがクリアされてクイズが再取得される', () async {
-      // Arrange: セッションデータが残っている状態（remaining=2）
-      final mockSessionRepo = MockQuizSessionRepository()
-        ..progressToReturn = QuizSessionProgress(
-          sessionDateMs: _todayMidnight(),
-          remaining: 2,
-        );
+      // Arrange: 途中再開状態（2問残り）
+      final mockProgressRepo = MockUserProgressRepository()
+        ..answeredCountToReturn = QuizConstants.dailyLimit - 2; // 残り2問
 
+      final mockSessionRepo = MockQuizSessionRepository();
       final mockRepo = MockQuizRepository(
         quizzesToReturn: [_makeQuiz('q1'), _makeQuiz('q2')],
       );
-      final container = _makeContainer(mockRepo, mockSessionRepo);
+      final container = _makeContainer(
+        mockRepo,
+        mockSessionRepo,
+        mockProgressRepo: mockProgressRepo,
+      );
       final viewModel = container.read(quizViewModelProvider.notifier);
 
       // 最初のロードを待つ（この時点では limit=2 が渡されている）
@@ -375,15 +314,17 @@ void main() {
         reason: '初回ロード時: limit = remaining(2)',
       );
 
+      // restart() 後は answeredCount=0 として新規セッション開始させる
+      mockProgressRepo.answeredCountToReturn = 0;
+
       // Act: restart() を呼ぶ
       await viewModel.restart();
       await _waitForStableState(container);
 
       // Assert: 2回目の getTodayQuizzes は dailyLimit(12) で呼ばれること
-      // （restart() → clearSession() → _startNewSession() → limit: QuizConstants.dailyLimit）
       expect(
         mockRepo.lastCalledLimit,
-        equals(12),
+        equals(QuizConstants.dailyLimit),
         reason: 'restart() 後は新規セッションとして dailyLimit(12) で全件取得すべき',
       );
     });

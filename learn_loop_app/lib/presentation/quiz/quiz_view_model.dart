@@ -6,7 +6,7 @@ import '../../data/repositories/quiz_session_repository_impl.dart';
 import '../../domain/models/quiz.dart';
 import '../../domain/models/session_action.dart';
 import '../../domain/usecases/resolve_session_use_case.dart';
-import '../home/home_view_model.dart';
+import '../home/home_view_model.dart'; // quizRepositoryProvider, userProgressRepositoryProvider
 import 'state/quiz_state.dart';
 
 final quizViewModelProvider = NotifierProvider<QuizViewModel, QuizState>(
@@ -26,6 +26,7 @@ class QuizViewModel extends Notifier<QuizState> {
   Future<void> _loadQuizzes() async {
     try {
       final useCase = ResolveSessionUseCase(
+        ref.read(userProgressRepositoryProvider),
         ref.read(quizSessionRepositoryProvider),
       );
       final action = await useCase.call();
@@ -39,8 +40,6 @@ class QuizViewModel extends Notifier<QuizState> {
           final quizRepo = ref.read(quizRepositoryProvider);
           _quizzes = await quizRepo.getTodayQuizzes(limit: remaining);
           _correctCount = 0;
-          final sessionRepo = ref.read(quizSessionRepositoryProvider);
-          await sessionRepo.saveSession(remainingCount: _quizzes.length);
           if (_quizzes.isEmpty) {
             state = _buildCompletedState(0, 0, isAllDone: true);
           } else {
@@ -79,10 +78,8 @@ class QuizViewModel extends Notifier<QuizState> {
   /// 新規セッションを開始してクイズを読み込む
   Future<void> _startNewSession() async {
     final quizRepo = ref.read(quizRepositoryProvider);
-    final sessionRepo = ref.read(quizSessionRepositoryProvider);
     _quizzes = await quizRepo.getTodayQuizzes(limit: QuizConstants.dailyLimit);
     _correctCount = 0;
-    await sessionRepo.saveSession(remainingCount: _quizzes.length);
     if (_quizzes.isEmpty) {
       state = _buildCompletedState(0, 0, isAllDone: true);
     } else {
@@ -188,12 +185,6 @@ class QuizViewModel extends Notifier<QuizState> {
       // 全問終了: セッション完了処理に移行
       await _showSessionCompleted();
     } else {
-      // 途中: 残り問題数をデクリメント(fire-and-forget)
-      final sessionRepo = ref.read(quizSessionRepositoryProvider);
-      sessionRepo.decrementRemaining().catchError(
-        (e) => debugPrint('セッション更新失敗: $e'),
-      );
-
       state = QuizState.answering(
         quizzes: currentState.quizzes,
         currentIndex: nextIndex,
@@ -204,13 +195,11 @@ class QuizViewModel extends Notifier<QuizState> {
 
   /// セッション完了後の状態を決定する
   Future<void> _showSessionCompleted() async {
-    final sessionRepo = ref.read(quizSessionRepositoryProvider);
-    // 完了セッション数を +1 してから remaining=0 で保存
-    await sessionRepo.incrementCompletedSessions();
-    await sessionRepo.saveSession(remainingCount: 0);
-
     // UseCase で次のアクションを判定
-    final useCase = ResolveSessionUseCase(sessionRepo);
+    final useCase = ResolveSessionUseCase(
+      ref.read(userProgressRepositoryProvider),
+      ref.read(quizSessionRepositoryProvider),
+    );
     final action = await useCase.call();
 
     switch (action) {
@@ -290,8 +279,6 @@ class QuizViewModel extends Notifier<QuizState> {
 
   /// やり直し
   Future<void> restart() async {
-    final sessionRepo = ref.read(quizSessionRepositoryProvider);
-    await sessionRepo.clearSession();
     _correctCount = 0;
     _loadQuizzes();
   }
