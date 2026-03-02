@@ -195,8 +195,16 @@ class QuizViewModel extends Notifier<QuizState> {
           isAllDone: true,
         );
       default:
-        // 予期しないアクション（新規 or 再開）の場合は再ロード
-        await _loadQuizzes();
+        // セッション完了（全36問未達）→ 結果画面を表示し、ユーザー操作で次セッションを開始させる
+        final answeredCount =
+            await ref.read(userProgressRepositoryProvider).getTodayAnsweredCount();
+        final completedSessions = answeredCount ~/ QuizConstants.dailyLimit;
+        state = QuizState.completed(
+          correctCount: _correctCount,
+          totalCount: _quizzes.length,
+          completedSessions: completedSessions,
+          isAllDone: false,
+        );
     }
   }
 
