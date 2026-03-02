@@ -1,4 +1,3 @@
-import '../models/daily_answer_record.dart';
 import '../models/daily_stats_result.dart';
 
 /// ユーザー進捗リポジトリ インターフェース
@@ -14,6 +13,10 @@ abstract interface class UserProgressRepository {
 
   /// 日付ごとの回答統計一覧を取得する（ページング対応）
   Future<DailyStatsResult> getDailyStats({int limit = 20, int offset = 0});
+
+  /// 今日の回答数を取得する（JST 基準）
+  /// answer_logs に基づくため、DB が信頼の源。
+  Future<int> getTodayAnsweredCount();
 }
 
 /// ユーザー統計情報

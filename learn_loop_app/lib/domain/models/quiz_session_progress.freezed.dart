@@ -14,10 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$QuizSessionProgress {
 
-/// セッション開始日の深夜0時の millisecondsSinceEpoch
- int get sessionDateMs;/// 残り問題数（セッション開始時の出題数から nextQuestion() のたびに減る）
- int get remaining;/// 今日完了したセッション数（incrementCompletedSessions() のたびに増える）
- int get completedSessions;/// 手動で解放した追加セッション数（unlockNextSession() のたびに増える）
+/// [廃止済み] DB 移行により不使用。互換のためフィールドは残す。
+ int get sessionDateMs;/// 残り問題数（現セッション内）
+ int get remaining;/// 今日完了したセッション数
+ int get completedSessions;/// 手動で解放した追加セッション数
  int get unlockedExtraSessions;
 /// Create a copy of QuizSessionProgress
 /// with the given fields replaced by the non-null parameter values.
@@ -213,16 +213,16 @@ return $default(_that.sessionDateMs,_that.remaining,_that.completedSessions,_tha
 
 
 class _QuizSessionProgress implements QuizSessionProgress {
-  const _QuizSessionProgress({required this.sessionDateMs, required this.remaining, this.completedSessions = 0, this.unlockedExtraSessions = 0});
+  const _QuizSessionProgress({this.sessionDateMs = 0, required this.remaining, this.completedSessions = 0, this.unlockedExtraSessions = 0});
   
 
-/// セッション開始日の深夜0時の millisecondsSinceEpoch
-@override final  int sessionDateMs;
-/// 残り問題数（セッション開始時の出題数から nextQuestion() のたびに減る）
+/// [廃止済み] DB 移行により不使用。互換のためフィールドは残す。
+@override@JsonKey() final  int sessionDateMs;
+/// 残り問題数（現セッション内）
 @override final  int remaining;
-/// 今日完了したセッション数（incrementCompletedSessions() のたびに増える）
+/// 今日完了したセッション数
 @override@JsonKey() final  int completedSessions;
-/// 手動で解放した追加セッション数（unlockNextSession() のたびに増える）
+/// 手動で解放した追加セッション数
 @override@JsonKey() final  int unlockedExtraSessions;
 
 /// Create a copy of QuizSessionProgress

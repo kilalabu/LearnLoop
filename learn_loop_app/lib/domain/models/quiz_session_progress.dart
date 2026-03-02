@@ -6,16 +6,16 @@ part 'quiz_session_progress.freezed.dart';
 @freezed
 abstract class QuizSessionProgress with _$QuizSessionProgress {
   const factory QuizSessionProgress({
-    /// セッション開始日の深夜0時の millisecondsSinceEpoch
-    required int sessionDateMs,
+    /// [廃止済み] DB 移行により不使用。互換のためフィールドは残す。
+    @Default(0) int sessionDateMs,
 
-    /// 残り問題数（セッション開始時の出題数から nextQuestion() のたびに減る）
+    /// 残り問題数（現セッション内）
     required int remaining,
 
-    /// 今日完了したセッション数（incrementCompletedSessions() のたびに増える）
+    /// 今日完了したセッション数
     @Default(0) int completedSessions,
 
-    /// 手動で解放した追加セッション数（unlockNextSession() のたびに増える）
+    /// 手動で解放した追加セッション数
     @Default(0) int unlockedExtraSessions,
   }) = _QuizSessionProgress;
 }

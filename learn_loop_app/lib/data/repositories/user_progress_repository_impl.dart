@@ -60,4 +60,25 @@ class UserProgressRepositoryImpl implements UserProgressRepository {
       hasMore: data['hasMore'] as bool,
     );
   }
+
+  @override
+  Future<int> getTodayAnsweredCount() async {
+    // 今日の日付を JST で 'YYYY-MM-DD' 形式に変換
+    // Flutter 側で UTC+9 に変換する（サーバーの JST 基準と合わせるため）
+    final now = DateTime.now();
+    final jstNow = now.toUtc().add(const Duration(hours: 9));
+    final todayJst =
+        '${jstNow.year.toString().padLeft(4, '0')}'
+        '-${jstNow.month.toString().padLeft(2, '0')}'
+        '-${jstNow.day.toString().padLeft(2, '0')}';
+
+    final data = await _apiClient.get(
+      '/api/quiz/daily-stats?limit=1&offset=0&date=$todayJst',
+    );
+    final history = data['history'] as List;
+    if (history.isEmpty) return 0;
+
+    // 今日のデータが存在すれば answeredCount を返す
+    return (history.first['answeredCount'] as int);
+  }
 }
