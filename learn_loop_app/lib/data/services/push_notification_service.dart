@@ -37,10 +37,27 @@ class PushNotificationService {
     FirebaseMessaging.onMessage.listen((_) {
       // 意図的に何もしない
     });
+
+    // バックグラウンド状態から通知タップでフォアグラウンドに復帰したとき
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationOpen);
+
+    // アプリがキルされた状態から通知タップでコールドスタートしたとき
+    final initialMessage = await _messaging.getInitialMessage();
+    if (initialMessage != null) {
+      _handleNotificationOpen(initialMessage);
+    }
   }
 
   Future<void> _registerToken(String token) async {
     // Android 固定（iOS対応は後回し）
     await _repository.upsertToken(token: token, deviceType: 'android');
+  }
+
+  /// 通知タップ時の共通ハンドラー（バックグラウンド復帰・コールドスタート両方で呼ばれる）
+  void _handleNotificationOpen(RemoteMessage message) {
+    // 受信した通知の内容をログに出力（デバッグ用）
+    // ignore: avoid_print
+    print('[PushNotification] tapped: title=${message.notification?.title}, data=${message.data}');
+    // TODO: 必要に応じてナビゲーション処理を追加する
   }
 }
