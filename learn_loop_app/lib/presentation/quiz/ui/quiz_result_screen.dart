@@ -45,7 +45,11 @@ class QuizResultScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () => context.go('/'),
+                        onPressed: () {
+                          // 状態を初期化してからホームへ遷移（QuizShowingResult が残るバグを防ぐ）
+                          viewModel.backToHome();
+                          context.go('/');
+                        },
                         icon: const Icon(Icons.close),
                         style: IconButton.styleFrom(
                           foregroundColor: theme.colorScheme.onSurface

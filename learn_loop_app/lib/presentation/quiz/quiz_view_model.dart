@@ -258,4 +258,12 @@ class QuizViewModel extends Notifier<QuizState> {
     _correctCount = 0;
     _loadQuizzes();
   }
+
+  /// ホームに戻る際に状態をリセットする
+  /// _loadQuizzes() は呼ばず、初期状態（loading）に戻すだけ
+  void backToHome() {
+    _correctCount = 0;
+    _quizzes = [];
+    state = const QuizState.loading();
+  }
 }
