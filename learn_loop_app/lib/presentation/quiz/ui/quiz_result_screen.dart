@@ -45,8 +45,8 @@ class QuizResultScreen extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () => context.go('/quiz'),
-                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => context.go('/'),
+                        icon: const Icon(Icons.close),
                         style: IconButton.styleFrom(
                           foregroundColor: theme.colorScheme.onSurface
                               .withValues(alpha: 0.6),
