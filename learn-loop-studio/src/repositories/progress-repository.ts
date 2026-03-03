@@ -180,6 +180,17 @@ export class ProgressRepository {
       hasMore,
     };
   }
+
+  /** 今日（JST）の回答済み問題数を返す */
+  async getTodayAnsweredCount(): Promise<number> {
+    const { data, error } = await this.supabase.rpc('get_today_answered_count', {
+      p_user_id: this.userId,
+    });
+
+    if (error) throw new ProgressRepositoryError(`今日の回答数取得エラー: ${error.message}`);
+
+    return (data as number) ?? 0;
+  }
 }
 
 /**

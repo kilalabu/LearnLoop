@@ -144,6 +144,15 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
   - `p_date text` (DEFAULT NULL): 'YYYY-MM-DD' 指定時はその日のみ返す（将来フェーズ: SharedPreferences置き換え用）
 - **戻り値**: `(date text, answered_count bigint, correct_count bigint)` の行セット
 
+### 4.3 `get_today_answered_count(p_user_id)`
+今日（JST基準）の回答数のみを返す軽量 RPC。`/api/quiz/today-count` 専用。
+
+- **セキュリティ**: `SECURITY DEFINER`
+- **引数**:
+  - `p_user_id uuid`: 対象ユーザーID
+- **戻り値**: `integer`（今日の回答数）
+- **実装**: `date_trunc + AT TIME ZONE` で範囲クエリに変換し、`idx_answer_logs_user_answered_at` インデックスを最大限活用
+
 ---
 
 ## 5. インデックス構成
@@ -174,3 +183,4 @@ Push 通知の二重送信防止のための最終通知日時を管理するテ
 | **v1.6** | `get_reminder_targets` RPC のバグ修正。`AT TIME ZONE` 演算子優先順位の問題を括弧追加で修正。 |
 | **v1.7** | `user_notification_settings` に RLS を有効化。ポリシーなし（`service_role` のみアクセス可）。`authenticated`/`anon` ロールからの意図しないアクセスを防止。 |
 | **v1.8** | 回答履歴画面対応。`answer_logs` テーブル追加（INSERT専用ログ）、`get_daily_answer_stats` RPC 追加（JST基準の日付別集計）。 |
+| **v1.9** | `get_today_answered_count` RPC 追加。今日の回答数を範囲クエリで取得し既存インデックスを活用。`/api/quiz/today-count` エンドポイント新設。 |
