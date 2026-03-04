@@ -1,5 +1,25 @@
 {
   "cSpell.words": [
     "supabase"
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/build/**": true,
+    "**/.dart_tool/**": true,
+    "**/.pub-cache/**": true,
+    "**/.pub/**": true
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/build": true,
+    "**/.dart_tool": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/build": true,
+    "**/.dart_tool": true
+  }
 }
