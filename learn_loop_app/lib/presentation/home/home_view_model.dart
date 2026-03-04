@@ -56,7 +56,7 @@ class HomeViewModel extends AsyncNotifier<HomeData> {
   }
 
   Future<void> refresh() async {
-    state = const AsyncLoading();
+    // AsyncLoading() を設定しない → 既存データを表示したままバックグラウンド更新
     state = await AsyncValue.guard(() => _loadHomeData());
   }
 }

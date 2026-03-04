@@ -20,26 +20,32 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: homeAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('エラーが発生しました', style: theme.textTheme.titleMedium),
-                AppSpacing.gapSm,
-                Text('$error', style: theme.textTheme.bodySmall),
-                AppSpacing.gapMd,
-                ElevatedButton(
-                  onPressed: () =>
-                      ref.read(homeViewModelProvider.notifier).refresh(),
-                  child: const Text('再試行'),
+        child: homeAsync.hasError
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('エラーが発生しました', style: theme.textTheme.titleMedium),
+                    AppSpacing.gapSm,
+                    Text(
+                      '${homeAsync.error}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    AppSpacing.gapMd,
+                    ElevatedButton(
+                      onPressed: () =>
+                          ref.read(homeViewModelProvider.notifier).refresh(),
+                      child: const Text('再試行'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          data: (data) => _buildContent(context, ref, data),
-        ),
+              )
+            : _buildContent(
+                context,
+                ref,
+                // データ取得中は初期値を表示、取得後は実データに更新
+                homeAsync.asData?.value ?? HomeDataExtension.initial(),
+              ),
       ),
     );
   }

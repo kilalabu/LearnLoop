@@ -22,3 +22,15 @@ abstract class HomeData with _$HomeData {
     required int newQuestionCount, // 新規問題数（learning_status='unanswered' の問題数）
   }) = _HomeData;
 }
+
+/// ローディング中に表示する初期値（全フィールドが 0）
+extension HomeDataExtension on HomeData {
+  static HomeData initial() => const HomeData(
+        pendingCount: 0,
+        totalCount: 0,
+        streak: 0,
+        accuracy: 0.0,
+        completionRate: 0.0,
+        newQuestionCount: 0,
+      );
+}
