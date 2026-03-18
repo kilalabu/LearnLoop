@@ -50,6 +50,8 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
   const [maxQuestions, setMaxQuestions] = useState<'default' | 'unlimited' | 'custom'>('default');
   const [customQuestionCount, setCustomQuestionCount] = useState<string>("5");
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  // 取り込みタブでの処理方法：既存クイズを変換（import）するか、新規問題を生成（generate）するか
+  const [importPurpose, setImportPurpose] = useState<'import' | 'generate'>('import');
 
   const isUrlValid = (url: string) => {
     try {
@@ -75,14 +77,16 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
 
     // Batch 生成モードの場合、収集したファイル群を一括登録APIに投げて終了する
     // クイズの生成結果は翌日以降に反映される
-    if (sourceType === 'import' && generationMode === 'batch') {
+    // 「新規問題を生成」モードでは batch は使わず必ず即時生成する
+    if (sourceType === 'import' && generationMode === 'batch' && importPurpose === 'import') {
       onRegisterBatch(importFiles);
       return;
     }
 
     const effectiveMaxQuestions: 'default' | 'unlimited' | number =
-      sourceType === 'import'
-        ? 'unlimited' // ファイル取り込み時はファイル内のクイズをすべて抽出することを期待
+      // 既存クイズ変換モードのみ制限なし（ファイル内のクイズをすべて抽出したいため）
+      sourceType === 'import' && importPurpose === 'import'
+        ? 'unlimited'
         : maxQuestions === 'custom'
           ? (parseInt(customQuestionCount, 10) || 5)
           : maxQuestions;
@@ -94,14 +98,28 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
       onGenerate('url', sourceUrl, selectedModel, effectiveMaxQuestions);
     } else if (sourceType === 'import') {
       // 即時取り込み時は、UX のシンプル化のため、選択されている最初のファイルのみを処理対象とする
-      onGenerate('import', importFiles[0].content, selectedModel, effectiveMaxQuestions);
+      // 「新規問題を生成」モードなら QuizGenerator（text）、「既存クイズを変換」なら QuizImporter（import）に回す
+      onGenerate(importPurpose === 'generate' ? 'text' : 'import', importFiles[0].content, selectedModel, effectiveMaxQuestions);
     }
   };
 
   /**
    * File オブジェクトからテキスト内容を抽出する
+   * - .md / .txt: ブラウザの FileReader で直接読み込む
+   * - .pdf: サーバーサイドの /api/pdf/extract に送ってテキストを取得する
    */
-  const readFile = (file: File): Promise<GenerateItem> => {
+  const readFile = async (file: File): Promise<GenerateItem> => {
+    // PDF はバイナリ形式のため FileReader.readAsText() では読めない
+    // サーバーに送って Node.js の pdf-parse でテキスト抽出する
+    if (file.name.endsWith('.pdf')) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/pdf/extract', { method: 'POST', body: formData });
+      const { text } = await res.json();
+      return { name: file.name, content: text ?? '' };
+    }
+
+    // テキスト系ファイルは従来通り FileReader で読み込む
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (ev) => {
@@ -121,7 +139,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files).filter(
-      f => f.name.endsWith('.md') || f.name.endsWith('.txt')
+      f => f.name.endsWith('.md') || f.name.endsWith('.txt') || f.name.endsWith('.pdf')
     );
     if (files.length === 0) return;
 
@@ -196,34 +214,72 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
             </TabsContent>
 
             <TabsContent value="import" className="space-y-4 animate-in fade-in slide-in-from-right-2 duration-300 outline-none">
+              {/* 処理方法の選択：ファイルの目的によってAIの使い方が変わる */}
               <div className="bg-muted/30 p-4 rounded-2xl space-y-3 border border-border/30">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">処理方法</p>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     type="button"
-                    variant={generationMode === 'batch' ? 'default' : 'outline'}
-                    onClick={() => setGenerationMode('batch')}
+                    variant={importPurpose === 'import' ? 'default' : 'outline'}
+                    onClick={() => setImportPurpose('import')}
                     className="rounded-xl h-11 text-xs font-bold"
                   >
-                    <Rocket className="w-4 h-4 mr-2" />
-                    Batch 生成 (翌日)
+                    <FileUp className="w-4 h-4 mr-2" />
+                    クイズを取り込み
                   </Button>
                   <Button
                     type="button"
-                    variant={generationMode === 'immediate' ? 'default' : 'outline'}
-                    onClick={() => setGenerationMode('immediate')}
+                    variant={importPurpose === 'generate' ? 'default' : 'outline'}
+                    onClick={() => {
+                      setImportPurpose('generate');
+                      // 新規生成モードでは batch は使えないため強制的に即時へ切り替え
+                      setGenerationMode('immediate');
+                    }}
                     className="rounded-xl h-11 text-xs font-bold"
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    即時生成
+                    内容をもとにクイズを生成
                   </Button>
                 </div>
                 <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
-                  {generationMode === 'batch'
-                    ? "複数ファイルを一括予約。OpenAI Batch API を利用して翌日までに生成完了。"
-                    : "1つのファイルをその場で生成。即座に結果を確認できます。"
+                  {importPurpose === 'import'
+                    ? "Markdown 等のクイズファイルを LearnLoop 形式に変換します。"
+                    : "PDF・テキストの内容をもとに、理解度チェック問題を新規作成します。"
                   }
                 </p>
               </div>
+
+              {/* 生成タイミングの選択：既存クイズ変換モードのみ batch が使える */}
+              {importPurpose === 'import' && (
+                <div className="bg-muted/30 p-4 rounded-2xl space-y-3 border border-border/30">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      type="button"
+                      variant={generationMode === 'batch' ? 'default' : 'outline'}
+                      onClick={() => setGenerationMode('batch')}
+                      className="rounded-xl h-11 text-xs font-bold"
+                    >
+                      <Rocket className="w-4 h-4 mr-2" />
+                      Batch 生成 (翌日)
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={generationMode === 'immediate' ? 'default' : 'outline'}
+                      onClick={() => setGenerationMode('immediate')}
+                      className="rounded-xl h-11 text-xs font-bold"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      即時生成
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground px-1 leading-relaxed">
+                    {generationMode === 'batch'
+                      ? "複数ファイルを一括予約。OpenAI Batch API を利用して翌日までに生成完了。"
+                      : "1つのファイルをその場で生成。即座に結果を確認できます。"
+                    }
+                  </p>
+                </div>
+              )}
 
               <div
                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
@@ -283,7 +339,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
                   <input
                     id="import-file-input"
                     type="file"
-                    accept=".md,.txt"
+                    accept=".md,.txt,.pdf"
                     multiple
                     className="hidden"
                     onChange={async (e) => {
@@ -300,7 +356,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
           </Tabs>
         </section>
 
-        {!(sourceType === 'import' && generationMode === 'batch') && (
+        {!(sourceType === 'import' && importPurpose === 'import' && generationMode === 'batch') && (
           <section className="space-y-3">
             <Label className="text-sm font-bold flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">2</span>
@@ -319,7 +375,7 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
           </section>
         )}
 
-        {sourceType !== 'import' && (
+        {(sourceType !== 'import' || importPurpose === 'generate') && (
           <section className="space-y-3">
             <Label className="text-sm font-bold flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs">3</span>
@@ -365,14 +421,16 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
           {isGenerating ? (
             <div className="flex items-center gap-3">
               <Loader2 className="w-6 h-6 animate-spin" />
-              <span>{sourceType === 'import' && generationMode === 'batch' ? 'リクエスト送信中...' : 'AIが思考中...'}</span>
+              <span>{sourceType === 'import' && importPurpose === 'import' && generationMode === 'batch' ? 'リクエスト送信中...' : 'AIが思考中...'}</span>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              {sourceType === 'import' && generationMode === 'batch' ? <Rocket className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
+              {sourceType === 'import' && importPurpose === 'import' && generationMode === 'batch' ? <Rocket className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
               <span>
                 {sourceType === 'import'
-                  ? (generationMode === 'batch' ? 'Batch 生成を予約' : '即時取り込みを実行')
+                  ? importPurpose === 'generate'
+                    ? '問題を生成する'
+                    : (generationMode === 'batch' ? 'Batch 生成を予約' : '即時取り込みを実行')
                   : '問題を生成する'
                 }
               </span>
@@ -388,9 +446,11 @@ export function GenerateScreen({ onGenerate, onRegisterBatch, isGenerating }: Ge
             <div className="space-y-1 text-sm">
               <p className="font-bold">Tips</p>
               <p className="text-muted-foreground leading-relaxed">
-                {sourceType === 'import' && generationMode === 'batch'
+                {sourceType === 'import' && importPurpose === 'import' && generationMode === 'batch'
                   ? "Markdown ファイルをまとめてアップロードできます。翌日の朝にはクイズが完成しています。"
-                  : "具体的な技術ドキュメントや、自分が理解しにくい部分を詳細に貼り付けると、AIがより深い知識を問う問題を作成します。"
+                  : sourceType === 'import' && importPurpose === 'generate'
+                    ? "PDF や技術書のテキストをアップロードすると、内容を理解しているかを問う問題を自動生成します。"
+                    : "具体的な技術ドキュメントや、自分が理解しにくい部分を詳細に貼り付けると、AIがより深い知識を問う問題を作成します。"
                 }
               </p>
             </div>
